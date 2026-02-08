@@ -13,6 +13,7 @@ typedef TweenBuilder<T> = Animatable<T> Function(T begin, T end);
 abstract class Act {
   final Timing? timing;
   final Curve? curve;
+
   const Act({
     this.timing,
     this.curve,
@@ -118,31 +119,37 @@ abstract class TweenAct<T> extends Act {
        _phases = null;
 
   const TweenAct.sequence(
+    T base,
     List<Phase<T>> phases, {
     super.curve,
     super.timing,
   }) : _phases = phases,
-       _begin = null,
+       _begin = base,
        _end = null;
 
   Animatable<T> _defaultTweenBuilder(T begin, T end) => Tween<T>(begin: begin, end: end);
 
   Animation<T> build(AnimationContext context, {TweenBuilder<T>? tweenBuilder}) {
-    final phases = _phases ?? [Phase<T>(begin: _begin as T, end: _end as T, weight: 1.0)];
+    final List<FullPhase<T>> phases;
+    if (_phases != null) {
+      assert(_begin != null, 'When using phases, the base value should be provided through the constructor');
+      phases = Phase.normalize(_begin as T, _phases);
+    } else {
+      phases = [FullPhase<T>(begin: _begin as T, end: _end as T, weight: 1.0)];
+    }
     return TweenAct._build<T>(context, phases, tweenBuilder ?? _defaultTweenBuilder);
   }
 
-  static Animation<T> _build<T>(AnimationContext context, List<Phase<T>> partialPhase, TweenBuilder<T> tweenBuilder) {
-    final phases = Phase.convert(partialPhase);
+  static Animation<T> _build<T>(AnimationContext context, List<FullPhase<T>> phases, TweenBuilder<T> tweenBuilder) {
     Animatable<T> tween;
-    if (partialPhase.length == 1) {
+    if (phases.length == 1) {
       final phase = phases.single;
       tween = tweenBuilder(phase.begin, phase.end);
     } else {
       tween = TweenSequence<T>([
         for (final phase in phases)
           TweenSequenceItem(
-            tween: tweenBuilder(phase.begin, phase.end),
+            tween: phase is ConstantPhase<T> ? ConstantTween<T>(phase.begin) : tweenBuilder(phase.begin, phase.end),
             weight: phase.weight,
           ),
       ]);
@@ -183,9 +190,10 @@ class ScaleAct extends TweenAct<double> {
     super.timing,
     this.alignment,
   });
+
   final AlignmentGeometry? alignment;
 
-  const ScaleAct.sequence(super.phases, {this.alignment}) : super.sequence();
+  const ScaleAct.sequence(super.base, super.phases, {this.alignment}) : super.sequence();
 
   @override
   Widget wrapWidget(AnimationContext context, Widget child) {
@@ -205,7 +213,7 @@ class FadeAct extends TweenAct<double> {
     super.timing,
   });
 
-  const FadeAct.sequence(super.phases) : super.sequence();
+  const FadeAct.sequence(super.base, super.phases) : super.sequence();
 
   @override
   Widget wrapWidget(AnimationContext context, Widget child) {
@@ -225,7 +233,7 @@ class RotateAct extends TweenAct<double> {
   }) : assert(begin >= -360 && begin <= 360, 'Begin angle must be between 0 and 360 degrees'),
        assert(end >= -360 && end <= 360, 'End angle must be between 0 and 360 degrees');
 
-  const RotateAct.sequence(super.phases) : super.sequence();
+  const RotateAct.sequence(super.base, super.phases) : super.sequence();
 
   @override
   Widget wrapWidget(AnimationContext ctx, Widget child) {
@@ -251,7 +259,7 @@ class BlurAct extends TweenAct<double> {
     super.timing,
   });
 
-  const BlurAct.sequence(super.phases) : super.sequence();
+  const BlurAct.sequence(super.base, super.phases) : super.sequence();
 
   @override
   Widget wrapWidget(AnimationContext ctx, Widget child) {
@@ -281,7 +289,7 @@ class AlignAct extends TweenAct<AlignmentGeometry?> {
     super.timing,
   });
 
-  const AlignAct.sequence(List<Phase<AlignmentGeometry>> super.phases) : super.sequence();
+  const AlignAct.sequence(super.base, super.phases) : super.sequence();
 
   @override
   Widget wrapWidget(AnimationContext ctx, Widget child) {
@@ -310,7 +318,7 @@ class SlideAct extends TweenAct<Offset> {
     super.timing,
   });
 
-  const SlideAct.sequence(super.phases) : super.sequence();
+  const SlideAct.sequence(super.base, super.phases) : super.sequence();
 
   @override
   Widget wrapWidget(AnimationContext context, Widget child) {
@@ -339,7 +347,7 @@ class TranslationAct extends TweenAct<Offset> {
          end: Offset(toX, toY),
        );
 
-  const TranslationAct.sequence(super.phases) : super.sequence();
+  const TranslationAct.sequence(super.base, super.phases) : super.sequence();
 
   @override
   Widget wrapWidget(AnimationContext context, Widget child) {
@@ -365,7 +373,7 @@ class TextStyleAct extends TweenAct<TextStyle> {
     super.timing,
   });
 
-  const TextStyleAct.sequence(super.phases) : super.sequence();
+  const TextStyleAct.sequence(super.base, super.phases) : super.sequence();
 
   @override
   Widget wrapWidget(AnimationContext context, Widget child) {
@@ -396,7 +404,7 @@ class PaddingAct extends TweenAct<EdgeInsetsGeometry> {
     super.timing,
   });
 
-  const PaddingAct.sequence(List<Phase<EdgeInsets>> super.phases) : super.sequence();
+  const PaddingAct.sequence(super.base, super.phases) : super.sequence();
 
   @override
   Widget wrapWidget(AnimationContext context, Widget child) {

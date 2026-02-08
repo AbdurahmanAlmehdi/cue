@@ -8,33 +8,32 @@ sealed class Phase<T> {
     required double weight,
   }) = FullPhase<T>;
 
-  const factory Phase.to(T begin, {required double weight}) = _EndPhase<T>;
-  const factory Phase.from(T end, {required double weight}) = _BeginPhase<T>;
-  const factory Phase.hold(T value, {required double weight}) = _ConstantPhase<T>;
+  const factory Phase.to(T begin, {double weight}) = _EndPhase<T>;
+  const factory Phase.from(T end, {double weight}) = _BeginPhase<T>;
+  const factory Phase.hold(T value, {double weight}) = ConstantPhase<T>;
 
-  static List<FullPhase<T>> convert<T>(List<Phase<T>> partialPhase) {
+  static List<FullPhase<T>> normalize<T>(T base, List<Phase<T>> partialPhase) {
     final List<FullPhase<T>> fullPhases = [];
-    for (int i = 0; i < partialPhase.length; i++) {
-      final phase = partialPhase[i];
-      if (phase is FullPhase<T>) {
-        fullPhases.add(phase);
-      } else if (phase is _EndPhase<T>) {
-        final begin = i > 0 ? fullPhases.last.end : phase.end;
-        fullPhases.add(FullPhase(begin: begin, end: phase.end, weight: phase.weight));
-      } else if (phase is _BeginPhase<T>) {
-        final end = i < partialPhase.length - 1
-            ? (partialPhase[i + 1] is FullPhase<T>
-                  ? (partialPhase[i + 1] as FullPhase<T>).begin
-                  : (partialPhase[i + 1] is _BeginPhase<T>
-                        ? (partialPhase[i + 1] as _BeginPhase<T>).begin
-                        : (partialPhase[i + 1] as _EndPhase<T>).end))
-            : phase.begin;
-        fullPhases.add(FullPhase(begin: phase.begin, end: end, weight: phase.weight));
-      } else if (phase is _ConstantPhase<T>) {
-        final value = phase.value;
-        fullPhases.add(FullPhase(begin: value, end: value, weight: phase.weight));
+    T currentBase = base;
+    for (final phase in partialPhase) {
+      switch (phase) {
+        case FullPhase<T>():
+          fullPhases.add(phase);
+          currentBase = phase.end;
+        case _BeginPhase<T>():
+          // Begin-only phase: needs an end value (use next phase's begin or current base)
+          final nextPhase = partialPhase.indexOf(phase) < partialPhase.length - 1
+              ? partialPhase[partialPhase.indexOf(phase) + 1]
+              : null;
+          final end = nextPhase is _EndPhase<T> ? nextPhase.end : currentBase;
+          fullPhases.add(FullPhase(begin: phase.begin, end: end, weight: phase.weight));
+          currentBase = end;
+        case _EndPhase<T>():
+          fullPhases.add(FullPhase(begin: currentBase, end: phase.end, weight: phase.weight));
+          currentBase = phase.end;
       }
     }
+
     return fullPhases;
   }
 }
@@ -48,20 +47,28 @@ class FullPhase<T> extends Phase<T> {
     required this.end,
     required super.weight,
   }) : super._();
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FullPhase && runtimeType == other.runtimeType && begin == other.begin && end == other.end;
+
+  @override
+  int get hashCode => Object.hash(begin, end);
 }
 
 class _EndPhase<T> extends Phase<T> {
   final T end;
 
-  const _EndPhase(this.end, {required super.weight}) : super._();
+  const _EndPhase(this.end, {super.weight = 1.0}) : super._();
 }
 
 class _BeginPhase<T> extends Phase<T> {
   final T begin;
-  const _BeginPhase(this.begin, {required super.weight}) : super._();
+  const _BeginPhase(this.begin, {super.weight = 1.0}) : super._();
 }
 
-class _ConstantPhase<T> extends Phase<T> {
+class ConstantPhase<T> extends FullPhase<T> {
   final T value;
-  const _ConstantPhase(this.value, {required super.weight}) : super._();
+  const ConstantPhase(this.value, {super.weight = 1.0}) : super(begin: value, end: value);
 }

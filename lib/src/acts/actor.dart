@@ -7,8 +7,20 @@ import 'package:flutter/material.dart';
 import 'act.dart';
 
 abstract class Actor extends Widget {
-  factory Actor({Key? key, required Widget child, required List<Act> acts, Curve? curve, Timing? timing}) {
-    return _ActorImpl(key: key, acts: acts, curve: curve, timing: timing, child: child);
+  factory Actor({
+    Key? key,
+    required Widget child,
+    required List<Act> acts,
+    Curve? curve,
+    Timing? timing,
+  }) {
+    return _ActorImpl(
+      key: key,
+      acts: acts,
+      curve: curve,
+      timing: timing,
+      child: child,
+    );
   }
 
   factory Actor.fade({
@@ -292,7 +304,7 @@ abstract class Actor extends Widget {
 }
 
 class _ActorImpl extends StatelessWidget implements Actor {
-  const _ActorImpl({super.key, required this.acts, required this.child, this.timing, this.curve}) : super();
+  const _ActorImpl({super.key, required this.acts, required this.child, this.timing, this.curve});
 
   final Curve? curve;
   final Timing? timing;

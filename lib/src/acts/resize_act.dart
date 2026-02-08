@@ -9,7 +9,8 @@ class ResizeAct extends Act {
     super.curve,
     super.timing,
     this.alignment,
-  }) : _phases = null;
+  }) : _phases = null,
+       _base = null;
 
   final AlignmentGeometry? alignment;
   final double? beginWidth;
@@ -17,9 +18,11 @@ class ResizeAct extends Act {
   final double? endWidth;
   final double? endHeight;
   final List<Phase<SizeOrNull>>? _phases;
+  final SizeOrNull? _base;
 
-  const ResizeAct.sequence(List<Phase<SizeOrNull>> phases, {this.alignment})
+  const ResizeAct.sequence(SizeOrNull base, List<Phase<SizeOrNull>> phases, {this.alignment})
     : _phases = phases,
+      _base = base,
       beginWidth = null,
       beginHeight = null,
       endWidth = null,
@@ -37,21 +40,19 @@ class ResizeAct extends Act {
   }
 
   Animation<SizeOrNull> build(AnimationContext context, Size maxSize) {
-    final phases =
-        _phases ??
-        [
-          Phase(
-            begin: SizeOrNull(
-              beginWidth,
-              beginHeight,
-            ),
-            end: SizeOrNull(
-              endWidth,
-              endHeight,
-            ),
-            weight: 1.0,
-          ),
-        ];
+    final List<FullPhase<SizeOrNull>> phases;
+    if (_phases != null) {
+      assert(_base != null, 'Base size must be provided when using phases');
+      phases = Phase.normalize(_base!, _phases);
+    } else {
+      phases = [
+        FullPhase(
+          begin: SizeOrNull(beginWidth, beginHeight),
+          end: SizeOrNull(endWidth, endHeight),
+          weight: 1.0,
+        ),
+      ];
+    }
     return TweenAct._build<SizeOrNull>(context, phases, (begin, end) {
       return _buildTween(begin, end, maxSize);
     });

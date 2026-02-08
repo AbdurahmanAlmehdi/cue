@@ -172,10 +172,10 @@ class _SelfAnimatedCue extends Cue {
   final bool reverseOnLoop;
 
   @override
-  State<Cue> createState() => _SelfAnimatedStageState();
+  State<Cue> createState() => _SelfAnimatedCueState();
 }
 
-class _SelfAnimatedStageState extends _AnimatedStageState<_SelfAnimatedCue> {
+class _SelfAnimatedCueState extends _SelfAnimatedState<_SelfAnimatedCue> {
   @override
   Curve get curve => widget.curve;
 
@@ -197,9 +197,11 @@ class _SelfAnimatedStageState extends _AnimatedStageState<_SelfAnimatedCue> {
   Animation<double> getAnimation(BuildContext context) => animation;
 }
 
-abstract class _AnimatedStageState<T extends Cue> extends _CueState<T> with SingleTickerProviderStateMixin {
+abstract class _SelfAnimatedState<T extends Cue> extends _CueState<T> with SingleTickerProviderStateMixin {
   late final AnimationController controller;
-  late final Animation<double> animation;
+  Animation<double> _animation = const AlwaysStoppedAnimation(0.0);
+
+  Animation<double> get animation => _animation;
 
   Curve get curve;
 
@@ -211,21 +213,29 @@ abstract class _AnimatedStageState<T extends Cue> extends _CueState<T> with Sing
   void initState() {
     super.initState();
     controller = AnimationController(vsync: this, duration: duration, reverseDuration: reverseDuration);
-    animation = CurvedAnimation(parent: controller, curve: curve);
+    _animation = CurvedAnimation(parent: controller, curve: curve);
     onControllerReady();
   }
 
   @override
   void didUpdateWidget(covariant Cue oldWidget) {
     super.didUpdateWidget(oldWidget);
+    bool needsReset = false;
     if (duration != controller.duration) {
       controller.duration = duration;
+      needsReset = true;
     }
     if (reverseDuration != controller.reverseDuration) {
       controller.reverseDuration = reverseDuration;
+      needsReset = true;
     }
     if (curve != oldWidget.curve) {
-      animation = CurvedAnimation(parent: controller, curve: curve);
+      controller.reset();
+      _animation = CurvedAnimation(parent: controller, curve: curve);
+      needsReset = true;
+    }
+    if (needsReset) {
+      onControllerReady();
     }
   }
 
@@ -269,7 +279,7 @@ class _OnHoverCue extends Cue {
   State<StatefulWidget> createState() => _OnHoverStageState();
 }
 
-class _OnHoverStageState extends _AnimatedStageState<_OnHoverCue> {
+class _OnHoverStageState extends _SelfAnimatedState<_OnHoverCue> {
   @override
   Curve get curve => widget.curve;
 
@@ -315,7 +325,7 @@ class _ToggledCue extends Cue {
   State<StatefulWidget> createState() => _ToggledStageState();
 }
 
-class _ToggledStageState extends _AnimatedStageState<_ToggledCue> {
+class _ToggledStageState extends _SelfAnimatedState<_ToggledCue> {
   @override
   Curve get curve => widget.curve;
 

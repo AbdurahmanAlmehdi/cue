@@ -2,8 +2,6 @@ import 'package:cue/cue.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'examples/three_dots_action.dart';
-
 void main() {
   runApp(const MyApp());
 }
@@ -47,40 +45,40 @@ class _DemoPageState extends State<DemoPage> {
         title: Text('Cue Demo'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            Cue.onMount(
-              debug: true,
-              loop: true,
-              child: Column(
-                children: [
-                  Actor(
-                    acts: [
-                      TranslationAct.sequence([
-                        Phase(begin: Offset(0, 0), end: Offset(50, 0), weight: .3),
-                        Phase(begin: Offset(50, 0), end: Offset(50, 50), weight: .3),
-                        Phase(begin: Offset(50, 50), end: Offset(0, 50), weight: .3),
-                        Phase(begin: Offset(0, 50), end: Offset(0, 0), weight: .3),
-                      ]),
-                    ],
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      color: Colors.blue,
-                    ),
-                  ),
-                ],
+        child: Cue.onMount(
+          loop: true,
+          duration: const Duration(seconds: 1),
+          reverseOnLoop: false,
+          child: Container(
+            width: 100,
+            height: 100,
+            color: Colors.grey,
+            alignment: Alignment.topLeft,
+            child: Actor(
+              acts: [
+                TranslationAct.sequence(Offset.zero, [
+                  .to(Offset(50, 0)),
+                  .to(Offset(50, 50)),
+                  .to(Offset(0, 50)),
+                  .to(Offset(0, 0)),
+                ]),
+                FadeAct.sequence(0.0, [
+                  .to(.2),
+                  .hold(.2, weight: 3),
+                  .to(4.0),
+                  .to(1.0),
+                ]),
+                .fade(begin: 1.0, end: 0.0),
+              ],
+              child: Container(
+                width: 50,
+                height: 50,
+                color: Colors.blue,
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
-
-// Phase(begin: Offset(0, 0), end: Offset(50, 0), weight: .3),
-// Phase(begin: Offset(50, 0), end: Offset(50, 50), weight: .3),
-// Phase(begin: Offset(50, 50), end: Offset(0, 50), weight: .3),
-// Phase(begin: Offset(0, 50), end: Offset(0, 0), weight: .3),
