@@ -6,6 +6,8 @@ class Keyframe<T extends Object?> {
 
   const Keyframe(this.value, {required this.at});
   const Keyframe.key(this.value, {required this.at});
+  const Keyframe.start(this.value) : at = 0.0;
+  const Keyframe.end(this.value) : at = 1.0;
 
   @override
   bool operator ==(Object other) =>

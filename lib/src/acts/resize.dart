@@ -15,6 +15,11 @@ class Resize extends Act {
 
   final List<Keyframe<SizeOrNull>>? _keyframes;
 
+  const Resize.keyframes(List<Keyframe<SizeOrNull>> keyframes, {super.curve, this.alignment})
+    : _keyframes = keyframes,
+      begin = null,
+      end = null;
+
   SizeOrNullTween _buildTween(SizeOrNull begin, SizeOrNull end, Size maxSize) {
     final effectiveBeginWidth = begin.width != null && begin.width!.isInfinite ? maxSize.width : begin.width;
     final effectiveBeginHeight = begin.height != null && begin.height!.isInfinite ? maxSize.height : begin.height;

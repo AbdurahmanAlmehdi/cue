@@ -6,7 +6,8 @@ import 'package:cue/src/core/phase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-part 'resize_act.dart';
+part 'resize.dart';
+part 'translate.dart';
 
 typedef TweenBuilder<T> = Animatable<T> Function(T begin, T end);
 
@@ -177,7 +178,7 @@ class Fade extends TweenAct<double> {
 
   const Fade.out({super.begin = 1.0, super.curve, super.timing}) : super(end: 0);
 
-  const Fade.seq(super.keyframes, {super.curve}) : super.keyframes();
+  const Fade.keyframes(super.keyframes, {super.curve}) : super.keyframes();
 
   @override
   Widget wrapWidget(AnimationContext context, Widget child) {
@@ -194,8 +195,12 @@ class Rotate extends TweenAct<double> {
     super.end = 0,
     super.curve,
     super.timing,
+    this.alignment = Alignment.center,
   }) : assert(begin >= -360 && begin <= 360, 'Begin angle must be between 0 and 360 degrees'),
        assert((end >= -360 && end <= 360), 'End angle must be between 0 and 360 degrees');
+
+  final AlignmentGeometry alignment;
+  const Rotate.keyframes(super.keyframes, {super.curve, this.alignment = Alignment.center}) : super.keyframes();
 
   @override
   Widget wrapWidget(AnimationContext ctx, Widget child) {
@@ -206,6 +211,7 @@ class Rotate extends TweenAct<double> {
       builder: (context, child) {
         return Transform.rotate(
           angle: animation.value * (pi / 180),
+          alignment: alignment,
           child: child,
         );
       },
@@ -281,38 +287,6 @@ class Slide extends TweenAct<Offset> {
     return SlideTransition(
       position: build(context),
       child: child,
-    );
-  }
-}
-
-class Translate extends TweenAct<Offset> {
-  const Translate({
-    super.begin = Offset.zero,
-    super.end = Offset.zero,
-    super.curve,
-    super.timing,
-  });
-
-  const Translate.keyframes(super.keyframes, {super.curve}) : super.keyframes();
-
-  Translate.x({double begin = 0, double end = 0, Curve? curve, Timing? timing})
-    : this(begin: Offset(begin, 0), end: Offset(end, 0), curve: curve, timing: timing);
-
-  Translate.y({double begin = 0, double end = 0, Curve? curve, Timing? timing})
-    : this(begin: Offset(0, begin), end: Offset(0, end), curve: curve, timing: timing);
-
-  @override
-  Widget wrapWidget(AnimationContext context, Widget child) {
-    final animation = build(context);
-    return AnimatedBuilder(
-      animation: animation,
-      child: child,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: animation.value,
-          child: child,
-        );
-      },
     );
   }
 }
