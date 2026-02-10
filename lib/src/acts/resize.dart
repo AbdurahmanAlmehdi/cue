@@ -41,7 +41,7 @@ class Resize extends Act {
       phases = result.phases;
       context = context.copyWith(timing: result.timing);
     }
-    return TweenAct._build<SizeOrNull>(context, phases, (begin, end) {
+    return TweenAct.buildFromPhases<SizeOrNull>(context, phases, (begin, end) {
       return _buildTween(begin, end, maxSize);
     });
   }

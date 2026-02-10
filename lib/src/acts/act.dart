@@ -64,10 +64,10 @@ abstract class TweenAct<T extends Object?> extends Act {
         context = context.copyWith(timing: result.timing);
       }
     }
-    return TweenAct._build<T>(context, phases, tweenBuilder ?? _defaultTweenBuilder);
+    return TweenAct.buildFromPhases<T>(context, phases, tweenBuilder ?? _defaultTweenBuilder);
   }
 
-  static Animation<T> _build<T extends Object?>(
+  static Animation<T> buildFromPhases<T extends Object?>(
     AnimationContext context,
     List<Phase<T>> phases,
     TweenBuilder<T> tweenBuilder,

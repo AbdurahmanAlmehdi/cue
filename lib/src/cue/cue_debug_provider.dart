@@ -91,7 +91,6 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
           controller: _controller,
           onPlay: _startAutoPlay,
           baseDuration: widget.baseDuration,
-          isLooping: ValueNotifier(false),
         );
       },
     );
@@ -109,18 +108,18 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
 }
 
 class _DebugOverlay extends StatefulWidget {
   const _DebugOverlay({
-    required this.isLooping,
     required this.controller,
     required this.onPlay,
     required this.baseDuration,
   });
 
-  final ValueNotifier<bool> isLooping;
   final AnimationController controller;
   final void Function(bool isLooping) onPlay;
   final Duration baseDuration;
@@ -217,7 +216,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                       side: BorderSide(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: .5),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: .52),
                         width: .5,
                       ),
                     ),
@@ -347,38 +346,27 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                     SizedBox(width: 8),
                                   ],
                                 ),
+
                                 Container(
-                                  height: 78,
                                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
                                   decoration: BoxDecoration(
                                     color: Theme.of(context).colorScheme.surfaceContainer,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: CustomPaint(
-                                    foregroundPainter: _TimelinePainter(
-                                      _controller,
-                                      start: 0,
-                                      end: 1,
-                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: .6),
+                                  child: SliderTheme(
+                                    data: SliderThemeData(
+                                      trackShape: _TimelineTickMarkShape(start: 0, end: 1),
+                                      tickMarkShape: SliderTickMarkShape.noTickMark,
+                                      inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: .6),
+                                      thumbShape: _NeedleThumb(height: 60),
                                     ),
-                                    child: SliderTheme(
-                                      data: SliderThemeData(
-                                        trackHeight: 0,
-                                        thumbShape: _NeedleThumb(
-                                          height: 78,
-                                          color: Theme.of(context).colorScheme.primary,
-                                        ),
-                                      ),
-                                      child: Slider(
-                                        padding: EdgeInsets.zero,
-                                        value: widget.controller.value,
-                                        activeColor: Colors.transparent,
-                                        inactiveColor: Colors.transparent,
-                                        thumbColor: Colors.transparent,
-                                        overlayColor: WidgetStatePropertyAll(Colors.transparent),
-                                        secondaryActiveColor: Colors.transparent,
-                                        onChanged: _onSliderChanged,
-                                      ),
+                                    child: Slider(
+                                      padding: EdgeInsets.zero,
+                                      value: widget.controller.value,
+                                      activeColor: Colors.transparent,
+                                      thumbColor: Theme.of(context).colorScheme.primary,
+                                      overlayColor: WidgetStatePropertyAll(Colors.transparent),
+                                      onChanged: _onSliderChanged,
                                     ),
                                   ),
                                 ),
@@ -399,24 +387,94 @@ class _DebugOverlayState extends State<_DebugOverlay> {
   }
 }
 
-class _TimelinePainter extends CustomPainter {
-  final Animation<double> animation;
-  final double start;
-  final double end;
-  final Color color;
+class _NeedleThumb extends SliderComponentShape {
+  final double height;
 
-  _TimelinePainter(
-    this.animation, {
-    this.start = 0.0,
-    this.end = 1.0,
-    required this.color,
-  }) : super(repaint: animation);
-
-  final _tickHeight = 14.0;
-  final _halfTickHeight = 8.0;
+  const _NeedleThumb({this.height = 60});
 
   @override
-  void paint(Canvas canvas, Size size) {
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) => Size(height, height);
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
+    final size = parentBox.size;
+    final canvas = context.canvas;
+    final progressX = value * size.width;
+    final color = sliderTheme.thumbColor ?? Colors.purple;
+    final progressPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = 2 + activationAnimation.value * 1;
+    canvas.drawLine(Offset(progressX, 20), Offset(progressX, height * .62), progressPaint);
+    final dotPaint = Paint()..color = color;
+    canvas.drawCircle(Offset(progressX, size.height * .8), 6 + activationAnimation.value * 4, dotPaint);
+  }
+}
+
+class _TimelineTickMarkShape extends SliderTrackShape {
+  final double start;
+  final double end;
+
+  const _TimelineTickMarkShape({required this.start, required this.end});
+
+  @override
+  Rect getPreferredRect({
+    required RenderBox parentBox,
+    Offset offset = Offset.zero,
+    required SliderThemeData sliderTheme,
+    bool? isEnabled,
+    bool? isDiscrete,
+  }) => offset & parentBox.size;
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset offset, {
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required Animation<double> enableAnimation,
+    required Offset thumbCenter,
+    Offset? secondaryOffset,
+    bool? isEnabled,
+    bool? isDiscrete,
+    required TextDirection textDirection,
+  }) => _paintTimeline(
+    parentBox: parentBox,
+    context: context,
+    sliderTheme: sliderTheme,
+    start: start,
+    end: end,
+  );
+
+  void _paintTimeline({
+    required RenderBox parentBox,
+    required PaintingContext context,
+    required SliderThemeData sliderTheme,
+    required double start,
+    required double end,
+  }) {
+    final tickHeight = 14.0;
+    final halfTickHeight = 8.0;
+
+    final size = parentBox.size;
+    final canvas = context.canvas;
+    final color = sliderTheme.inactiveTrackColor?.withValues(alpha: .6) ?? Colors.grey.withValues(alpha: .6);
+
     final tickPaint = Paint()
       ..color = color
       ..strokeWidth = 1;
@@ -453,51 +511,9 @@ class _TimelinePainter extends CustomPainter {
         textPainter.paint(canvas, Offset(i * stepWidth - textPainter.width / 2, 0));
       }
 
-      final tickHeight = isFullTick ? _tickHeight : _halfTickHeight;
+      final height = isFullTick ? tickHeight : halfTickHeight;
       final x = i * stepWidth;
-      canvas.drawLine(Offset(x, yOffset), Offset(x, tickHeight + yOffset), tickPaint);
+      canvas.drawLine(Offset(x, yOffset), Offset(x, height + yOffset), tickPaint);
     }
-  }
-
-  @override
-  bool shouldRepaint(covariant _TimelinePainter oldDelegate) => oldDelegate.animation != animation;
-}
-
-class _NeedleThumb extends SliderComponentShape {
-  final double height;
-  final Color color;
-
-  const _NeedleThumb({this.height = 32, required this.color});
-
-  @override
-  Size getPreferredSize(bool isEnabled, bool isDiscrete) => Size(height, height);
-
-  @override
-  void paint(
-    PaintingContext context,
-    Offset center, {
-    required Animation<double> activationAnimation,
-    required Animation<double> enableAnimation,
-    required bool isDiscrete,
-    required TextPainter labelPainter,
-    required RenderBox parentBox,
-    required SliderThemeData sliderTheme,
-    required TextDirection textDirection,
-    required double value,
-    required double textScaleFactor,
-    required Size sizeWithOverflow,
-  }) {
-    final size = parentBox.size;
-    final canvas = context.canvas;
-    final progressX = value * size.width;
-    final progressPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
-      ..strokeWidth = 2 + activationAnimation.value * 1;
-    canvas.drawLine(Offset(progressX, 20), Offset(progressX, height * .5), progressPaint);
-    final dotPaint = Paint()..color = color;
-    canvas.drawCircle(Offset(progressX, size.height * .8), 6 + activationAnimation.value * 4, dotPaint);
   }
 }

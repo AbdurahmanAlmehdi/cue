@@ -20,9 +20,7 @@ class MyApp extends StatelessWidget {
       home: DemoPage(),
       builder: (context, child) {
         if (kDebugMode) {
-          return CueDebugTools(
-            child: child!,
-          );
+          return CueDebugTools(child: child!);
         }
         return child!;
       },
@@ -68,14 +66,12 @@ class _DemoPageState extends State<DemoPage> {
                 .end(1.0),
               ]),
             ],
-            child: TweenActor(
-              timing: .startAt(.5),
-              tween: ColorTween(begin: Colors.deepPurple, end: Colors.green),
+            child: TweenActor.lerp(
               builder: (context, value, _) {
                 return Container(
                   width: 50,
                   height: 50,
-                  color: value,
+                  color: Color.lerp(Colors.red, Colors.blue, value),
                 );
               },
             ),

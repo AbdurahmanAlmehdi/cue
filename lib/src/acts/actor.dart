@@ -1,4 +1,5 @@
 import 'package:cue/cue.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 class Actor extends StatelessWidget {
@@ -14,24 +15,6 @@ class Actor extends StatelessWidget {
     this.curve,
     this.timing,
   });
-
-  static TweenActor<T> tween<T>({
-    Key? key,
-    Widget? child,
-    required Tween<T> tween,
-    required Widget Function(BuildContext, T value) builder,
-    Curve? curve,
-    Timing? timing,
-  }) {
-    return TweenActor<T>(
-      key: key,
-      tween: tween,
-      builder: (context, value, child) => builder(context, value),
-      curve: curve,
-      timing: timing,
-      child: child,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,23 +36,68 @@ class Actor extends StatelessWidget {
 }
 
 class TweenActor<T> extends StatefulWidget {
-  const TweenActor({
-    super.key,
-    required this.builder,
-    required this.tween,
-    this.curve,
-    this.timing,
-    this.child,
-  });
-
+  final List<Keyframe<T>>? _keyframes;
   final Widget? child;
   final ValueWidgetBuilder<T> builder;
-  final Tween<T> tween;
+  final TweenBuilder<T>? _tweenBuilder;
+  final Tween<T>? _tween;
   final Curve? curve;
   final Timing? timing;
 
+  const TweenActor({
+    super.key,
+    required this.builder,
+    required Tween<T> tween,
+    this.curve,
+    this.timing,
+    this.child,
+  }) : _tween = tween,
+       _keyframes = null,
+       _tweenBuilder = null;
+
+  factory TweenActor.lerp({
+    Key? key,
+    required ValueWidgetBuilder<double> builder,
+    Curve? curve,
+    Timing? timing,
+    Widget? child,
+  }) =>
+      _LerpDoubleTweenActor(
+            key: key,
+            builder: builder,
+            curve: curve,
+            timing: timing,
+            child: child,
+          )
+          as TweenActor<T>;
+
+  const TweenActor.keyframes({
+    super.key,
+    required this.builder,
+    required List<Keyframe<T>> keys,
+    TweenBuilder<T>? tweenBuilder,
+    this.curve,
+    this.child,
+  }) : _tweenBuilder = tweenBuilder,
+       _keyframes = keys,
+       _tween = null,
+       timing = null;
+
   @override
   State<StatefulWidget> createState() => _TweenActorState<T>();
+}
+
+class _LerpDoubleTweenActor extends TweenActor<double> {
+  _LerpDoubleTweenActor({
+    super.key,
+    required super.builder,
+    super.curve,
+    super.timing,
+    super.child,
+  }) : super(tween: Tween<double>(begin: 0.0, end: 1.0));
+
+  @override
+  State<StatefulWidget> createState() => _TweenActorState<double>();
 }
 
 class _TweenActorState<T> extends State<TweenActor<T>> {
@@ -84,25 +112,40 @@ class _TweenActorState<T> extends State<TweenActor<T>> {
   @override
   void didUpdateWidget(covariant TweenActor<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.tween != widget.tween || oldWidget.curve != widget.curve) {
+    if (oldWidget._tween != widget._tween ||
+        oldWidget.curve != widget.curve ||
+        oldWidget.timing != widget.timing ||
+        listEquals(widget._keyframes, oldWidget._keyframes)) {
       _setupAnimation(context);
     }
   }
 
   void _setupAnimation(BuildContext context) {
-    final scope = CueScope.of(context);
-    final timing = widget.timing;
-    final curve = widget.curve;
-    final effectiveCurve = timing != null
-        ? Interval(timing.start, timing.end, curve: curve ?? Curves.linear)
-        : curve ?? Curves.linear;
-    animation = widget.tween
-        .chain(
-          CurveTween(
-            curve: effectiveCurve,
-          ),
-        )
-        .animate(scope.animation);
+    AnimationContext animationContext = AnimationContext(
+      buildContext: context,
+      driver: CueScope.of(context).animation,
+      timing: widget.timing,
+      curve: widget.curve,
+    );
+
+    if (widget._tween case final tween?) {
+      animation = TweenAct.buildFromPhases<T>(
+        animationContext,
+        [Phase<T>(begin: tween.begin as T, end: tween.end as T, weight: 100)],
+        (_, _) => tween,
+      );
+      return;
+    }
+
+    final result = Phase.normalize(widget._keyframes!);
+    if (result.timing != null) {
+      animationContext = animationContext.copyWith(timing: result.timing);
+    }
+    animation = TweenAct.buildFromPhases<T>(
+      animationContext,
+      result.phases,
+      widget._tweenBuilder ?? (begin, end) => Tween<T>(begin: begin, end: end),
+    );
   }
 
   @override
