@@ -5,7 +5,8 @@ class RotateAct extends TweenAct<double> {
   final bool _asQuarterTurns;
   final bool _inDegrees;
 
-  const RotateAct._internal({
+  @internal
+  const RotateAct.internal({
     super.from = 0,
     super.to = 0,
     super.curve,
@@ -217,53 +218,6 @@ class _RenderRotateLayout extends RenderProxyBox {
       _paintTransform,
       (context, offset) => context.paintChild(child!, offset),
       oldLayer: layer is TransformLayer ? layer as TransformLayer? : null,
-    );
-  }
-}
-
-@internal
-class RotateActorFactory extends SingleActProxy {
-  final double from;
-  final double to;
-  final AlignmentGeometry alignment;
-  final bool _rotateAsTurns;
-
-  const RotateActorFactory({
-    super.key,
-    required this.from,
-    required this.to,
-    required super.child,
-    this.alignment = Alignment.center,
-    super.curve,
-    super.timing,
-    super.overflow,
-  }) : _rotateAsTurns = false;
-
-  const RotateActorFactory.turns({
-    super.key,
-    required this.from,
-    required this.to,
-    required super.child,
-    this.alignment = Alignment.center,
-    super.curve,
-    super.timing,
-    super.overflow,
-  }) : _rotateAsTurns = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return ActorBase(
-      acts: [
-        RotateAct._internal(
-          from: from,
-          to: to,
-          alignment: alignment,
-          asQuarterTurns: _rotateAsTurns,
-          curve: curve,
-          timing: timing,
-        ),
-      ],
-      child: child,
     );
   }
 }

@@ -1,11 +1,77 @@
 part of 'act.dart';
 
-class ClipRevealAct extends TweenAct<double> {
+abstract class ClipRevealAct extends Act {
+  const factory ClipRevealAct({
+    Size fromSize,
+    BorderRadiusGeometry borderRadius,
+    AlignmentGeometry? alignment,
+    Curve? curve,
+    Timing? timing,
+  }) = _ClipRevealAct;
+
+  const factory ClipRevealAct.horizontal({
+    double from,
+    AlignmentGeometry alignment,
+    Curve? curve,
+    Timing? timing,
+  }) = _AxisClipRevealAct.horizontal;
+
+  const factory ClipRevealAct.vertical({
+    double from,
+    AlignmentGeometry alignment,
+    Curve? curve,
+    Timing? timing,
+  }) = _AxisClipRevealAct.vertical;
+}
+
+class _AxisClipRevealAct extends TweenAct<double> implements ClipRevealAct {
+  final Axis _axis;
+  final AlignmentGeometry alignment;
+
+  const _AxisClipRevealAct.horizontal({
+    super.from = 0,
+    this.alignment = AlignmentDirectional.centerStart,
+    super.curve,
+    super.timing,
+  }) : _axis = Axis.horizontal,
+       super(to: 1);
+
+  const _AxisClipRevealAct.vertical({
+    super.from = 0,
+    this.alignment = AlignmentDirectional.topCenter,
+    super.curve,
+    super.timing,
+  }) : _axis = Axis.vertical,
+       super(to: 1);
+
+  @override
+  Widget apply(AnimationContext context, Widget child) {
+    final animation = build(context);
+    final directionality = Directionality.of(context.buildContext);
+    final effectiveAlignment = alignment.resolve(directionality);
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        return ClipRect(
+          child: Align(
+            alignment: effectiveAlignment,
+            widthFactor: _axis == Axis.horizontal ? animation.value : null,
+            heightFactor: _axis == Axis.vertical ? animation.value : null,
+            child: child,
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+}
+
+class _ClipRevealAct extends TweenAct<double> implements ClipRevealAct {
   final Size fromSize;
-  final BorderRadius borderRadius;
+  final BorderRadiusGeometry borderRadius;
   final AlignmentGeometry? alignment;
 
-  const ClipRevealAct({
+  const _ClipRevealAct({
     this.fromSize = Size.zero,
     this.borderRadius = BorderRadius.zero,
     this.alignment,
@@ -17,7 +83,8 @@ class ClipRevealAct extends TweenAct<double> {
   Widget apply(AnimationContext context, Widget child) {
     final animation = build(context);
     final directionality = Directionality.of(context.buildContext);
-    final effectiveAlignment = alignment ?? Alignment.topLeft;
+    final effectiveAlignment = alignment?.resolve(directionality) ?? Alignment.topLeft;
+    final effectiveBorderRadius = borderRadius.resolve(directionality);
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
@@ -29,8 +96,8 @@ class ClipRevealAct extends TweenAct<double> {
             clipper: ExpandingPathClipper(
               progress: animation.value,
               minSize: fromSize,
-              borderRadius: borderRadius,
-              alignment: effectiveAlignment.resolve(directionality),
+              borderRadius: effectiveBorderRadius,
+              alignment: effectiveAlignment,
             ),
             child: child,
           ),

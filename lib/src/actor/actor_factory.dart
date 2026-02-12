@@ -1,0 +1,467 @@
+import 'package:cue/src/acts/act.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+
+import 'actor_impl.dart';
+
+@internal
+class RotateActorFactory extends SingleActProxy {
+  final double from;
+  final double to;
+  final AlignmentGeometry alignment;
+  final bool _rotateAsTurns;
+
+  const RotateActorFactory({
+    super.key,
+    required this.from,
+    required this.to,
+    required super.child,
+    this.alignment = Alignment.center,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _rotateAsTurns = false;
+
+  const RotateActorFactory.turns({
+    super.key,
+    required this.from,
+    required this.to,
+    required super.child,
+    this.alignment = Alignment.center,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _rotateAsTurns = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return ActorBase(
+      acts: [
+        RotateAct.internal(
+          from: from,
+          to: to,
+          alignment: alignment,
+          asQuarterTurns: _rotateAsTurns,
+          curve: curve,
+          timing: timing,
+        ),
+      ],
+      child: child,
+    );
+  }
+}
+
+@internal
+class ScaleActorFactory extends SingleActProxy {
+  final double from;
+  final double to;
+  final AlignmentGeometry? alignment;
+
+  const ScaleActorFactory({
+    super.key,
+    required this.from,
+    required this.to,
+    required super.child,
+    this.alignment,
+    super.curve,
+    super.timing,
+    super.overflow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ActorBase(
+      acts: [
+        ScaleAct(
+          from: from,
+          to: to,
+          alignment: alignment?.resolve(Directionality.of(context)),
+          curve: curve,
+          timing: timing,
+        ),
+      ],
+      child: child,
+    );
+  }
+}
+
+@internal
+class FadeActorFactory extends SingleActProxy {
+  final double from;
+  final double to;
+
+  const FadeActorFactory({
+    super.key,
+    required this.from,
+    required this.to,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ActorBase(
+      acts: [
+        FadeAct(
+          from: from,
+          to: to,
+          curve: curve,
+          timing: timing,
+        ),
+      ],
+      child: child,
+    );
+  }
+}
+
+@internal
+class SlideActorFactory extends SingleActProxy {
+  final Offset? from;
+  final Offset? to;
+  final double? _axisFrom;
+  final double? _axisTo;
+  final Axis? _axis;
+
+  const SlideActorFactory({
+    super.key,
+    required Offset this.from,
+    required Offset this.to,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _axis = null,
+       _axisFrom = null,
+       _axisTo = null;
+
+  const SlideActorFactory.x({
+    super.key,
+    required double from,
+    required double to,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _axis = Axis.horizontal,
+       _axisFrom = from,
+       _axisTo = to,
+       from = null,
+       to = null;
+
+  const SlideActorFactory.y({
+    super.key,
+    required double from,
+    required double to,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _axisFrom = from,
+       _axisTo = to,
+       _axis = Axis.vertical,
+       from = null,
+       to = null;
+
+  @override
+  Widget build(BuildContext context) {
+    final Act act = switch (_axis) {
+      Axis.horizontal => SlideAct.x(from: _axisFrom!, to: _axisTo!, curve: curve, timing: timing),
+      Axis.vertical => SlideAct.y(from: _axisFrom!, to: _axisTo!, curve: curve, timing: timing),
+      _ => SlideAct(from: from!, to: to!, curve: curve, timing: timing),
+    };
+    return ActorBase(
+      acts: [act],
+      child: child,
+    );
+  }
+}
+
+@internal
+class AlignActorFactory extends SingleActProxy {
+  final AlignmentGeometry? from;
+  final AlignmentGeometry? to;
+
+  const AlignActorFactory({
+    super.key,
+    required this.from,
+    required this.to,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ActorBase(
+      acts: [
+        AlignAct(
+          from: from,
+          to: to,
+          curve: curve,
+          timing: timing,
+        ),
+      ],
+      child: child,
+    );
+  }
+}
+
+@internal
+class ResizeActorFactory extends SingleActProxy {
+  final Size from;
+  final Size to;
+  final AlignmentGeometry alignment;
+
+  final bool _resizeFractionally;
+
+  const ResizeActorFactory({
+    super.key,
+    required this.from,
+    required this.to,
+    this.alignment = Alignment.center,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _resizeFractionally = false;
+
+  const ResizeActorFactory.fractionally({
+    super.key,
+    required this.from,
+    required this.to,
+    this.alignment = Alignment.center,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _resizeFractionally = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return ActorBase(
+      acts: [
+        switch (_resizeFractionally) {
+          true => ResizeAct.fractional(
+            from: from,
+            to: to,
+            alignment: alignment,
+            curve: curve,
+            timing: timing,
+          ),
+          false => ResizeAct(
+            from: from,
+            to: to,
+            alignment: alignment,
+            curve: curve,
+            timing: timing,
+          ),
+        },
+      ],
+      child: child,
+    );
+  }
+}
+
+@internal
+class BlurActorFactory extends SingleActProxy {
+  final double from;
+  final double to;
+
+  const BlurActorFactory({
+    super.key,
+    required this.from,
+    required this.to,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ActorBase(
+      acts: [
+        BlurAct(
+          from: from,
+          to: to,
+          curve: curve,
+          timing: timing,
+        ),
+      ],
+      child: child,
+    );
+  }
+}
+
+@internal
+class InsetActorFactory extends SingleActProxy {
+  final EdgeInsetsGeometry from;
+  final EdgeInsetsGeometry to;
+
+  const InsetActorFactory({
+    super.key,
+    required this.from,
+    required this.to,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ActorBase(
+      acts: [
+        InsetsAct(
+          from: from,
+          to: to,
+          curve: curve,
+          timing: timing,
+        ),
+      ],
+      child: child,
+    );
+  }
+}
+
+@internal
+class TranslateActorFactory extends SingleActProxy {
+  final Offset? from;
+  final Offset? to;
+  final double? _axisFrom;
+  final double? _axisTo;
+  final Axis? _axis;
+
+  const TranslateActorFactory({
+    super.key,
+    required Offset this.from,
+    required Offset this.to,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _axis = null,
+       _axisFrom = null,
+       _axisTo = null;
+
+  const TranslateActorFactory.x({
+    super.key,
+    required double from,
+    required double to,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _axis = Axis.horizontal,
+       _axisFrom = from,
+       _axisTo = to,
+       from = null,
+       to = null;
+
+  const TranslateActorFactory.y({
+    super.key,
+    required double from,
+    required double to,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _axisFrom = from,
+       _axisTo = to,
+       _axis = Axis.vertical,
+       from = null,
+       to = null;
+
+  @override
+  Widget build(BuildContext context) {
+    final Act act = switch (_axis) {
+      Axis.horizontal => TranslateAct.x(from: _axisFrom!, to: _axisTo!, curve: curve, timing: timing),
+      Axis.vertical => TranslateAct.y(from: _axisFrom!, to: _axisTo!, curve: curve, timing: timing),
+      _ => TranslateAct(from: from!, to: to!, curve: curve, timing: timing),
+    };
+    return ActorBase(
+      acts: [act],
+      child: child,
+    );
+  }
+}
+
+class ClipRevealActorFactory extends SingleActProxy {
+  final Size? _fromSize;
+  final double? _fromAxisSize;
+  final BorderRadiusGeometry borderRadius;
+  final AlignmentGeometry alignment;
+  final Axis? _axis;
+
+  const ClipRevealActorFactory({
+    super.key,
+    Size fromSize = Size.zero,
+    this.borderRadius = BorderRadius.zero,
+    this.alignment = Alignment.center,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _axis = null,
+       _fromSize = fromSize,
+       _fromAxisSize = null;
+
+  const ClipRevealActorFactory.horizontal({
+    super.key,
+    double from = 0,
+    this.alignment = AlignmentDirectional.centerStart,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _axis = Axis.horizontal,
+       _fromAxisSize = from,
+       borderRadius = BorderRadius.zero,
+       _fromSize = null;
+
+  const ClipRevealActorFactory.vertical({
+    super.key,
+    double from = 0,
+    this.alignment = AlignmentDirectional.topCenter,
+    required super.child,
+    super.curve,
+    super.timing,
+    super.overflow,
+  }) : _axis = Axis.vertical,
+       _fromAxisSize = from,
+       borderRadius = BorderRadius.zero,
+       _fromSize = null;
+
+  @override
+  Widget build(BuildContext context) {
+    return ActorBase(
+      acts: [
+        switch (_axis) {
+          Axis.horizontal => ClipRevealAct.horizontal(
+            from: _fromAxisSize!,
+            alignment: alignment,
+            curve: curve,
+            timing: timing,
+          ),
+          Axis.vertical => ClipRevealAct.vertical(
+            from: _fromAxisSize!,
+            alignment: alignment,
+            curve: curve,
+            timing: timing,
+          ),
+          _ => ClipRevealAct(
+            fromSize: _fromSize!,
+            alignment: alignment,
+            borderRadius: borderRadius,
+            curve: curve,
+            timing: timing,
+          ),
+        },
+      ],
+      child: child,
+    );
+  }
+}
