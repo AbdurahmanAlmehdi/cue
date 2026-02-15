@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 class CueDebugTools extends StatefulWidget {
@@ -39,6 +37,8 @@ class CueDebugTools extends StatefulWidget {
 class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   final _verticalOffset = ValueNotifier<double>(0.0);
+  final _speedIndex = ValueNotifier(0);
+  final _isLooping = ValueNotifier(false);
 
   OverlayEntry? _entry;
   final Set<BuildContext> _attachedCallers = {};
@@ -93,6 +93,8 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
           onPlay: _startAutoPlay,
           baseDuration: widget.baseDuration,
           verticalOffset: _verticalOffset,
+          speedIndex: _speedIndex,
+          isLooping: _isLooping,
         );
       },
     );
@@ -105,6 +107,8 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
     _controller.dispose();
     _entry?.remove();
     _verticalOffset.dispose();
+    _speedIndex.dispose();
+    _isLooping.dispose();
     super.dispose();
   }
 
@@ -120,9 +124,13 @@ class _DebugOverlay extends StatefulWidget {
     required this.onPlay,
     required this.baseDuration,
     required this.verticalOffset,
+    required this.speedIndex,
+    required this.isLooping,
   });
 
   final ValueNotifier<double> verticalOffset;
+  final ValueNotifier<int> speedIndex;
+  final ValueNotifier<bool> isLooping;
   final AnimationController controller;
   final void Function(bool isLooping) onPlay;
   final Duration baseDuration;
@@ -132,12 +140,11 @@ class _DebugOverlay extends StatefulWidget {
 }
 
 class _DebugOverlayState extends State<_DebugOverlay> {
-  final _speedIndex = ValueNotifier(0);
-  final _isLooping = ValueNotifier(false);
-
   static const List<int> _speedMultipliers = [1, 2, 4, 8, 16];
 
   AnimationController get _controller => widget.controller;
+  ValueNotifier<int> get _speedIndex => widget.speedIndex;
+  ValueNotifier<bool> get _isLooping => widget.isLooping;
 
   void _togglePlayPause() {
     if (_controller.isAnimating) {
@@ -177,13 +184,6 @@ class _DebugOverlayState extends State<_DebugOverlay> {
   }
 
   @override
-  void dispose() {
-    _speedIndex.dispose();
-    _isLooping.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<double>(
       valueListenable: widget.verticalOffset,
@@ -197,185 +197,174 @@ class _DebugOverlayState extends State<_DebugOverlay> {
               maxTop - widget.verticalOffset.value,
             );
           },
-          child: TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            builder: (context, value, child) {
-              return Transform(
-                transform: Matrix4.translationValues(0, -50 * (1 - value) + offset, 0),
-                child: Opacity(opacity: max(.4, value), child: child),
-              );
-            },
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Material(
-                    color: Theme.of(context).colorScheme.surface,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: .52),
-                        width: .5,
-                      ),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Material(
+                  color: Theme.of(context).colorScheme.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: .52),
+                      width: .5,
                     ),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 500),
-                      child: ListenableBuilder(
-                        listenable: widget.controller,
-                        builder: (context, _) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(
-                                        widget.controller.isAnimating
-                                            ? Icons.pause_circle_outline_rounded
-                                            : Icons.play_circle_outline_rounded,
-                                      ),
-                                      style: IconButton.styleFrom(iconSize: 32),
-                                      onPressed: _togglePlayPause,
-                                      padding: EdgeInsets.zero,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: ListenableBuilder(
+                      listenable: widget.controller,
+                      builder: (context, _) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      widget.controller.isAnimating
+                                          ? Icons.pause_circle_outline_rounded
+                                          : Icons.play_circle_outline_rounded,
                                     ),
-                                    SizedBox(width: 4),
-                                    Expanded(
-                                      child: Row(
+                                    style: IconButton.styleFrom(iconSize: 32),
+                                    onPressed: _togglePlayPause,
+                                    padding: EdgeInsets.zero,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          '${widget.controller.value.toStringAsFixed(2)} ',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: 'monospace',
+                                            fontFeatures: [FontFeature.tabularFigures()],
+                                          ),
+                                        ),
+                                        SizedBox(width: 16, height: 12, child: VerticalDivider(thickness: 2)),
+                                        Builder(
+                                          builder: (context) {
+                                            final totalInMs = (widget.controller.duration?.inMilliseconds ?? 0);
+                                            final fixedWidth = totalInMs.toString().length;
+                                            final currentInMs = ((widget.controller.value * totalInMs).round())
+                                                .toString()
+                                                .padLeft(fixedWidth, '0');
+                                            return Text(
+                                              '$currentInMs / ${totalInMs}ms',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontFamily: 'monospace',
+                                                fontFeatures: [FontFeature.tabularFigures()],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  ValueListenableBuilder(
+                                    valueListenable: _speedIndex,
+                                    builder: (context, speedIdx, _) {
+                                      final speed = _speedMultipliers[speedIdx];
+                                      final speedLabel = speedIdx == 0 ? '1X' : '-${speed}X';
+                                      return Row(
                                         children: [
-                                          Text(
-                                            '${widget.controller.value.toStringAsFixed(2)} ',
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: 'monospace',
-                                              fontFeatures: [FontFeature.tabularFigures()],
+                                          InkWell(
+                                            onTap: _cycleSpeed,
+                                            borderRadius: BorderRadius.circular(32),
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context).colorScheme.primary.withValues(alpha: .1),
+                                                borderRadius: BorderRadius.circular(32),
+                                              ),
+                                              child: Text(
+                                                speedLabel,
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontFamily: 'monospace',
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
                                             ),
                                           ),
-                                          SizedBox(width: 16, height: 12, child: VerticalDivider(thickness: 2)),
-                                          Builder(
-                                            builder: (context) {
-                                              final totalInMs = (widget.controller.duration?.inMilliseconds ?? 0);
-                                              final fixedWidth = totalInMs.toString().length;
-                                              final currentInMs = ((widget.controller.value * totalInMs).round())
-                                                  .toString()
-                                                  .padLeft(fixedWidth, '0');
-                                              return Text(
-                                                '$currentInMs / ${totalInMs}ms',
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontFamily: 'monospace',
-                                                  fontFeatures: [FontFeature.tabularFigures()],
-                                                ),
-                                              );
+                                          SizedBox(width: 6),
+                                          IconButton(
+                                            padding: EdgeInsets.zero,
+                                            style: IconButton.styleFrom(
+                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            ),
+                                            onPressed: () {
+                                              final slowestSpeedIndex = _speedMultipliers.length - 1;
+                                              if (_speedIndex.value == slowestSpeedIndex) {
+                                                _speedIndex.value = 0;
+                                              } else {
+                                                _speedIndex.value = slowestSpeedIndex;
+                                              }
+                                              _setSpeed(_speedMultipliers[_speedIndex.value]);
                                             },
+                                            icon: Icon(Icons.slow_motion_video_outlined),
                                           ),
                                         ],
-                                      ),
-                                    ),
-                                    ValueListenableBuilder(
-                                      valueListenable: _speedIndex,
-                                      builder: (context, speedIdx, _) {
-                                        final speed = _speedMultipliers[speedIdx];
-                                        final speedLabel = speedIdx == 0 ? '1X' : '-${speed}X';
-                                        return Row(
-                                          children: [
-                                            InkWell(
-                                              onTap: _cycleSpeed,
-                                              borderRadius: BorderRadius.circular(32),
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(context).colorScheme.primary.withValues(alpha: .1),
-                                                  borderRadius: BorderRadius.circular(32),
-                                                ),
-                                                child: Text(
-                                                  speedLabel,
-                                                  style: const TextStyle(
-                                                    fontSize: 13,
-                                                    fontFamily: 'monospace',
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(width: 6),
-                                            IconButton(
-                                              padding: EdgeInsets.zero,
-                                              style: IconButton.styleFrom(
-                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                              ),
-                                              onPressed: () {
-                                                final slowestSpeedIndex = _speedMultipliers.length - 1;
-                                                if (_speedIndex.value == slowestSpeedIndex) {
-                                                  _speedIndex.value = 0;
-                                                } else {
-                                                  _speedIndex.value = slowestSpeedIndex;
-                                                }
-                                                _setSpeed(_speedMultipliers[_speedIndex.value]);
-                                              },
-                                              icon: Icon(Icons.slow_motion_video_outlined),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                    ValueListenableBuilder(
-                                      valueListenable: _isLooping,
-                                      builder: (context, isLooping, _) {
-                                        final iconColor =
-                                            IconTheme.of(context).color ?? Theme.of(context).colorScheme.onSurface;
-                                        return IconButton(
-                                          style: IconButton.styleFrom(
-                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                          ),
-                                          icon: Icon(
-                                            Icons.loop_rounded,
-                                            color: isLooping ? iconColor : iconColor.withValues(alpha: .4),
-                                          ),
-                                          onPressed: _toggleLoop,
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                        );
-                                      },
-                                    ),
-                                    SizedBox(width: 8),
-                                  ],
-                                ),
+                                      );
+                                    },
+                                  ),
+                                  ValueListenableBuilder(
+                                    valueListenable: _isLooping,
+                                    builder: (context, isLooping, _) {
+                                      final iconColor =
+                                          IconTheme.of(context).color ?? Theme.of(context).colorScheme.onSurface;
+                                      return IconButton(
+                                        style: IconButton.styleFrom(
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        icon: Icon(
+                                          Icons.loop_rounded,
+                                          color: isLooping ? iconColor : iconColor.withValues(alpha: .4),
+                                        ),
+                                        onPressed: _toggleLoop,
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(width: 8),
+                                ],
+                              ),
 
-                                Container(
-                                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surfaceContainer,
-                                    borderRadius: BorderRadius.circular(10),
+                              Container(
+                                padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: SliderTheme(
+                                  data: SliderThemeData(
+                                    trackShape: _TimelineTickMarkShape(start: 0, end: 1),
+                                    tickMarkShape: SliderTickMarkShape.noTickMark,
+                                    inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: .6),
+                                    thumbShape: _NeedleThumb(height: 60),
                                   ),
-                                  child: SliderTheme(
-                                    data: SliderThemeData(
-                                      trackShape: _TimelineTickMarkShape(start: 0, end: 1),
-                                      tickMarkShape: SliderTickMarkShape.noTickMark,
-                                      inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: .6),
-                                      thumbShape: _NeedleThumb(height: 60),
-                                    ),
-                                    child: Slider(
-                                      padding: EdgeInsets.zero,
-                                      value: widget.controller.value,
-                                      activeColor: Colors.transparent,
-                                      thumbColor: Theme.of(context).colorScheme.primary,
-                                      overlayColor: WidgetStatePropertyAll(Colors.transparent),
-                                      onChanged: _onSliderChanged,
-                                    ),
+                                  child: Slider(
+                                    padding: EdgeInsets.zero,
+                                    value: widget.controller.value,
+                                    activeColor: Colors.transparent,
+                                    thumbColor: Theme.of(context).colorScheme.primary,
+                                    overlayColor: WidgetStatePropertyAll(Colors.transparent),
+                                    onChanged: _onSliderChanged,
                                   ),
                                 ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
