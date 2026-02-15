@@ -193,6 +193,7 @@ abstract class Actor extends Widget {
   const factory Actor.clipRevealHorizontal({
     Key? key,
     double from,
+    double to,
     AlignmentGeometry alignment,
     required Widget child,
     Curve? curve,
@@ -203,6 +204,7 @@ abstract class Actor extends Widget {
   const factory Actor.clipRevealVertical({
     Key? key,
     double from,
+    double to,
     AlignmentGeometry alignment,
     required Widget child,
     Curve? curve,

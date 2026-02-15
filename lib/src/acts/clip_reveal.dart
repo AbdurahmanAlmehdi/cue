@@ -11,6 +11,7 @@ abstract class ClipRevealAct extends Act {
 
   const factory ClipRevealAct.horizontal({
     double from,
+    double to,
     AlignmentGeometry alignment,
     Curve? curve,
     Timing? timing,
@@ -18,6 +19,7 @@ abstract class ClipRevealAct extends Act {
 
   const factory ClipRevealAct.vertical({
     double from,
+    double to,
     AlignmentGeometry alignment,
     Curve? curve,
     Timing? timing,
@@ -30,19 +32,21 @@ class _AxisClipRevealAct extends TweenAct<double> implements ClipRevealAct {
 
   const _AxisClipRevealAct.horizontal({
     super.from = 0,
+    super.to = 1,
     this.alignment = AlignmentDirectional.centerStart,
     super.curve,
     super.timing,
   }) : _axis = Axis.horizontal,
-       super(to: 1);
+       super();
 
   const _AxisClipRevealAct.vertical({
     super.from = 0,
+    super.to = 1,
     this.alignment = AlignmentDirectional.topCenter,
     super.curve,
     super.timing,
   }) : _axis = Axis.vertical,
-       super(to: 1);
+       super();
 
   @override
   Widget apply(AnimationContext context, Widget child) {

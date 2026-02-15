@@ -329,6 +329,7 @@ class PaddingActorFactory extends SingleActProxy {
 class ClipRevealActorFactory extends SingleActProxy {
   final Size? _fromSize;
   final double? _fromAxisSize;
+  final double? _toAxisSize;
   final BorderRadiusGeometry borderRadius;
   final AlignmentGeometry alignment;
   final Axis? _axis;
@@ -344,11 +345,13 @@ class ClipRevealActorFactory extends SingleActProxy {
     super.overflow,
   }) : _axis = null,
        _fromSize = fromSize,
-       _fromAxisSize = null;
+       _fromAxisSize = null,
+       _toAxisSize = null;
 
   const ClipRevealActorFactory.horizontal({
     super.key,
     double from = 0,
+    double to = 1,
     this.alignment = AlignmentDirectional.centerStart,
     required super.child,
     super.curve,
@@ -356,18 +359,21 @@ class ClipRevealActorFactory extends SingleActProxy {
     super.overflow,
   }) : _axis = Axis.horizontal,
        _fromAxisSize = from,
+       _toAxisSize = to,
        borderRadius = BorderRadius.zero,
        _fromSize = null;
 
   const ClipRevealActorFactory.vertical({
     super.key,
     double from = 0,
+    double to = 1,
     this.alignment = AlignmentDirectional.topCenter,
     required super.child,
     super.curve,
     super.timing,
     super.overflow,
   }) : _axis = Axis.vertical,
+       _toAxisSize = to,
        _fromAxisSize = from,
        borderRadius = BorderRadius.zero,
        _fromSize = null;
@@ -379,12 +385,14 @@ class ClipRevealActorFactory extends SingleActProxy {
         switch (_axis) {
           Axis.horizontal => ClipRevealAct.horizontal(
             from: _fromAxisSize!,
+            to: _toAxisSize!,
             alignment: alignment,
             curve: curve,
             timing: timing,
           ),
           Axis.vertical => ClipRevealAct.vertical(
             from: _fromAxisSize!,
+            to: _toAxisSize!,
             alignment: alignment,
             curve: curve,
             timing: timing,
