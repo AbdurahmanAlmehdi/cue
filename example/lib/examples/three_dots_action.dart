@@ -11,7 +11,7 @@ class ThreeDotsAction extends StatelessWidget {
       barrierColor: Colors.black12,
       alignment: Alignment.bottomCenter,
       simulation: (data) {
-        return Spring.smooth(
+        return Spring.iosDefault(
           start: data.progress,
           end: data.end,
           velocity: data.velocity,
