@@ -4,10 +4,17 @@ abstract class ClipEffect extends Effect {
   const factory ClipEffect({
     Size fromSize,
     BorderRadiusGeometry borderRadius,
-    AlignmentGeometry? alignment,
+    AlignmentGeometry alignment,
     Curve? curve,
     Timing? timing,
   }) = _ClipEffect;
+
+  const factory ClipEffect.circluar({
+    Size fromSize,
+    AlignmentGeometry alignment,
+    Curve? curve,
+    Timing? timing,
+  }) = _ClipEffect.circluar;
 
   const factory ClipEffect.horizontal({
     double from,
@@ -79,16 +86,24 @@ class _AxisClipEffect extends TweenEffect<double> implements ClipEffect {
 
 class _ClipEffect extends TweenEffect<double> implements ClipEffect {
   final Size fromSize;
-  final BorderRadiusGeometry borderRadius;
+  final BorderRadiusGeometry? borderRadius;
   final AlignmentGeometry? alignment;
 
   const _ClipEffect({
     this.fromSize = Size.zero,
-    this.borderRadius = BorderRadius.zero,
+    BorderRadiusGeometry this.borderRadius = BorderRadius.zero,
     this.alignment,
     super.curve,
     super.timing,
   }) : super(from: 0, to: 1);
+
+  const _ClipEffect.circluar({
+    this.fromSize = Size.zero,
+    this.alignment,
+    super.curve,
+    super.timing,
+  }) : borderRadius = null,
+       super(from: 0, to: 1);
 
   @override
   Widget apply(
@@ -99,7 +114,7 @@ class _ClipEffect extends TweenEffect<double> implements ClipEffect {
     final directionality = Directionality.of(context);
     final effectiveAlignment =
         alignment?.resolve(directionality) ?? Alignment.topLeft;
-    final effectiveBorderRadius = borderRadius.resolve(directionality);
+    final effectiveBorderRadius = borderRadius?.resolve(directionality);
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
@@ -126,13 +141,13 @@ class _ClipEffect extends TweenEffect<double> implements ClipEffect {
 class ExpandingPathClipper extends CustomClipper<Path> {
   final double progress;
   final Size minSize;
-  final BorderRadius borderRadius;
+  final BorderRadius? borderRadius;
   final Alignment alignment;
 
   ExpandingPathClipper({
     required this.progress,
     required this.minSize,
-    this.borderRadius = BorderRadius.zero,
+    this.borderRadius,
     required this.alignment,
   });
 
@@ -162,7 +177,16 @@ class ExpandingPathClipper extends CustomClipper<Path> {
     final top = alignmentOffset.dy - rectAlignmentOffset.dy;
 
     final rect = Rect.fromLTWH(left, top, currentWidth, currentHeight);
-    return Path()..addRRect(borderRadius.toRRect(rect));
+
+    // null border radius means we want a circle
+    if (borderRadius == null) {
+      return Path()..addOval(rect);
+    } else if (borderRadius == BorderRadius.zero) {
+      // optimize for zero border radius case
+      return Path()..addRect(rect);
+    } else {
+      return Path()..addRRect(borderRadius!.toRRect(rect));
+    }
   }
 
   @override

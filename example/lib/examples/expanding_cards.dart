@@ -67,8 +67,7 @@ class _ExpandingCardsState extends State<ExpandingCards> {
                                 Icon(Icons.sailing_outlined, size: 20),
                                 SizedBox(width: 12),
                                 Expanded(child: Text('Header Here')),
-                                Actor.rotateTurns(
-                                  from: 0,
+                                RotateActor.turns(
                                   to: -2,
                                   child: Icon(Icons.expand_more_rounded),
                                 ),

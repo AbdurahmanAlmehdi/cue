@@ -54,7 +54,7 @@ class ThreeDotsAction extends StatelessWidget {
                   child: const Icon(Icons.keyboard_arrow_down),
                 ),
               ),
-              Actor.translateY(
+              TranslateActor.y(
                 from: -rect.height / 3,
                 to: -rect.height - 4, // 4 is little extra padding
                 child: Column(

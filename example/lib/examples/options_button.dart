@@ -33,7 +33,7 @@ class OptionsButton extends StatelessWidget {
         );
       },
       builder: (context, rect) {
-        return Actor.clipReveal(
+        return ClipActor(
           fromSize: rect.size,
           borderRadius: BorderRadius.circular(32),
           alignment: Alignment.center,
@@ -51,11 +51,11 @@ class OptionsButton extends StatelessWidget {
                   mainAxisSize: .min,
                   crossAxisAlignment: .start,
                   children: [
-                    Actor.translateFromGlobal(
+                    TranslateActor.fromGlobal(
                       offset: rect.topLeft,
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                        child: Actor.textStyle(
+                        child: TextStyleActor(
                           from: theme.textTheme.labelLarge!.copyWith(
                             color: theme.primaryColor,
                           ),

@@ -1,16 +1,15 @@
+import 'package:cue/src/actor/actor.dart';
 import 'package:cue/src/acts/act.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'actor.dart';
 
-@internal
-class RotateActorFactory extends SingleActProxy {
+class RotateActor extends SingleEffectProxy {
   final double from;
   final double to;
   final AlignmentGeometry alignment;
   final bool _rotateAsTurns;
+  final bool _inDegrees;
 
-  const RotateActorFactory({
+  const RotateActor({
     super.key,
     required this.from,
     required this.to,
@@ -18,27 +17,41 @@ class RotateActorFactory extends SingleActProxy {
     this.alignment = Alignment.center,
     super.curve,
     super.timing,
-  }) : _rotateAsTurns = false;
+  }) : _rotateAsTurns = false,
+       _inDegrees = false;
 
-  const RotateActorFactory.turns({
+  const RotateActor.turns({
     super.key,
-    required this.from,
+    this.from = 0,
     required this.to,
     required super.child,
     this.alignment = Alignment.center,
     super.curve,
     super.timing,
-  }) : _rotateAsTurns = true;
+  }) : _rotateAsTurns = true,
+       _inDegrees = false;
+
+  const RotateActor.degrees({
+    super.key,
+    this.from = 0,
+    required this.to,
+    required super.child,
+    this.alignment = Alignment.center,
+    super.curve,
+    super.timing,
+  }) : _rotateAsTurns = false,
+       _inDegrees = true;
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         RotateEffect.internal(
           from: from,
           to: to,
           alignment: alignment,
           asQuarterTurns: _rotateAsTurns,
+          inDegrees: _inDegrees,
           curve: curve,
           timing: timing,
         ),
@@ -48,13 +61,12 @@ class RotateActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class ScaleActorFactory extends SingleActProxy {
+class ScaleActor extends SingleEffectProxy {
   final double from;
   final double to;
   final AlignmentGeometry? alignment;
 
-  const ScaleActorFactory({
+  const ScaleActor({
     super.key,
     required this.from,
     required this.to,
@@ -66,7 +78,7 @@ class ScaleActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         ScaleEffect(
           from: from,
@@ -81,12 +93,11 @@ class ScaleActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class FadeActorFactory extends SingleActProxy {
+class FadeActor extends SingleEffectProxy {
   final double from;
   final double to;
 
-  const FadeActorFactory({
+  const FadeActor({
     super.key,
     this.from = 1,
     this.to = 0,
@@ -97,7 +108,7 @@ class FadeActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         FadeEffect(
           from: from,
@@ -111,15 +122,14 @@ class FadeActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class SlideActorFactory extends SingleActProxy {
+class SlideActor extends SingleEffectProxy {
   final Offset? from;
   final Offset? to;
   final double? _axisFrom;
   final double? _axisTo;
   final Axis? _axis;
 
-  const SlideActorFactory({
+  const SlideActor({
     super.key,
     required Offset this.from,
     Offset this.to = Offset.zero,
@@ -130,7 +140,7 @@ class SlideActorFactory extends SingleActProxy {
        _axisFrom = null,
        _axisTo = null;
 
-  const SlideActorFactory.x({
+  const SlideActor.x({
     super.key,
     required double from,
     required double to,
@@ -143,7 +153,7 @@ class SlideActorFactory extends SingleActProxy {
        from = null,
        to = null;
 
-  const SlideActorFactory.y({
+  const SlideActor.y({
     super.key,
     required double from,
     required double to,
@@ -173,19 +183,18 @@ class SlideActorFactory extends SingleActProxy {
       ),
       _ => SlideEffect(from: from!, to: to!, curve: curve, timing: timing),
     };
-    return ActorBase(
+    return Actor(
       effects: [effect],
       child: child,
     );
   }
 }
 
-@internal
-class AlignActorFactory extends SingleActProxy {
+class AlignActor extends SingleEffectProxy {
   final AlignmentGeometry? from;
   final AlignmentGeometry? to;
 
-  const AlignActorFactory({
+  const AlignActor({
     super.key,
     this.from,
     this.to,
@@ -196,7 +205,7 @@ class AlignActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         AlignEffect(
           from: from,
@@ -210,70 +219,174 @@ class AlignActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class ResizeActorFactory extends SingleActProxy {
-  final Size from;
-  final Size to;
+class SizeActor extends SingleEffectProxy {
+  final Size? _from;
+  final Size? _to;
   final AlignmentGeometry alignment;
   final bool allowOverflow;
+  final Axis? _axis;
+  final double? _axisFrom;
+  final double? _axisTo;
 
-  final bool _resizeFractionally;
-
-  const ResizeActorFactory({
+  const SizeActor({
     super.key,
-    required this.from,
-    required this.to,
+    required Size from,
+    required Size to,
     this.alignment = Alignment.center,
     this.allowOverflow = false,
     required super.child,
     super.curve,
     super.timing,
-  }) : _resizeFractionally = false;
+  }) : _from = from,
+       _to = to,
+       _axis = null,
+       _axisFrom = null,
+       _axisTo = null;
 
-  const ResizeActorFactory.fractionally({
+  const SizeActor.width({
     super.key,
-    required this.from,
-    required this.to,
+    required double from,
+    required double to,
     this.alignment = Alignment.center,
     this.allowOverflow = false,
     required super.child,
     super.curve,
     super.timing,
-  }) : _resizeFractionally = true;
+  }) : _axis = Axis.horizontal,
+       _axisFrom = from,
+       _axisTo = to,
+       _from = null,
+       _to = null;
+
+  const SizeActor.height({
+    super.key,
+    required double from,
+    required double to,
+    this.alignment = Alignment.center,
+    this.allowOverflow = false,
+    required super.child,
+    super.curve,
+    super.timing,
+  }) : _axis = Axis.vertical,
+       _axisFrom = from,
+       _axisTo = to,
+       _from = null,
+       _to = null;
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    Size? from = _from;
+    Size? to = _to;
+    if (_axis != null) {
+      from = switch (_axis) {
+        Axis.horizontal => Size(_axisFrom!, double.infinity),
+        Axis.vertical => Size(double.infinity, _axisFrom!),
+      };
+      to = switch (_axis) {
+        Axis.horizontal => Size(_axisTo!, double.infinity),
+        Axis.vertical => Size(double.infinity, _axisTo!),
+      };
+    }
+    return Actor(
       effects: [
-        switch (_resizeFractionally) {
-          true => FractionalSizeEffect(
-            from: from,
-            to: to,
-            alignment: alignment,
-            curve: curve,
-            timing: timing,
-          ),
-          false => SizeEffect(
-            from: from,
-            to: to,
-            alignment: alignment,
-            curve: curve,
-            timing: timing,
-            allowOverflow: allowOverflow,
-          ),
-        },
+        SizeEffect(
+          from: from,
+          to: to,
+          alignment: alignment,
+          curve: curve,
+          timing: timing,
+          allowOverflow: allowOverflow,
+        ),
       ],
       child: child,
     );
   }
 }
 
-@internal
-class BlurActorFactory extends SingleActProxy {
+class FractionalSizeActor extends SingleEffectProxy {
+  final Size? _from;
+  final Size? _to;
+  final Axis? _axis;
+  final double? _axisFrom;
+  final double? _axisTo;
+  final AlignmentGeometry alignment;
+
+  const FractionalSizeActor({
+    super.key,
+    required Size from,
+    required Size to,
+    this.alignment = Alignment.center,
+    required super.child,
+    super.curve,
+    super.timing,
+  }) : _from = from,
+       _to = to,
+       _axis = null,
+       _axisFrom = null,
+       _axisTo = null;
+
+  const FractionalSizeActor.width({
+    super.key,
+    required double from,
+    required double to,
+    this.alignment = Alignment.center,
+    required super.child,
+    super.curve,
+    super.timing,
+  }) : _axis = Axis.horizontal,
+       _axisFrom = from,
+       _axisTo = to,
+       _from = null,
+       _to = null;
+
+  const FractionalSizeActor.height({
+    super.key,
+    required double from,
+    required double to,
+    this.alignment = Alignment.center,
+    required super.child,
+    super.curve,
+    super.timing,
+  }) : _axis = Axis.vertical,
+       _axisFrom = from,
+       _axisTo = to,
+       _from = null,
+       _to = null;
+
+  @override
+  Widget build(BuildContext context) {
+    Size from = _from ?? Size.infinite;
+    Size to = _to ?? Size.infinite;
+    if (_axis != null) {
+      from = switch (_axis) {
+        Axis.horizontal => Size.fromWidth(_axisFrom!),
+        Axis.vertical => Size.fromHeight(_axisFrom!),
+      };
+      to = switch (_axis) {
+        Axis.horizontal => Size.fromWidth(_axisTo!),
+        Axis.vertical => Size.fromHeight(_axisTo!),
+      };
+    }
+    return Actor(
+      effects: [
+        FractionalSizeEffect(
+          from: from,
+          to: to,
+          alignment: alignment,
+          curve: curve,
+          timing: timing,
+        ),
+      ],
+      child: child,
+    );
+  }
+}
+
+class BlurActor extends SingleEffectProxy {
   final double from;
   final double to;
 
-  const BlurActorFactory({
+  const BlurActor({
     super.key,
     required this.from,
     required this.to,
@@ -284,7 +397,7 @@ class BlurActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         BlurEffect(
           from: from,
@@ -298,12 +411,11 @@ class BlurActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class PaddingEffectorFactory extends SingleActProxy {
+class PaddingActor extends SingleEffectProxy {
   final EdgeInsetsGeometry from;
   final EdgeInsetsGeometry to;
 
-  const PaddingEffectorFactory({
+  const PaddingActor({
     super.key,
     this.from = EdgeInsets.zero,
     required this.to,
@@ -314,7 +426,7 @@ class PaddingEffectorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         PaddingEffect(
           from: from,
@@ -328,18 +440,18 @@ class PaddingEffectorFactory extends SingleActProxy {
   }
 }
 
-class ClipRevealActorFactory extends SingleActProxy {
+class ClipActor extends SingleEffectProxy {
   final Size? _fromSize;
   final double? _fromAxisSize;
   final double? _toAxisSize;
-  final BorderRadiusGeometry borderRadius;
+  final BorderRadiusGeometry? borderRadius;
   final AlignmentGeometry alignment;
   final Axis? _axis;
 
-  const ClipRevealActorFactory({
+  const ClipActor({
     super.key,
     Size fromSize = Size.zero,
-    this.borderRadius = BorderRadius.zero,
+    BorderRadiusGeometry this.borderRadius = BorderRadius.zero,
     this.alignment = Alignment.center,
     required super.child,
     super.curve,
@@ -349,7 +461,20 @@ class ClipRevealActorFactory extends SingleActProxy {
        _fromAxisSize = null,
        _toAxisSize = null;
 
-  const ClipRevealActorFactory.horizontal({
+  const ClipActor.circular({
+    super.key,
+    Size fromSize = Size.zero,
+    this.alignment = Alignment.center,
+    required super.child,
+    super.curve,
+    super.timing,
+  }) : _axis = null,
+       _fromSize = fromSize,
+       _fromAxisSize = null,
+       _toAxisSize = null,
+       borderRadius = null;
+
+  const ClipActor.horizontal({
     super.key,
     double from = 0,
     double to = 1,
@@ -363,7 +488,7 @@ class ClipRevealActorFactory extends SingleActProxy {
        borderRadius = BorderRadius.zero,
        _fromSize = null;
 
-  const ClipRevealActorFactory.vertical({
+  const ClipActor.vertical({
     super.key,
     double from = 0,
     double to = 1,
@@ -379,7 +504,7 @@ class ClipRevealActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         switch (_axis) {
           Axis.horizontal => ClipEffect.horizontal(
@@ -396,10 +521,16 @@ class ClipRevealActorFactory extends SingleActProxy {
             curve: curve,
             timing: timing,
           ),
-          _ => ClipEffect(
+          _ when borderRadius != null => ClipEffect(
             fromSize: _fromSize!,
             alignment: alignment,
-            borderRadius: borderRadius,
+            borderRadius: borderRadius!,
+            curve: curve,
+            timing: timing,
+          ),
+          _ => ClipEffect.circluar(
+            fromSize: _fromSize!,
+            alignment: alignment,
             curve: curve,
             timing: timing,
           ),
@@ -410,12 +541,11 @@ class ClipRevealActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class PositionActorFactory extends SingleActProxy {
+class PositionActor extends SingleEffectProxy {
   final Position from;
   final Position to;
 
-  const PositionActorFactory({
+  const PositionActor({
     super.key,
     required this.from,
     required this.to,
@@ -426,7 +556,7 @@ class PositionActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         PositionEffect(
           from: from,
@@ -440,12 +570,11 @@ class PositionActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class TextStyleActorFactory extends SingleActProxy {
+class TextStyleActor extends SingleEffectProxy {
   final TextStyle from;
   final TextStyle to;
 
-  const TextStyleActorFactory({
+  const TextStyleActor({
     super.key,
     required this.from,
     required this.to,
@@ -456,7 +585,7 @@ class TextStyleActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         TextStyleEffect(
           from: from,
@@ -470,12 +599,11 @@ class TextStyleActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class IconThemeActorFactory extends SingleActProxy {
+class IconThemeActor extends SingleEffectProxy {
   final IconThemeData from;
   final IconThemeData to;
 
-  const IconThemeActorFactory({
+  const IconThemeActor({
     super.key,
     required this.from,
     required this.to,
@@ -486,7 +614,7 @@ class IconThemeActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         IconThemeEffect(
           from: from,
@@ -500,12 +628,11 @@ class IconThemeActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class DecoratedBoxActorFactory extends SingleActProxy {
+class DecorateActor extends SingleEffectProxy {
   final Decoration from;
   final Decoration to;
 
-  const DecoratedBoxActorFactory({
+  const DecorateActor({
     super.key,
     required this.from,
     required this.to,
@@ -516,7 +643,7 @@ class DecoratedBoxActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         DecorateEffect(
           from: from,
@@ -530,12 +657,11 @@ class DecoratedBoxActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class ColorActorFactory extends SingleActProxy {
+class ColorActor extends SingleEffectProxy {
   final Color from;
   final Color to;
 
-  const ColorActorFactory({
+  const ColorActor({
     super.key,
     required this.from,
     required this.to,
@@ -546,7 +672,7 @@ class ColorActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    return ActorBase(
+    return Actor(
       effects: [
         ColorEffect(
           from: from,
@@ -560,15 +686,14 @@ class ColorActorFactory extends SingleActProxy {
   }
 }
 
-@internal
-class TranslateActorFactory extends SingleActProxy {
+class TranslateActor extends SingleEffectProxy {
   final Offset? from;
   final Offset? to;
   final double? _axisFrom;
   final double? _axisTo;
   final _TranslateVariant? _variant;
 
-  const TranslateActorFactory({
+  const TranslateActor({
     super.key,
     required Offset this.from,
     Offset this.to = Offset.zero,
@@ -579,7 +704,7 @@ class TranslateActorFactory extends SingleActProxy {
        _axisFrom = null,
        _axisTo = null;
 
-  const TranslateActorFactory.x({
+  const TranslateActor.x({
     super.key,
     required double from,
     double to = 0,
@@ -592,7 +717,7 @@ class TranslateActorFactory extends SingleActProxy {
        from = null,
        to = null;
 
-  const TranslateActorFactory.y({
+  const TranslateActor.y({
     super.key,
     required double from,
     double to = 0,
@@ -605,9 +730,10 @@ class TranslateActorFactory extends SingleActProxy {
        from = null,
        to = null;
 
-  const TranslateActorFactory.fromGlobal({
+  const TranslateActor.fromGlobal({
     super.key,
     required Offset offset,
+    Offset toLocal = Offset.zero,
     required super.child,
     super.curve,
     super.timing,
@@ -615,7 +741,7 @@ class TranslateActorFactory extends SingleActProxy {
        _axisFrom = null,
        _axisTo = null,
        from = offset,
-       to = null;
+       to = toLocal;
 
   @override
   Widget build(BuildContext context) {
@@ -634,21 +760,22 @@ class TranslateActorFactory extends SingleActProxy {
       ),
       _TranslateVariant.fromGlobal => TranslateEffect.fromGlobal(
         offset: from!,
+        toLocal: to!,
         curve: curve,
         timing: timing,
       ),
-      _ => TranslateEffect(from: from!, to: to!, curve: curve, timing: timing),
+      _ => TranslateEffect(
+        from: from!,
+        to: to!,
+        curve: curve,
+        timing: timing,
+      ),
     };
-    return ActorBase(
+    return Actor(
       effects: [effect],
       child: child,
     );
   }
 }
 
-enum _TranslateVariant {
-  offset,
-  vertical,
-  horizontal,
-  fromGlobal,
-}
+enum _TranslateVariant { offset, vertical, horizontal, fromGlobal }

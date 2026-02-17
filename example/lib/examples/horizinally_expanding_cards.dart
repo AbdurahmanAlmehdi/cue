@@ -57,9 +57,9 @@ class _HorizontallyExpandingCardsState extends State<HorizontallyExpandingCards>
                       elevation: 0,
                       shape: RoundedSuperellipseBorder(borderRadius: .circular(20)),
                       clipBehavior: .antiAlias,
-                      child: Actor.resize(
-                        from: .fromWidth(availableWidth * 0.16),
-                        to: .fromWidth(availableWidth * 0.6),
+                      child: SizeActor.width(
+                        from: availableWidth * 0.16,
+                        to: availableWidth * 0.6,
                         allowOverflow: true,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
