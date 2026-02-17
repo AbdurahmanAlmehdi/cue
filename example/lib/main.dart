@@ -1,4 +1,5 @@
 import 'package:cue/cue.dart';
+import 'package:example/examples/horizinally_expanding_cards.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Cue Demo',
+      showPerformanceOverlay: true,
       darkTheme: ThemeData.dark(),
       theme: ThemeData(
         splashFactory: InkSparkle.splashFactory,
@@ -37,39 +39,17 @@ class DemoPage extends StatefulWidget {
 }
 
 class _DemoPageState extends State<DemoPage> with SingleTickerProviderStateMixin {
-  int _activeIndex = 0;
+  bool _toggled = false;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Cue Demo')),
+      backgroundColor: Colors.grey.shade50,
+      appBar: AppBar(),
       body: Padding(
-        padding: const EdgeInsets.only(top: 100),
-        child: ColoredBox(
-          color: Colors.red,
-          child: Cue.onMount(
-            debug: true,
-            child: SizeActor.width(
-              from: 100,
-              to: 300,
-              allowOverflow: true,
-              clipBehavior: Clip.none,
-              fixedHeight: 200,
-              curve: Curves.bounceOut,
-              timing: Timing(start: .2, end: .8),
-              child: Center(
-                child: Text(
-                  'Hello Cue!',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
+        padding: const EdgeInsets.only(top: 80),
+        child: Align(alignment: .topCenter, child: HorizontallyExpandingCards()),
       ),
     );
   }
@@ -86,7 +66,7 @@ class _DemoPageState extends State<DemoPage> with SingleTickerProviderStateMixin
 // animation: CueScope.of(context).animation,
 // builder: (context, _) {
 // return Actor.fade(
-// timing: .endAt(0),
+// timing: .end(0),
 // child: GestureDetector(
 // onTap: showModal,
 // child: ClipRRect(

@@ -37,9 +37,11 @@ class ColorEffect extends TweenEffect<Color?> {
     required super.to,
     super.curve,
     super.timing,
+    this.blendMode = BlendMode.srcIn,
   });
 
-  const ColorEffect.keyframes(super.keyframes, {super.curve}) : super.keyframes();
+  final BlendMode blendMode;
+  const ColorEffect.keyframes(super.keyframes, {super.curve, this.blendMode = BlendMode.srcIn}) : super.keyframes();
 
   @override
   Animatable<Color?> buildSinglePhaseTween(Color? from, Color? to) {
@@ -52,7 +54,10 @@ class ColorEffect extends TweenEffect<Color?> {
       animation: animation,
       child: child,
       builder: (context, child) {
-        return ColoredBox(color: animation.value ?? Colors.transparent, child: child!);
+        return ColorFiltered(
+          colorFilter: ColorFilter.mode(animation.value ?? Colors.transparent, blendMode),
+          child: child,
+        );
       },
     );
   }

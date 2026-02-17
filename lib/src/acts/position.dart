@@ -25,6 +25,7 @@ class PositionEffect extends TweenEffect<Position> {
     super.curve,
     super.timing,
     Size? relativeTo,
+    List<Keyframe<Position>>? keyframes,
   }) : _relativeTo = relativeTo;
 
   const PositionEffect.keyframes(
@@ -49,9 +50,7 @@ class PositionEffect extends TweenEffect<Position> {
       animation: animation,
       child: child,
       builder: (context, child) {
-        final pos = _relativeTo == null
-            ? animation.value
-            : animation.value._relative(_relativeTo);
+        final pos = _relativeTo == null ? animation.value : animation.value._relative(_relativeTo);
         return Positioned.directional(
           textDirection: Directionality.of(context),
           top: pos.top,
@@ -85,6 +84,14 @@ class Position {
   }) : assert(start == null || end == null || width == null),
        assert(top == null || bottom == null || height == null);
 
+  const Position.fill({
+    this.start = 0,
+    this.top = 0,
+    this.end = 0,
+    this.bottom = 0,
+  }) : width = null,
+       height = null;
+
   Position _relative(Size size) {
     return Position(
       top: top != null ? top! * size.height : null,
@@ -95,8 +102,6 @@ class Position {
       height: height != null ? height! * size.height : null,
     );
   }
-
-  const Position.fill() : this(top: 0, start: 0, end: 0, bottom: 0);
 
   static Position lerp(Position a, Position b, double t) {
     return Position(

@@ -243,16 +243,14 @@ class _SelfAnimatedCueState extends _SelfAnimatedState<_SelfAnimatedCue> {
   @override
   void didUpdateWidget(covariant _SelfAnimatedCue oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.loop != oldWidget.loop ||
-        widget.reverseOnLoop != oldWidget.reverseOnLoop) {
+    if (widget.loop != oldWidget.loop || widget.reverseOnLoop != oldWidget.reverseOnLoop) {
       controller.stop();
       play(loop: widget.loop, reverseOnLoop: widget.reverseOnLoop);
     }
   }
 }
 
-abstract class _SelfAnimatedState<T extends Cue> extends _CueState<T>
-    with SingleTickerProviderStateMixin {
+abstract class _SelfAnimatedState<T extends Cue> extends _CueState<T> with SingleTickerProviderStateMixin {
   late final AnimationController controller;
   Animation<double> _animation = const AlwaysStoppedAnimation(0.0);
   AnimationStatusListener? _statusListener;
@@ -529,9 +527,9 @@ class CueScope extends InheritedWidget {
   final Animation<double> animation;
 
   static CueScope of(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<CueScope>();
-    assert(scope != null, 'No AnimationScope found in context');
-    return scope!;
+    final cue = context.dependOnInheritedWidgetOfExactType<CueScope>();
+    assert(cue != null, 'No Cue found in context, make sure to wrap your widget tree with a Cue widget.');
+    return cue!;
   }
 
   @override
@@ -542,8 +540,7 @@ class CueScope extends InheritedWidget {
 
 /// Calculates the animation value based on the distance between current and target index.
 /// Returns a value typically between 0.0 and 1.0.
-typedef IndexDistanceCalculator =
-    double Function(double offset, int targetIndex);
+typedef IndexDistanceCalculator = double Function(double offset, int targetIndex);
 
 class _IndexedStage extends Cue {
   const _IndexedStage({
@@ -612,9 +609,7 @@ class _IndexedStageState extends _CueState<_IndexedStage> {
     // Check if this target is the previous, current, or next index
     final roundedCurrent = currentIndex.round();
     final isPreviousOrNext =
-        (targetIndex == roundedCurrent - 1) ||
-        (targetIndex == roundedCurrent) ||
-        (targetIndex == roundedCurrent + 1);
+        (targetIndex == roundedCurrent - 1) || (targetIndex == roundedCurrent) || (targetIndex == roundedCurrent + 1);
 
     if (!isPreviousOrNext) return 0.0;
 

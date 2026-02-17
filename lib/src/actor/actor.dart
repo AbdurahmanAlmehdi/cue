@@ -80,17 +80,25 @@ class _ActorState extends State<Actor> {
   }
 }
 
-abstract class SingleEffectProxy extends StatelessWidget {
+abstract class SingleEffectProxy<T> extends StatelessWidget {
   final Widget child;
   final Curve? curve;
   final Timing? timing;
+  final List<Keyframe<T>>? keys;
 
   const SingleEffectProxy({
     super.key,
     required this.child,
     this.curve,
     this.timing,
-  });
+  }) : keys = null;
+
+  const SingleEffectProxy.keyFrames({
+    required List<Keyframe<T>> this.keys,
+    super.key,
+    required this.child,
+    this.curve,
+  }) : timing = null;
 }
 
 class TweenActor<T> extends StatefulWidget {

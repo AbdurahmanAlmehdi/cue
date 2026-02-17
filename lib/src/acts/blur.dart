@@ -8,6 +8,8 @@ class BlurEffect extends TweenEffect<double> {
     super.timing,
   });
 
+  const BlurEffect.keyframes(super.keyframes, {super.curve}) : super.keyframes();
+
   @override
   Widget apply(BuildContext context, Animation<double> animation, Widget child) {
     return AnimatedBuilder(
@@ -37,6 +39,13 @@ class BackdropBlurEffect extends TweenEffect<double> {
   });
 
   final BlendMode blendMode;
+
+  const BackdropBlurEffect.keyframes(
+    super.keyframes, {
+    super.curve,
+    this.blendMode = BlendMode.srcOver,
+  }) : super.keyframes();
+
   @override
   Widget apply(BuildContext context, Animation<double> animation, Widget child) {
     return AnimatedBuilder(

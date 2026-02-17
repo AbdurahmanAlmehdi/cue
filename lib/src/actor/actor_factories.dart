@@ -613,7 +613,7 @@ class ClipActor extends SingleEffectProxy {
   }
 }
 
-class PositionActor extends SingleEffectProxy {
+class PositionActor extends SingleEffectProxy<Position> {
   final Position from;
   final Position to;
   final Size? _relativeTo;
