@@ -1,12 +1,12 @@
 part of 'act.dart';
 
-class RotateAct extends TweenAct<double> {
+class RotateEffect extends TweenEffect<double> {
   final AlignmentGeometry alignment;
   final bool _asQuarterTurns;
   final bool _inDegrees;
 
   @internal
-  const RotateAct.internal({
+  const RotateEffect.internal({
     super.from = 0,
     super.to = 0,
     super.curve,
@@ -17,7 +17,7 @@ class RotateAct extends TweenAct<double> {
   }) : _asQuarterTurns = asQuarterTurns,
        _inDegrees = inDegrees;
 
-  const RotateAct({
+  const RotateEffect({
     super.from = 0,
     super.to = 0,
     super.curve,
@@ -26,7 +26,7 @@ class RotateAct extends TweenAct<double> {
   }) : _asQuarterTurns = false,
        _inDegrees = false;
 
-  const RotateAct.keyframes(
+  const RotateEffect.keyframes(
     super.keyframes, {
     super.curve,
     this.alignment = Alignment.center,
@@ -34,7 +34,7 @@ class RotateAct extends TweenAct<double> {
        _inDegrees = false,
        super.keyframes();
 
-  const RotateAct.degrees({
+  const RotateEffect.degrees({
     super.from = 0,
     super.to = 0,
     super.curve,
@@ -43,7 +43,7 @@ class RotateAct extends TweenAct<double> {
   }) : _asQuarterTurns = false,
        _inDegrees = true;
 
-  const RotateAct.turns({
+  const RotateEffect.turns({
     super.from = 0,
     super.to = 0,
     super.curve,
@@ -78,11 +78,11 @@ class RotateAct extends TweenAct<double> {
   }
 }
 
-class RotateLayout extends TweenAct<double> {
+class RotateLayoutEffect extends TweenEffect<double> {
   final bool _asQuarterTurns;
   final bool _inDegrees;
 
-  const RotateLayout({
+  const RotateLayoutEffect({
     super.from = 0,
     super.to = 0,
     super.curve,
@@ -90,14 +90,14 @@ class RotateLayout extends TweenAct<double> {
   }) : _asQuarterTurns = false,
        _inDegrees = false;
 
-  const RotateLayout.keyframes(
+  const RotateLayoutEffect.keyframes(
     super.keyframes, {
     super.curve,
   }) : _asQuarterTurns = false,
        _inDegrees = false,
        super.keyframes();
 
-  const RotateLayout.degrees({
+  const RotateLayoutEffect.degrees({
     super.from = 0,
     super.to = 0,
     super.curve,
@@ -105,7 +105,7 @@ class RotateLayout extends TweenAct<double> {
   }) : _asQuarterTurns = false,
        _inDegrees = true;
 
-  const RotateLayout.turns({
+  const RotateLayoutEffect.turns({
     super.from = 0,
     super.to = 0,
     super.curve,

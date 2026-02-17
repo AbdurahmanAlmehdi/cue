@@ -8,19 +8,20 @@ abstract class Cue extends StatefulWidget {
     required this.child,
     this.curve,
     this.debug = false,
-    this.acts,
+    this.effects,
   });
 
   final bool debug;
   final Curve? curve;
   final Widget child;
-  final List<Act>? acts;
+  final List<Effect>? effects;
 
   const factory Cue.onTransition({
     Key? key,
     required Widget child,
     Curve curve,
     bool debug,
+    List<Effect>? effects,
   }) = _RouteTransitionStage;
 
   const factory Cue.onMount({
@@ -28,7 +29,7 @@ abstract class Cue extends StatefulWidget {
     required Widget child,
     Curve curve,
     bool debug,
-    List<Act>? acts,
+    List<Effect>? effects,
     Duration duration,
     Duration? reverseDuration,
     SimulationBuilder? simulation,
@@ -42,7 +43,7 @@ abstract class Cue extends StatefulWidget {
     required Widget child,
     Curve curve,
     bool debug,
-    List<Act>? acts,
+    List<Effect>? effects,
     Duration duration,
     SimulationBuilder? simulation,
     Duration? reverseDuration,
@@ -55,7 +56,7 @@ abstract class Cue extends StatefulWidget {
     required Widget child,
     Curve curve,
     bool debug,
-    List<Act>? acts,
+    List<Effect>? effects,
     required Animation<double> animation,
   }) = _ControlledCue;
 
@@ -64,7 +65,7 @@ abstract class Cue extends StatefulWidget {
     required Widget child,
     Curve curve,
     bool debug,
-    List<Act>? acts,
+    List<Effect>? effects,
     Duration duration,
     Duration? reverseDuration,
     SimulationBuilder? simulation,
@@ -76,7 +77,7 @@ abstract class Cue extends StatefulWidget {
     Key? key,
     required Widget child,
     Curve curve,
-    List<Act>? acts,
+    List<Effect>? effects,
     bool debug,
     required Listenable listenable,
     required ValueGetter<double> getOffset,
@@ -88,7 +89,7 @@ abstract class Cue extends StatefulWidget {
     Key? key,
     required Widget child,
     Curve curve,
-    List<Act>? acts,
+    List<Effect>? effects,
     bool debug,
     required PageController controller,
     required int targetIndex,
@@ -147,8 +148,8 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
   @override
   Widget build(BuildContext context) {
     Widget child = widget.child;
-    if (widget.acts case final acts?) {
-      child = Actor(acts: acts, child: child);
+    if (widget.effects case final acts?) {
+      child = Actor(effects: acts, child: child);
     }
     if (kDebugMode && widget.debug) {
       if (CueDebugTools.isWrappedByDebugProvider(context)) {
@@ -183,7 +184,7 @@ class _RouteTransitionStage extends Cue {
     required super.child,
     super.curve,
     super.debug,
-    super.acts,
+    super.effects,
   }) : super._();
 
   @override
@@ -196,7 +197,7 @@ class _SelfAnimatedCue extends Cue {
     required super.child,
     super.curve,
     super.debug,
-    super.acts,
+    super.effects,
     this.duration = const Duration(milliseconds: 300),
     this.reverseDuration,
     this.loop = false,
@@ -379,7 +380,7 @@ class _OnHoverCue extends Cue {
     required super.child,
     super.curve,
     super.debug,
-    super.acts,
+    super.effects,
     this.simulation,
     this.duration = const Duration(milliseconds: 200),
     this.reverseDuration,
@@ -431,7 +432,7 @@ class _TogglableCue extends Cue {
     required super.child,
     super.curve,
     super.debug,
-    super.acts,
+    super.effects,
     this.simulation,
     this.duration = const Duration(milliseconds: 300),
     this.reverseDuration,
@@ -505,7 +506,7 @@ class _ControlledCue extends Cue {
   const _ControlledCue({
     super.key,
     required super.child,
-    super.acts,
+    super.effects,
     super.curve,
     super.debug,
     required this.animation,
@@ -549,7 +550,7 @@ class _IndexedStage extends Cue {
     super.key,
     super.curve,
     super.debug,
-    super.acts,
+    super.effects,
     required super.child,
     required this.listenable,
     required this.getOffset,
@@ -570,7 +571,7 @@ class _IndexedStage extends Cue {
     required Widget child,
     Curve curve = Curves.linear,
     bool debug = false,
-    List<Act>? acts,
+    List<Effect>? effects,
     required PageController controller,
     required int targetIndex,
     IndexDistanceCalculator? calculator,

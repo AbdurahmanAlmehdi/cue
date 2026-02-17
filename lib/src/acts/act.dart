@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-part 'resize.dart';
+part 'size.dart';
 part 'translate.dart';
 part 'decorate.dart';
 part 'rotate.dart';
@@ -23,16 +23,20 @@ part 'flex.dart';
 
 typedef TweenBuilder<T> = Animatable<T> Function(T from, T to);
 
-abstract class Act {
+abstract class Effect {
   final Timing? timing;
   final Curve? curve;
 
-  const Act({
+  const Effect({
     this.timing,
     this.curve,
   });
 
-  Animation<Object?> buildAnimation(Animation<double> driver);
+  Animation<Object?> buildAnimation(
+    Animation<double> driver, {
+    Timing? defaultTiming,
+    Curve? defaultCurve,
+  });
 
   Widget build(
     BuildContext context,
@@ -41,12 +45,13 @@ abstract class Act {
   );
 }
 
-abstract class TweenActBase<T extends Object?, R extends Object?> extends Act {
+abstract class TweenEffectBase<T extends Object?, R extends Object?>
+    extends Effect {
   final T? _from;
   final T? _to;
   final List<Keyframe<T>>? _keyframes;
 
-  const TweenActBase({
+  const TweenEffectBase({
     required T from,
     required T to,
     super.curve,
@@ -55,7 +60,7 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Act {
        _from = from,
        _to = to;
 
-  const TweenActBase.keyframes(
+  const TweenEffectBase.keyframes(
     List<Keyframe<T>> keyframes, {
     super.curve,
   }) : _keyframes = keyframes,
@@ -86,9 +91,16 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Act {
   }
 
   @override
-  Animation<R> buildAnimation(Animation<double> driver) {
+  Animation<R> buildAnimation(
+    Animation<double> driver, {
+    Timing? defaultTiming,
+    Curve? defaultCurve,
+  }) {
     final List<Phase<R>> phases;
-    Timing? timing = this.timing;
+
+    Timing? timing = this.timing ?? defaultTiming;
+    Curve? curve = this.curve ?? defaultCurve;
+
     if (_keyframes == null) {
       assert(
         _from != null && _to != null,
@@ -108,7 +120,7 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Act {
         timing = result.timing;
       }
     }
-    final tween = TweenActBase.buildFromPhases<R>(
+    final tween = TweenEffectBase.buildFromPhases<R>(
       phases,
       buildSinglePhaseTween,
     );
@@ -149,7 +161,7 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Act {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TweenActBase &&
+      other is TweenEffectBase &&
           runtimeType == other.runtimeType &&
           _from == other._from &&
           _to == other._to &&
@@ -162,8 +174,8 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Act {
       Object.hash(_from, _to, curve, timing, Object.hashAll(_keyframes ?? []));
 }
 
-abstract class TweenAct<T extends Object?> extends TweenActBase<T, T> {
-  const TweenAct({
+abstract class TweenEffect<T extends Object?> extends TweenEffectBase<T, T> {
+  const TweenEffect({
     required super.from,
     required super.to,
     super.curve,
@@ -173,7 +185,7 @@ abstract class TweenAct<T extends Object?> extends TweenActBase<T, T> {
   @override
   T transform(T value) => value;
 
-  const TweenAct.keyframes(
+  const TweenEffect.keyframes(
     super.keyframes, {
     super.curve,
   }) : super.keyframes();

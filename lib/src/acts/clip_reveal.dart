@@ -1,36 +1,36 @@
 part of 'act.dart';
 
-abstract class ClipRevealAct extends Act {
-  const factory ClipRevealAct({
+abstract class ClipEffect extends Effect {
+  const factory ClipEffect({
     Size fromSize,
     BorderRadiusGeometry borderRadius,
     AlignmentGeometry? alignment,
     Curve? curve,
     Timing? timing,
-  }) = _ClipRevealAct;
+  }) = _ClipEffect;
 
-  const factory ClipRevealAct.horizontal({
+  const factory ClipEffect.horizontal({
     double from,
     double to,
     AlignmentGeometry alignment,
     Curve? curve,
     Timing? timing,
-  }) = _AxisClipRevealAct.horizontal;
+  }) = _AxisClipEffect.horizontal;
 
-  const factory ClipRevealAct.vertical({
+  const factory ClipEffect.vertical({
     double from,
     double to,
     AlignmentGeometry alignment,
     Curve? curve,
     Timing? timing,
-  }) = _AxisClipRevealAct.vertical;
+  }) = _AxisClipEffect.vertical;
 }
 
-class _AxisClipRevealAct extends TweenAct<double> implements ClipRevealAct {
+class _AxisClipEffect extends TweenEffect<double> implements ClipEffect {
   final Axis _axis;
   final AlignmentGeometry alignment;
 
-  const _AxisClipRevealAct.horizontal({
+  const _AxisClipEffect.horizontal({
     super.from = 0,
     super.to = 1,
     this.alignment = AlignmentDirectional.centerStart,
@@ -39,7 +39,7 @@ class _AxisClipRevealAct extends TweenAct<double> implements ClipRevealAct {
   }) : _axis = Axis.horizontal,
        super();
 
-  const _AxisClipRevealAct.vertical({
+  const _AxisClipEffect.vertical({
     super.from = 0,
     super.to = 1,
     this.alignment = AlignmentDirectional.topCenter,
@@ -49,7 +49,11 @@ class _AxisClipRevealAct extends TweenAct<double> implements ClipRevealAct {
        super();
 
   @override
-  Widget apply(BuildContext context, Animation<double> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<double> animation,
+    Widget child,
+  ) {
     final directionality = Directionality.of(context);
     final effectiveAlignment = alignment.resolve(directionality);
     return AnimatedBuilder(
@@ -58,8 +62,12 @@ class _AxisClipRevealAct extends TweenAct<double> implements ClipRevealAct {
         return ClipRect(
           child: Align(
             alignment: effectiveAlignment,
-            widthFactor: _axis == Axis.horizontal ? animation.value.clamp(0, 1) : null,
-            heightFactor: _axis == Axis.vertical ? animation.value.clamp(0, 1) : null,
+            widthFactor: _axis == Axis.horizontal
+                ? animation.value.clamp(0, 1)
+                : null,
+            heightFactor: _axis == Axis.vertical
+                ? animation.value.clamp(0, 1)
+                : null,
             child: child,
           ),
         );
@@ -69,12 +77,12 @@ class _AxisClipRevealAct extends TweenAct<double> implements ClipRevealAct {
   }
 }
 
-class _ClipRevealAct extends TweenAct<double> implements ClipRevealAct {
+class _ClipEffect extends TweenEffect<double> implements ClipEffect {
   final Size fromSize;
   final BorderRadiusGeometry borderRadius;
   final AlignmentGeometry? alignment;
 
-  const _ClipRevealAct({
+  const _ClipEffect({
     this.fromSize = Size.zero,
     this.borderRadius = BorderRadius.zero,
     this.alignment,
@@ -83,9 +91,14 @@ class _ClipRevealAct extends TweenAct<double> implements ClipRevealAct {
   }) : super(from: 0, to: 1);
 
   @override
-  Widget apply(BuildContext context, Animation<double> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<double> animation,
+    Widget child,
+  ) {
     final directionality = Directionality.of(context);
-    final effectiveAlignment = alignment?.resolve(directionality) ?? Alignment.topLeft;
+    final effectiveAlignment =
+        alignment?.resolve(directionality) ?? Alignment.topLeft;
     final effectiveBorderRadius = borderRadius.resolve(directionality);
     return AnimatedBuilder(
       animation: animation,
@@ -141,7 +154,9 @@ class ExpandingPathClipper extends CustomClipper<Path> {
     // Calculate the alignment point within the available size
     final alignmentOffset = alignment.alongSize(size);
     // Calculate the alignment point within the clipped rect
-    final rectAlignmentOffset = alignment.alongSize(Size(currentWidth, currentHeight));
+    final rectAlignmentOffset = alignment.alongSize(
+      Size(currentWidth, currentHeight),
+    );
     // Position the rect so its alignment point matches the size's alignment point
     final left = alignmentOffset.dx - rectAlignmentOffset.dx;
     final top = alignmentOffset.dy - rectAlignmentOffset.dy;

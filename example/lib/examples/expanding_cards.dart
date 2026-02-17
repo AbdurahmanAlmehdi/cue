@@ -27,17 +27,13 @@ class _ExpandingCardsState extends State<ExpandingCards> {
                   final isPrevious = i - 1 == _expandedIndex;
                   final isNext = i + 1 == _expandedIndex;
 
-                  final fromTopRadius = isActive || isPrevious || i == 0
-                      ? Radius.circular(28)
-                      : Radius.zero;
-                  final fromBottomRadius = isActive || isNext || i == 2
-                      ? Radius.circular(28)
-                      : Radius.zero;
+                  final fromTopRadius = isActive || isPrevious || i == 0 ? Radius.circular(28) : Radius.zero;
+                  final fromBottomRadius = isActive || isNext || i == 2 ? Radius.circular(28) : Radius.zero;
 
                   return Actor(
-                    acts: [
-                      PaddingAct(to: const EdgeInsets.symmetric(vertical: 12)),
-                      DecorateAct(
+                    effects: [
+                      PaddingEffect(to: const EdgeInsets.symmetric(vertical: 12)),
+                      DecorateEffect(
                         from: BoxDecoration(
                           color: theme.colorScheme.surfaceContainer,
                           borderRadius: BorderRadius.vertical(
@@ -80,10 +76,10 @@ class _ExpandingCardsState extends State<ExpandingCards> {
                             ),
                             SizedBox(height: 16),
                             Actor(
-                              acts: [
-                                ClipRevealAct.vertical(),
-                                BlurAct(from: 6),
-                                SlideAct.y(from: .2),
+                              effects: [
+                                ClipEffect.vertical(),
+                                BlurEffect(from: 6),
+                                SlideEffect.y(from: .2),
                               ],
                               child: Padding(
                                 padding: const EdgeInsets.only(

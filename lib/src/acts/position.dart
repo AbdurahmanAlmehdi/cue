@@ -1,17 +1,22 @@
 part of 'act.dart';
 
-class PositionAct extends TweenAct<Position> {
-  const PositionAct({
+class PositionEffect extends TweenEffect<Position> {
+  const PositionEffect({
     required super.from,
     required super.to,
     super.curve,
     super.timing,
   });
 
-  const PositionAct.keyframes(super.keyframes, {super.curve}) : super.keyframes();
+  const PositionEffect.keyframes(super.keyframes, {super.curve})
+    : super.keyframes();
 
   @override
-  Widget apply(BuildContext context, Animation<Position> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<Position> animation,
+    Widget child,
+  ) {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {

@@ -1,7 +1,7 @@
 part of 'act.dart';
 
-class BlurAct extends TweenAct<double> {
-  const BlurAct({
+class BlurEffect extends TweenEffect<double> {
+  const BlurEffect({
     super.from = 0.0,
     super.to = 0.0,
     super.curve,

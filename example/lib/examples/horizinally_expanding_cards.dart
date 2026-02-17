@@ -85,9 +85,9 @@ class _HorizontallyExpandingCardsState extends State<HorizontallyExpandingCards>
                                 crossAxisAlignment: .start,
                                 children: [
                                   Actor(
-                                    acts: [
-                                      AlignAct(from: .bottomCenter, to: .bottomLeft),
-                                      RotateLayout.turns(from: -1),
+                                    effects: [
+                                      AlignEffect(from: .bottomCenter, to: .bottomLeft),
+                                      RotateLayoutEffect.turns(from: -1),
                                     ],
                                     child: Text(
                                       cardsInfo[i].title,
@@ -100,9 +100,9 @@ class _HorizontallyExpandingCardsState extends State<HorizontallyExpandingCards>
                                   SizedBox(height: 2),
                                   Flexible(
                                     child: Actor(
-                                      acts: [
-                                        FadeAct(),
-                                        ClipRevealAct.vertical(from: .3),
+                                      effects: [
+                                        FadeEffect(),
+                                        ClipEffect.vertical(from: .3),
                                       ],
                                       child: Padding(
                                         padding: .only(bottom: 14),

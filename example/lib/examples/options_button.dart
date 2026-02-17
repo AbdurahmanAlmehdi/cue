@@ -65,11 +65,11 @@ class OptionsButton extends StatelessWidget {
                       ),
                     ),
                     Actor(
-                      acts: [
-                        FadeAct(),
-                        ScaleAct(from: .2),
-                        BlurAct(from: 10),
-                        SlideAct(from: Offset(0, 1)),
+                      effects: [
+                        FadeEffect(),
+                        ScaleEffect(from: .2),
+                        BlurEffect(from: 10),
+                        SlideEffect(from: Offset(0, 1)),
                       ],
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -94,10 +94,10 @@ class OptionsButton extends StatelessWidget {
                                       subtitle: Text('Subtitle text goes here'),
                                     ),
                                   ),
-                              ].staggerActs(
+                              ].staggerEffects(
                                 (int index) => [
-                                  TranslateAct(from: Offset(0, 10 * (index + 1))),
-                                  ScaleAct(from: index * -.1),
+                                  TranslateEffect(from: Offset(0, 10 * (index + 1))),
+                                  ScaleEffect(from: index * -.1),
                                 ],
                               ),
                         ),

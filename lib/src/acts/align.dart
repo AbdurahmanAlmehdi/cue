@@ -1,7 +1,7 @@
 part of 'act.dart';
 
-class AlignAct extends TweenAct<AlignmentGeometry?> {
-  const AlignAct({
+class AlignEffect extends TweenEffect<AlignmentGeometry?> {
+  const AlignEffect({
     super.from,
     super.to,
     super.curve,

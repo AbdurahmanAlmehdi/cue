@@ -1,14 +1,14 @@
 part of 'act.dart';
 
-class DecorateAct extends TweenAct<Decoration> {
-  const DecorateAct({
+class DecorateEffect extends TweenEffect<Decoration> {
+  const DecorateEffect({
     super.from = const BoxDecoration(),
     super.to = const BoxDecoration(),
     super.curve,
     super.timing,
   });
 
-  const DecorateAct.keyframes(
+  const DecorateEffect.keyframes(
     super.keyframes, {
     super.curve,
   }) : super.keyframes();
@@ -19,7 +19,11 @@ class DecorateAct extends TweenAct<Decoration> {
   }
 
   @override
-  Widget apply(BuildContext context, Animation<Decoration> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<Decoration> animation,
+    Widget child,
+  ) {
     return DecoratedBoxTransition(
       decoration: animation,
       child: child,
@@ -27,15 +31,16 @@ class DecorateAct extends TweenAct<Decoration> {
   }
 }
 
-class ColorAct extends TweenAct<Color> {
-  const ColorAct({
+class ColorEffect extends TweenEffect<Color> {
+  const ColorEffect({
     required super.from,
     required super.to,
     super.curve,
     super.timing,
   });
 
-  const ColorAct.keyframes(super.keyframes, {super.curve}) : super.keyframes();
+  const ColorEffect.keyframes(super.keyframes, {super.curve})
+    : super.keyframes();
 
   @override
   Animatable<Color> buildSinglePhaseTween(Color from, Color to) {

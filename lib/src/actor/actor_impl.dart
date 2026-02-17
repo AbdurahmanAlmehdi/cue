@@ -4,12 +4,12 @@ part of 'actor.dart';
 class ActorBase extends StatefulWidget implements Actor {
   final Curve? curve;
   final Timing? timing;
-  final List<Act> acts;
+  final List<Effect> effects;
   final Widget child;
 
   const ActorBase({
     super.key,
-    required this.acts,
+    required this.effects,
     required this.child,
     this.curve,
     this.timing,
@@ -20,7 +20,7 @@ class ActorBase extends StatefulWidget implements Actor {
 }
 
 class _ActorBaseState extends State<ActorBase> {
-  final _animations = <Act, Animation<Object?>>{};
+  final _animations = <Effect, Animation<Object?>>{};
 
   Animation<double>? _cachedDriver;
 
@@ -31,11 +31,14 @@ class _ActorBaseState extends State<ActorBase> {
 
   void _setupAnimations(Animation<double> driver) {
     _cachedDriver = driver;
-    // print('Setting up animations for ${widget.child.runtimeType} acts');
     _animations.clear();
-    for (final act in widget.acts) {
+    for (final act in widget.effects) {
       if (!_animations.containsKey(act)) {
-        _animations[act] = act.buildAnimation(driver);
+        _animations[act] = act.buildAnimation(
+          driver,
+          defaultTiming: widget.timing,
+          defaultCurve: widget.curve,
+        );
       }
     }
   }
@@ -43,7 +46,7 @@ class _ActorBaseState extends State<ActorBase> {
   @override
   void didUpdateWidget(covariant ActorBase oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!listEquals(oldWidget.acts, widget.acts) ||
+    if (!listEquals(oldWidget.effects, widget.effects) ||
         oldWidget.curve != widget.curve ||
         oldWidget.timing != widget.timing) {
       _setupAnimations(CueScope.of(context).animation);
@@ -61,9 +64,9 @@ class _ActorBaseState extends State<ActorBase> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.acts.isEmpty) return widget.child;
+    if (widget.effects.isEmpty) return widget.child;
     Widget current = widget.child;
-    for (final act in widget.acts.reversed) {
+    for (final act in widget.effects.reversed) {
       if (_animations[act] case final animation?) {
         current = act.build(context, animation, current);
       } else {
@@ -176,17 +179,19 @@ class _TweenActorState<T> extends State<TweenActor<T>> {
       if (result.timing != null) {
         timing = result.timing;
       }
-      effectiveTween = TweenActBase.buildFromPhases<T>(
+      effectiveTween = TweenEffectBase.buildFromPhases<T>(
         result.phases,
-        widget._tweenBuilder ?? (begin, end) => Tween<T>(begin: begin, end: end),
+        widget._tweenBuilder ??
+            (begin, end) => Tween<T>(begin: begin, end: end),
       );
     }
     final effectiveCurve = timing != null
         ? Interval(timing.start, timing.end, curve: curve ?? Curves.linear)
         : curve ?? Curves.linear;
 
-    print(effectiveCurve);
-    animation = driver.drive<T>(effectiveTween.chain(CurveTween(curve: effectiveCurve)));
+    animation = driver.drive<T>(
+      effectiveTween.chain(CurveTween(curve: effectiveCurve)),
+    );
   }
 
   @override
@@ -205,12 +210,15 @@ class _TweenActorState<T> extends State<TweenActor<T>> {
 }
 
 extension StaggeredActorExtension on Iterable<Widget> {
-  List<Widget> staggerActs(List<Act> Function(int index) acts, {Curve? curve}) {
+  List<Widget> staggerEffects(
+    List<Effect> Function(int index) effects, {
+    Curve? curve,
+  }) {
     return [
       for (var i = 0; i < length; i++)
         Actor(
           curve: curve,
-          acts: acts(i),
+          effects: effects(i),
           child: elementAt(i),
         ),
     ];

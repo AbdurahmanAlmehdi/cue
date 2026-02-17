@@ -46,10 +46,10 @@ class ThreeDotsAction extends StatelessWidget {
                 shape: CircleBorder(),
                 onPressed: () => Navigator.of(context).pop(),
                 child: Actor(
-                  acts: [
-                    BlurAct(from: 6),
-                    FadeAct(),
-                    TranslateAct.y(from: rect.height / 3),
+                  effects: [
+                    BlurEffect(from: 6),
+                    FadeEffect(),
+                    TranslateEffect.y(from: rect.height / 3),
                   ],
                   child: const Icon(Icons.keyboard_arrow_down),
                 ),
@@ -66,9 +66,9 @@ class ThreeDotsAction extends StatelessWidget {
                       Icons.translate,
                     ])
                       Actor(
-                        acts: [
-                          PaddingAct(from: .all(1), to: .only(bottom: 10.0)),
-                          ResizeAct(from: .square(5), to: .square(44)),
+                        effects: [
+                          PaddingEffect(from: .all(1), to: .only(bottom: 10.0)),
+                          SizeEffect(from: .square(5), to: .square(44)),
                         ],
                         child: FloatingActionButton(
                           mini: true,
@@ -78,10 +78,10 @@ class ThreeDotsAction extends StatelessWidget {
                           heroTag: null,
                           onPressed: () {},
                           child: Actor(
-                            acts: [
-                              ClipRevealAct(borderRadius: .circular(5), alignment: .center),
-                              BlurAct(from: 8),
-                              FadeAct(),
+                            effects: [
+                              ClipEffect(borderRadius: .circular(5), alignment: .center),
+                              BlurEffect(from: 8),
+                              FadeEffect(),
                             ],
                             child: Icon(icon, color: Colors.white, size: 24),
                           ),

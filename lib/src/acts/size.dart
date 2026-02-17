@@ -1,34 +1,6 @@
 part of 'act.dart';
 
-abstract class ResizeAct extends Act {
-  const factory ResizeAct({
-    required Size from,
-    required Size to,
-    Curve? curve,
-    Timing? timing,
-    AlignmentGeometry? alignment,
-    Clip clipBehavior,
-    bool allowOverflow,
-  }) = _ResizeAct;
-
-  const factory ResizeAct.keyframes(
-    List<Keyframe<Size?>> keyframes, {
-    Curve? curve,
-    AlignmentGeometry? alignment,
-    Clip clipBehavior,
-    bool allowOverflow,
-  }) = _ResizeAct.keyframes;
-
-  const factory ResizeAct.fractional({
-    Size from,
-    Size to,
-    Curve? curve,
-    Timing? timing,
-    AlignmentGeometry alignment,
-  }) = FractionalResizeAct;
-}
-
-class _ResizeAct extends TweenAct<double> implements ResizeAct {
+class SizeEffect extends TweenEffect<double> {
   final AlignmentGeometry? alignment;
   final Clip clipBehavior;
   final bool allowOverflow;
@@ -37,7 +9,7 @@ class _ResizeAct extends TweenAct<double> implements ResizeAct {
 
   final List<Keyframe<Size?>>? _sizeKeyframes;
 
-  const _ResizeAct({
+  const SizeEffect({
     Size? from,
     Size? to,
     super.curve,
@@ -50,7 +22,7 @@ class _ResizeAct extends TweenAct<double> implements ResizeAct {
        _sizeKeyframes = null,
        super(from: 0, to: 1);
 
-  const _ResizeAct.keyframes(
+  const SizeEffect.keyframes(
     List<Keyframe<Size?>> keyframes, {
     super.curve,
     this.alignment,
@@ -62,7 +34,11 @@ class _ResizeAct extends TweenAct<double> implements ResizeAct {
        super.keyframes(const []);
 
   @override
-  Animation<double> buildAnimation(Animation<double> driver) {
+  Animation<double> buildAnimation(
+    Animation<double> driver, {
+    Timing? defaultTiming,
+    Curve? defaultCurve,
+  }) {
     /// The actual size tween will be built in the RenderObject
     /// where we have access to the constraints so we can normalize sizes properly.
     /// Here we just return the driver animation
@@ -70,7 +46,11 @@ class _ResizeAct extends TweenAct<double> implements ResizeAct {
   }
 
   @override
-  Widget apply(BuildContext context, Animation<double> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<double> animation,
+    Widget child,
+  ) {
     return _AnimatedSize(
       driver: animation,
       fromSize: _fromSize,
@@ -86,8 +66,8 @@ class _ResizeAct extends TweenAct<double> implements ResizeAct {
   }
 }
 
-class FractionalResizeAct extends TweenAct<Size> implements ResizeAct {
-  const FractionalResizeAct({
+class FractionalSizeEffect extends TweenEffect<Size> {
+  const FractionalSizeEffect({
     super.from = Size.zero,
     super.to = Size.zero,
     super.curve,
@@ -95,7 +75,7 @@ class FractionalResizeAct extends TweenAct<Size> implements ResizeAct {
     this.alignment = Alignment.center,
   });
 
-  const FractionalResizeAct.keyframes(
+  const FractionalSizeEffect.keyframes(
     super.keyframes, {
     super.curve,
     this.alignment = Alignment.center,
@@ -112,6 +92,7 @@ class FractionalResizeAct extends TweenAct<Size> implements ResizeAct {
         return FractionallySizedBox(
           widthFactor: animation.value.width,
           heightFactor: animation.value.height,
+          alignment: alignment,
           child: child,
         );
       },
@@ -160,7 +141,10 @@ class _AnimatedSize extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context, _RenderAnimatedSize renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    _RenderAnimatedSize renderObject,
+  ) {
     renderObject
       ..driver = driver
       ..fromSize = fromSize
@@ -280,7 +264,8 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     markNeedsLayout();
   }
 
-  final LayerHandle<ClipRectLayer> _clipRectLayer = LayerHandle<ClipRectLayer>();
+  final LayerHandle<ClipRectLayer> _clipRectLayer =
+      LayerHandle<ClipRectLayer>();
 
   // Cached animation and related state
   Animation<Size?>? _sizeAnimation;
@@ -309,7 +294,10 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
 
   ({List<Phase<Size?>> phases, Timing? timing}) _buildPhases(Size maxSize) {
     if (_sizeKeyframes == null) {
-      assert(_fromSize != null && _toSize != null, 'Begin and end values must be provided when not using keyframes');
+      assert(
+        _fromSize != null && _toSize != null,
+        'Begin and end values must be provided when not using keyframes',
+      );
       return (
         phases: [
           Phase<Size?>(
@@ -321,7 +309,10 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
         timing: null,
       );
     } else {
-      return Phase.normalize(_sizeKeyframes!, (value) => _normalizeSize(value, maxSize));
+      return Phase.normalize(
+        _sizeKeyframes!,
+        (value) => _normalizeSize(value, maxSize),
+      );
     }
   }
 
@@ -331,8 +322,16 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     for (final phase in phases) {
       final begin = phase.begin ?? Size.zero;
       final end = phase.end ?? Size.zero;
-      maxWidth = [maxWidth, begin.width, end.width].reduce((a, b) => a > b ? a : b);
-      maxHeight = [maxHeight, begin.height, end.height].reduce((a, b) => a > b ? a : b);
+      maxWidth = [
+        maxWidth,
+        begin.width,
+        end.width,
+      ].reduce((a, b) => a > b ? a : b);
+      maxHeight = [
+        maxHeight,
+        begin.height,
+        end.height,
+      ].reduce((a, b) => a > b ? a : b);
     }
     return Size(maxWidth, maxHeight);
   }
@@ -354,18 +353,24 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     }
 
     // Build the tween from phases
-    final tween = TweenActBase.buildFromPhases<Size?>(
+    final tween = TweenEffectBase.buildFromPhases<Size?>(
       result.phases,
       (begin, end) => SizeTween(begin: begin, end: end),
     );
 
     // Apply timing and curve
     final effectiveCurve = effectiveTiming != null
-        ? Interval(effectiveTiming.start, effectiveTiming.end, curve: _curve ?? Curves.linear)
+        ? Interval(
+            effectiveTiming.start,
+            effectiveTiming.end,
+            curve: _curve ?? Curves.linear,
+          )
         : _curve ?? Curves.linear;
 
     // Build and cache the animation
-    _sizeAnimation = _driver.drive<Size?>(tween.chain(CurveTween(curve: effectiveCurve)));
+    _sizeAnimation = _driver.drive<Size?>(
+      tween.chain(CurveTween(curve: effectiveCurve)),
+    );
     _cachedMaxSize = _calculateMaxSize(result.phases);
     _lastConstraintSize = constraintSize;
 
@@ -408,7 +413,10 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     if (_allowOverflow) {
       // Layout child at maxSize (allowing it to be at its biggest size)
       final constrainedMaxSize = constraints.constrain(maxSize);
-      child!.layout(BoxConstraints.tight(constrainedMaxSize), parentUsesSize: true);
+      child!.layout(
+        BoxConstraints.tight(constrainedMaxSize),
+        parentUsesSize: true,
+      );
 
       // Get the animated size from the animation
       final animatedSize = sizeAnimation?.value ?? constrainedMaxSize;
@@ -420,7 +428,8 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
       alignChild();
 
       // Check if child is larger than our animated size (causes overflow)
-      if (constrainedMaxSize.width > size.width || constrainedMaxSize.height > size.height) {
+      if (constrainedMaxSize.width > size.width ||
+          constrainedMaxSize.height > size.height) {
         _hasVisualOverflow = true;
       }
     } else {

@@ -1,10 +1,10 @@
 part of 'act.dart';
 
-class FlexAct extends TweenActBase<int, double> {
+class FlexEffect extends TweenEffectBase<int, double> {
   final FlexFit fit;
   final bool allowOverflow;
 
-  const FlexAct({
+  const FlexEffect({
     required super.from,
     required super.to,
     super.curve,
@@ -13,7 +13,7 @@ class FlexAct extends TweenActBase<int, double> {
     this.allowOverflow = false,
   });
 
-  const FlexAct.keyframes(
+  const FlexEffect.keyframes(
     super.keyframes, {
     super.curve,
     this.fit = FlexFit.tight,
@@ -26,7 +26,11 @@ class FlexAct extends TweenActBase<int, double> {
   }
 
   @override
-  Widget apply(BuildContext context, Animation<double> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<double> animation,
+    Widget child,
+  ) {
     return _AnimatedFlexible(
       flexAnimation: animation,
       fit: fit,
@@ -58,7 +62,10 @@ class _AnimatedFlexible extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context, covariant _RenderAnimatedFlexible renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderAnimatedFlexible renderObject,
+  ) {
     renderObject
       ..flexAnimation = flexAnimation
       ..fit = fit
@@ -195,7 +202,8 @@ class _RenderAnimatedFlexible extends RenderProxyBox {
   }
 
   bool _hasVisualOverflow = false;
-  final LayerHandle<ClipRectLayer> _clipRectLayer = LayerHandle<ClipRectLayer>();
+  final LayerHandle<ClipRectLayer> _clipRectLayer =
+      LayerHandle<ClipRectLayer>();
 
   @override
   void paint(PaintingContext context, Offset offset) {
@@ -208,7 +216,9 @@ class _RenderAnimatedFlexible extends RenderProxyBox {
     // If overflow is allowed, we still clip to our own size (similar to resize).
     // This keeps Flex children from painting outside their allocated region when
     // flex shrinks.
-    _hasVisualOverflow = child != null && (child!.size.width > size.width || child!.size.height > size.height);
+    _hasVisualOverflow =
+        child != null &&
+        (child!.size.width > size.width || child!.size.height > size.height);
 
     if (child != null && _hasVisualOverflow) {
       final Rect rect = Offset.zero & size;

@@ -1,7 +1,7 @@
 part of 'act.dart';
 
-class TextStyleAct extends TweenAct<TextStyle> {
-  const TextStyleAct({
+class TextStyleEffect extends TweenEffect<TextStyle> {
+  const TextStyleEffect({
     required super.from,
     required super.to,
     super.curve,
@@ -14,13 +14,17 @@ class TextStyleAct extends TweenAct<TextStyle> {
   }
 
   @override
-  Widget apply(BuildContext context, Animation<TextStyle> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<TextStyle> animation,
+    Widget child,
+  ) {
     return DefaultTextStyleTransition(style: animation, child: child);
   }
 }
 
-class IconThemeAct extends TweenAct<IconThemeData> {
-  const IconThemeAct({
+class IconThemeEffect extends TweenEffect<IconThemeData> {
+  const IconThemeEffect({
     required super.from,
     required super.to,
     super.curve,
@@ -28,12 +32,19 @@ class IconThemeAct extends TweenAct<IconThemeData> {
   });
 
   @override
-  Animatable<IconThemeData> buildSinglePhaseTween(IconThemeData from, IconThemeData to) {
+  Animatable<IconThemeData> buildSinglePhaseTween(
+    IconThemeData from,
+    IconThemeData to,
+  ) {
     return _IconThemeDataTween(begin: from, end: to);
   }
 
   @override
-  Widget apply(BuildContext context, Animation<IconThemeData> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<IconThemeData> animation,
+    Widget child,
+  ) {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {

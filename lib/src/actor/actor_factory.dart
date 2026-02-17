@@ -33,8 +33,8 @@ class RotateActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        RotateAct.internal(
+      effects: [
+        RotateEffect.internal(
           from: from,
           to: to,
           alignment: alignment,
@@ -67,8 +67,8 @@ class ScaleActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        ScaleAct(
+      effects: [
+        ScaleEffect(
           from: from,
           to: to,
           alignment: alignment?.resolve(Directionality.of(context)),
@@ -98,8 +98,8 @@ class FadeActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        FadeAct(
+      effects: [
+        FadeEffect(
           from: from,
           to: to,
           curve: curve,
@@ -158,23 +158,23 @@ class SlideActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    final Act act = switch (_axis) {
-      Axis.horizontal => SlideAct.x(
+    final Effect effect = switch (_axis) {
+      Axis.horizontal => SlideEffect.x(
         from: _axisFrom!,
         to: _axisTo!,
         curve: curve,
         timing: timing,
       ),
-      Axis.vertical => SlideAct.y(
+      Axis.vertical => SlideEffect.y(
         from: _axisFrom!,
         to: _axisTo!,
         curve: curve,
         timing: timing,
       ),
-      _ => SlideAct(from: from!, to: to!, curve: curve, timing: timing),
+      _ => SlideEffect(from: from!, to: to!, curve: curve, timing: timing),
     };
     return ActorBase(
-      acts: [act],
+      effects: [effect],
       child: child,
     );
   }
@@ -197,8 +197,8 @@ class AlignActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        AlignAct(
+      effects: [
+        AlignEffect(
           from: from,
           to: to,
           curve: curve,
@@ -244,16 +244,16 @@ class ResizeActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
+      effects: [
         switch (_resizeFractionally) {
-          true => ResizeAct.fractional(
+          true => FractionalSizeEffect(
             from: from,
             to: to,
             alignment: alignment,
             curve: curve,
             timing: timing,
           ),
-          false => ResizeAct(
+          false => SizeEffect(
             from: from,
             to: to,
             alignment: alignment,
@@ -285,8 +285,8 @@ class BlurActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        BlurAct(
+      effects: [
+        BlurEffect(
           from: from,
           to: to,
           curve: curve,
@@ -299,11 +299,11 @@ class BlurActorFactory extends SingleActProxy {
 }
 
 @internal
-class PaddingActorFactory extends SingleActProxy {
+class PaddingEffectorFactory extends SingleActProxy {
   final EdgeInsetsGeometry from;
   final EdgeInsetsGeometry to;
 
-  const PaddingActorFactory({
+  const PaddingEffectorFactory({
     super.key,
     this.from = EdgeInsets.zero,
     required this.to,
@@ -315,8 +315,8 @@ class PaddingActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        PaddingAct(
+      effects: [
+        PaddingEffect(
           from: from,
           to: to,
           curve: curve,
@@ -380,23 +380,23 @@ class ClipRevealActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
+      effects: [
         switch (_axis) {
-          Axis.horizontal => ClipRevealAct.horizontal(
+          Axis.horizontal => ClipEffect.horizontal(
             from: _fromAxisSize!,
             to: _toAxisSize!,
             alignment: alignment,
             curve: curve,
             timing: timing,
           ),
-          Axis.vertical => ClipRevealAct.vertical(
+          Axis.vertical => ClipEffect.vertical(
             from: _fromAxisSize!,
             to: _toAxisSize!,
             alignment: alignment,
             curve: curve,
             timing: timing,
           ),
-          _ => ClipRevealAct(
+          _ => ClipEffect(
             fromSize: _fromSize!,
             alignment: alignment,
             borderRadius: borderRadius,
@@ -427,8 +427,8 @@ class PositionActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        PositionAct(
+      effects: [
+        PositionEffect(
           from: from,
           to: to,
           curve: curve,
@@ -457,8 +457,8 @@ class TextStyleActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        TextStyleAct(
+      effects: [
+        TextStyleEffect(
           from: from,
           to: to,
           curve: curve,
@@ -487,8 +487,8 @@ class IconThemeActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        IconThemeAct(
+      effects: [
+        IconThemeEffect(
           from: from,
           to: to,
           curve: curve,
@@ -517,8 +517,8 @@ class DecoratedBoxActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        DecorateAct(
+      effects: [
+        DecorateEffect(
           from: from,
           to: to,
           curve: curve,
@@ -547,8 +547,8 @@ class ColorActorFactory extends SingleActProxy {
   @override
   Widget build(BuildContext context) {
     return ActorBase(
-      acts: [
-        ColorAct(
+      effects: [
+        ColorEffect(
           from: from,
           to: to,
           curve: curve,
@@ -619,28 +619,28 @@ class TranslateActorFactory extends SingleActProxy {
 
   @override
   Widget build(BuildContext context) {
-    final Act act = switch (_variant) {
-      _TranslateVariant.horizontal => TranslateAct.x(
+    final Effect effect = switch (_variant) {
+      _TranslateVariant.horizontal => TranslateEffect.x(
         from: _axisFrom!,
         to: _axisTo!,
         curve: curve,
         timing: timing,
       ),
-      _TranslateVariant.vertical => TranslateAct.y(
+      _TranslateVariant.vertical => TranslateEffect.y(
         from: _axisFrom!,
         to: _axisTo!,
         curve: curve,
         timing: timing,
       ),
-      _TranslateVariant.fromGlobal => TranslateAct.fromGlobal(
+      _TranslateVariant.fromGlobal => TranslateEffect.fromGlobal(
         offset: from!,
         curve: curve,
         timing: timing,
       ),
-      _ => TranslateAct(from: from!, to: to!, curve: curve, timing: timing),
+      _ => TranslateEffect(from: from!, to: to!, curve: curve, timing: timing),
     };
     return ActorBase(
-      acts: [act],
+      effects: [effect],
       child: child,
     );
   }

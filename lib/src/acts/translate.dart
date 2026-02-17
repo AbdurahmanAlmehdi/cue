@@ -1,28 +1,51 @@
 part of 'act.dart';
 
-abstract class TranslateAct extends Act {
-  const factory TranslateAct({
+abstract class TranslateEffect extends Effect {
+  const factory TranslateEffect({
     required Offset from,
     Offset to,
     Curve? curve,
     Timing? timing,
   }) = _TranslateOffset;
 
-  const factory TranslateAct.keyframes(List<Keyframe<Offset>> keyframes, {Curve? curve}) = _TranslateOffset.keyframes;
+  const factory TranslateEffect.keyframes(
+    List<Keyframe<Offset>> keyframes, {
+    Curve? curve,
+  }) = _TranslateOffset.keyframes;
 
-  const factory TranslateAct.x({double from, double to, Curve? curve, Timing? timing}) = _AxisTranslate.horizontal;
+  const factory TranslateEffect.x({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = _AxisTranslate.horizontal;
 
-  const factory TranslateAct.xKeyframes(List<Keyframe<double>> keyframes, {Curve? curve}) = _AxisTranslate.xKeyframes;
+  const factory TranslateEffect.xKeyframes(
+    List<Keyframe<double>> keyframes, {
+    Curve? curve,
+  }) = _AxisTranslate.xKeyframes;
 
-  const factory TranslateAct.y({double from, double to, Curve? curve, Timing? timing}) = _AxisTranslate.vertical;
+  const factory TranslateEffect.y({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = _AxisTranslate.vertical;
 
-  const factory TranslateAct.yKeyframes(List<Keyframe<double>> keyframes, {Curve? curve}) = _AxisTranslate.yKeyframes;
+  const factory TranslateEffect.yKeyframes(
+    List<Keyframe<double>> keyframes, {
+    Curve? curve,
+  }) = _AxisTranslate.yKeyframes;
 
-  const factory TranslateAct.fromGlobal({required Offset offset, Offset toLocal, Curve? curve, Timing? timing}) =
-      _TranslateFromGlobal;
+  const factory TranslateEffect.fromGlobal({
+    required Offset offset,
+    Offset toLocal,
+    Curve? curve,
+    Timing? timing,
+  }) = _TranslateFromGlobal;
 }
 
-class _TranslateOffset extends TweenAct<Offset> implements TranslateAct {
+class _TranslateOffset extends TweenEffect<Offset> implements TranslateEffect {
   const _TranslateOffset({
     required super.from,
     super.to = Offset.zero,
@@ -30,10 +53,15 @@ class _TranslateOffset extends TweenAct<Offset> implements TranslateAct {
     super.timing,
   });
 
-  const _TranslateOffset.keyframes(super.keyframes, {super.curve}) : super.keyframes();
+  const _TranslateOffset.keyframes(super.keyframes, {super.curve})
+    : super.keyframes();
 
   @override
-  Widget apply(BuildContext context, Animation<Offset> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<Offset> animation,
+    Widget child,
+  ) {
     return _TranslateTransition(
       offset: animation,
       transformHitTests: true,
@@ -42,7 +70,8 @@ class _TranslateOffset extends TweenAct<Offset> implements TranslateAct {
   }
 }
 
-class _AxisTranslate extends TweenActBase<double, Offset> implements TranslateAct {
+class _AxisTranslate extends TweenEffectBase<double, Offset>
+    implements TranslateEffect {
   final Axis _axis;
 
   const _AxisTranslate.vertical({
@@ -59,9 +88,13 @@ class _AxisTranslate extends TweenActBase<double, Offset> implements TranslateAc
     super.timing,
   }) : _axis = Axis.horizontal;
 
-  const _AxisTranslate.yKeyframes(super.keyframes, {super.curve}) : _axis = Axis.vertical, super.keyframes();
+  const _AxisTranslate.yKeyframes(super.keyframes, {super.curve})
+    : _axis = Axis.vertical,
+      super.keyframes();
 
-  const _AxisTranslate.xKeyframes(super.keyframes, {super.curve}) : _axis = Axis.horizontal, super.keyframes();
+  const _AxisTranslate.xKeyframes(super.keyframes, {super.curve})
+    : _axis = Axis.horizontal,
+      super.keyframes();
 
   @override
   Offset transform(double value) {
@@ -74,7 +107,11 @@ class _AxisTranslate extends TweenActBase<double, Offset> implements TranslateAc
   }
 
   @override
-  Widget apply(BuildContext context, Animation<Offset> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<Offset> animation,
+    Widget child,
+  ) {
     return _TranslateTransition(
       offset: animation,
       transformHitTests: true,
@@ -104,7 +141,8 @@ class _TranslateTransition extends AnimatedWidget {
   }
 }
 
-class _TranslateFromGlobal extends TweenAct<double> implements TranslateAct {
+class _TranslateFromGlobal extends TweenEffect<double>
+    implements TranslateEffect {
   final Offset offset;
   final Offset toLocal;
   const _TranslateFromGlobal({
@@ -115,7 +153,11 @@ class _TranslateFromGlobal extends TweenAct<double> implements TranslateAct {
   }) : super(from: 0, to: 1);
 
   @override
-  Widget apply(BuildContext context, Animation<double> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<double> animation,
+    Widget child,
+  ) {
     return _TranslateFromGlobalTransition(
       animation: animation,
       global: offset,
@@ -139,10 +181,12 @@ class _TranslateFromGlobalTransition extends StatefulWidget {
   });
 
   @override
-  State<_TranslateFromGlobalTransition> createState() => _TranslateFromGlobalTransitionState();
+  State<_TranslateFromGlobalTransition> createState() =>
+      _TranslateFromGlobalTransitionState();
 }
 
-class _TranslateFromGlobalTransitionState extends State<_TranslateFromGlobalTransition> {
+class _TranslateFromGlobalTransitionState
+    extends State<_TranslateFromGlobalTransition> {
   final _key = GlobalKey();
   Tween<Offset>? _deltaTween;
   bool _measured = false;
@@ -198,7 +242,9 @@ class _TranslateFromGlobalTransitionState extends State<_TranslateFromGlobalTran
 
   @override
   Widget build(BuildContext context) {
-    final offset = _deltaTween == null ? Offset.zero : widget.animation.drive(_deltaTween!).value;
+    final offset = _deltaTween == null
+        ? Offset.zero
+        : widget.animation.drive(_deltaTween!).value;
     final isInvisible = _deltaTween == null;
     return Visibility(
       key: _key,

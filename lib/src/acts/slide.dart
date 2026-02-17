@@ -1,58 +1,62 @@
 part of 'act.dart';
 
-abstract class SlideAct extends Act {
-  const factory SlideAct({
+abstract class SlideEffect extends Effect {
+  const factory SlideEffect({
     Offset from,
     Offset to,
     Curve? curve,
     Timing? timing,
-  }) = _SlideAct;
+  }) = _SlideEffect;
 
-  const factory SlideAct.keyframes(
+  const factory SlideEffect.keyframes(
     List<Keyframe<Offset>> keyframes, {
     Curve? curve,
-  }) = _SlideAct.keyframes;
+  }) = _SlideEffect.keyframes;
 
-  const factory SlideAct.y({
+  const factory SlideEffect.y({
     double from,
     double to,
     Curve? curve,
     Timing? timing,
-  }) = _AxisSlideAct.y;
+  }) = _AxisSlideEffect.y;
 
-  const factory SlideAct.yKeyframes(
+  const factory SlideEffect.yKeyframes(
     List<Keyframe<double>> keyframes, {
     Curve? curve,
-  }) = _AxisSlideAct.yKeyframes;
+  }) = _AxisSlideEffect.yKeyframes;
 
-  const factory SlideAct.x({
+  const factory SlideEffect.x({
     double from,
     double to,
     Curve? curve,
     Timing? timing,
-  }) = _AxisSlideAct.x;
+  }) = _AxisSlideEffect.x;
 
-  const factory SlideAct.xKeyframes(
+  const factory SlideEffect.xKeyframes(
     List<Keyframe<double>> keyframes, {
     Curve? curve,
-  }) = _AxisSlideAct.xKeyframes;
+  }) = _AxisSlideEffect.xKeyframes;
 }
 
-class _SlideAct extends TweenAct<Offset> implements SlideAct {
-  const _SlideAct({
+class _SlideEffect extends TweenEffect<Offset> implements SlideEffect {
+  const _SlideEffect({
     super.from = Offset.zero,
     super.to = Offset.zero,
     super.curve,
     super.timing,
   });
 
-  const _SlideAct.keyframes(
+  const _SlideEffect.keyframes(
     super.keyframes, {
     super.curve,
   }) : super.keyframes();
 
   @override
-  Widget apply(BuildContext context, Animation<Offset> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<Offset> animation,
+    Widget child,
+  ) {
     return SlideTransition(
       position: animation,
       child: child,
@@ -60,30 +64,31 @@ class _SlideAct extends TweenAct<Offset> implements SlideAct {
   }
 }
 
-class _AxisSlideAct extends TweenActBase<double, Offset> implements SlideAct {
+class _AxisSlideEffect extends TweenEffectBase<double, Offset>
+    implements SlideEffect {
   final Axis _axis;
 
-  const _AxisSlideAct.y({
+  const _AxisSlideEffect.y({
     super.from = 0,
     super.to = 0,
     super.curve,
     super.timing,
   }) : _axis = Axis.vertical;
 
-  const _AxisSlideAct.yKeyframes(
+  const _AxisSlideEffect.yKeyframes(
     super.keyframes, {
     super.curve,
   }) : _axis = Axis.vertical,
        super.keyframes();
 
-  const _AxisSlideAct.x({
+  const _AxisSlideEffect.x({
     super.from = 0,
     super.to = 0,
     super.curve,
     super.timing,
   }) : _axis = Axis.horizontal;
 
-  const _AxisSlideAct.xKeyframes(
+  const _AxisSlideEffect.xKeyframes(
     super.keyframes, {
     super.curve,
   }) : _axis = Axis.horizontal,
@@ -100,7 +105,11 @@ class _AxisSlideAct extends TweenActBase<double, Offset> implements SlideAct {
   }
 
   @override
-  Widget apply(BuildContext context, Animation<Offset> animation, Widget child) {
+  Widget apply(
+    BuildContext context,
+    Animation<Offset> animation,
+    Widget child,
+  ) {
     return SlideTransition(
       position: animation,
       child: child,

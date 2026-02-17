@@ -1,6 +1,5 @@
 import 'package:cue/cue.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'actor_factory.dart';
 part 'actor_impl.dart';
@@ -8,7 +7,7 @@ part 'actor_impl.dart';
 abstract class Actor extends Widget {
   const factory Actor({
     Key? key,
-    required List<Act> acts,
+    required List<Effect> effects,
     required Widget child,
     Curve? curve,
     Timing? timing,
@@ -126,7 +125,7 @@ abstract class Actor extends Widget {
     required Widget child,
     Curve? curve,
     Timing? timing,
-  }) = PaddingActorFactory;
+  }) = PaddingEffectorFactory;
 
   const factory Actor.translate({
     Key? key,

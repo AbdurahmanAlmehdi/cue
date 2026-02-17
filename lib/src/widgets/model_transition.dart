@@ -1,6 +1,4 @@
 import 'package:cue/cue.dart';
-import 'package:cue/src/cue/cue.dart';
-import 'package:cue/src/cue/cue_debug_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

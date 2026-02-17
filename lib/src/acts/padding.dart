@@ -1,14 +1,14 @@
 part of 'act.dart';
 
-class PaddingAct extends TweenAct<EdgeInsetsGeometry> {
-  const PaddingAct({
+class PaddingEffect extends TweenEffect<EdgeInsetsGeometry> {
+  const PaddingEffect({
     super.from = EdgeInsets.zero,
     super.to = EdgeInsets.zero,
     super.curve,
     super.timing,
   });
 
-  const PaddingAct.keyframes(super.keyframes, {super.curve}) : super.keyframes();
+  const PaddingEffect.keyframes(super.keyframes, {super.curve}) : super.keyframes();
 
   @override
   Animatable<EdgeInsetsGeometry> buildSinglePhaseTween(EdgeInsetsGeometry from, EdgeInsetsGeometry to) {
