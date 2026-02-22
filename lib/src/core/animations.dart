@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
 
-class DaulAnimation<T extends Object?> extends Animation<T> with AnimationWithParentMixin<double> {
+class DualAnimation<T extends Object?> extends Animation<T> with AnimationWithParentMixin<double> {
   @override
   final Animation<double> parent;
 
   final Animatable<T> forward;
   final Animatable<T> reverse;
 
-  DaulAnimation({
+  DualAnimation({
     required this.parent,
     required this.forward,
     required this.reverse,

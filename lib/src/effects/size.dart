@@ -100,7 +100,7 @@ class SizeEffect extends TweenEffect<double> {
     return switch (data.role) {
       ActorRole.both =>
         reverseAnimtable != null
-            ? DaulAnimation(
+            ? DualAnimation(
                 parent: driver,
                 forward: animatable,
                 reverse: reverseAnimtable,
