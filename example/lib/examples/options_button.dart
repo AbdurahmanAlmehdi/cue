@@ -7,7 +7,7 @@ class OptionsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ModalTransition(
+    return CueModalTransition(
       barrierColor: Colors.transparent,
       alignment: Alignment.center,
       simulation: const Spring.smooth(),

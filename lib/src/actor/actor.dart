@@ -38,7 +38,7 @@ class _ActorState extends State<Actor> {
 
   void _setupAnimations(CueScope scope) {
     _cachedScope = scope;
-    _animations.clear();
+    _animations.removeWhere((effect, _) => !widget.effects.contains(effect));
     for (final act in widget.effects) {
       if (!_animations.containsKey(act)) {
         _animations[act] = act.buildAnimation(

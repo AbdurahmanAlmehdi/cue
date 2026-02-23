@@ -6,8 +6,7 @@ class ThreeDotsAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ModalTransition(
-      // showDebug: true,
+    return CueModalTransition(
       barrierColor: Colors.black12,
       alignment: Alignment.bottomCenter,
       triggerBuilder: (context, showModal) => FloatingActionButton(

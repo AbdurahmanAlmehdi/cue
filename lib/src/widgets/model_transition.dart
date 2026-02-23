@@ -7,8 +7,8 @@ typedef ShowModalFunction<T extends Object> = Future<T?> Function();
 
 typedef ModalContentBuilder = Widget Function(BuildContext context, Rect triggerRect);
 
-class ModalTransition extends StatefulWidget {
-  const ModalTransition({
+class CueModalTransition extends StatefulWidget {
+  const CueModalTransition({
     super.key,
     required this.triggerBuilder,
     required this.builder,
@@ -32,16 +32,16 @@ class ModalTransition extends StatefulWidget {
   final CueSimulation? simulation;
 
   @override
-  State<ModalTransition> createState() => _ModalTransitionState();
+  State<CueModalTransition> createState() => _CueModalTransitionState();
 }
 
-class _ModalTransitionState extends State<ModalTransition> {
+class _CueModalTransitionState extends State<CueModalTransition> {
   final _triggerKey = GlobalKey();
   late final _showDebug = ValueNotifier<bool>(widget.showDebug);
   Animation<double> _transitionAnimation = AlwaysStoppedAnimation(0.0);
 
   @override
-  void didUpdateWidget(covariant ModalTransition oldWidget) {
+  void didUpdateWidget(covariant CueModalTransition oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (kDebugMode) {
       if (oldWidget.showDebug != widget.showDebug) {

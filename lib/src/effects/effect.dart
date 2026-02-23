@@ -118,6 +118,7 @@ abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Eff
         Phase<R>(begin: transform(from as T), end: transform(to as T), weight: 100),
       ];
     } else {
+      assert(keyframes.isNotEmpty, 'Keyframes list cannot be empty');
       final result = Phase.normalize(keyframes, (value) => transform(value));
       phases = result.phases;
       if (result.timing != null) {
@@ -139,8 +140,14 @@ abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Eff
       defaultTiming: timing ?? data.timing,
     );
 
+    final tween = tweenRes.tween;
+    if (tween is ConstantTween<R>) {
+      // todo: rethink what status should the animation be in
+      return AlwaysStoppedAnimation(tween.begin as R);
+    }
+
     final animatable = applyCurves(
-      tweenRes.tween,
+      tween,
       curve: data.curve,
       timing: tweenRes.timing,
       isBounded: data.isBounded,
@@ -149,7 +156,7 @@ abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Eff
     Animatable<R>? reverseAnimatable;
     if (data.reverseCurve != null || data.reverseTiming != null) {
       reverseAnimatable = applyCurves(
-        tweenRes.tween,
+        tween,
         curve: data.reverseCurve,
         timing: data.reverseTiming,
         isBounded: data.isBounded,
@@ -160,7 +167,7 @@ abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Eff
       ActorRole.both =>
         reverseAnimatable == null
             ? driver.drive(animatable)
-            : DaulAnimation(
+            : DualAnimation(
                 parent: driver,
                 forward: animatable,
                 reverse: reverseAnimatable,
@@ -174,6 +181,8 @@ abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Eff
     List<Phase<T>> phases,
     TweenBuilder<T> tweenBuilder,
   ) {
+    assert(phases.isNotEmpty);
+
     Animatable<T> tween;
     if (phases.length == 1) {
       final phase = phases.single;
@@ -182,6 +191,13 @@ abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Eff
       }
       tween = tweenBuilder(phase.begin, phase.end);
     } else {
+      final allSame = phases.every((phase) {
+        return phase.begin == phases.first.begin && phase.begin == phase.end;
+      });
+
+      if (allSame) {
+        return ConstantTween<T>(phases.first.begin);
+      }
       tween = BoundedTweenSequence<T>([
         for (final phase in phases)
           TweenSequenceItem(

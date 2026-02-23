@@ -28,7 +28,7 @@ class _ExpandingCardsState extends State<ExpandingCards> {
           for (var i = 0; i < _cardIfno.length; i++)
             Cue.onToggle(
               toggled: _expandedIndex == i,
-              simulation: Spring.smooth(),
+              simulation: Spring.smooth(damping: 23),
               child: Builder(
                 builder: (context) {
                   final isLast = i == _cardIfno.length - 1;
@@ -36,18 +36,21 @@ class _ExpandingCardsState extends State<ExpandingCards> {
                   final isPrevious = _expandedIndex - 1 == i;
                   final isNext = _expandedIndex + 1 == i;
 
-                  final fromTopRadius = i == 0 || isActive || isNext ? const Radius.circular(24) : Radius.zero;
-                  final fromBottomRadius = isLast || isActive || isPrevious ? const Radius.circular(24) : Radius.zero;
+                  final topRadius = i == 0 || isActive || isNext ? const Radius.circular(24) : Radius.zero;
+                  final bottomRadius = isLast || isActive || isPrevious ? const Radius.circular(24) : Radius.zero;
 
-                  return PaddingActor(
-                    to: const .symmetric(vertical: 12),
+                  return Actor(
+                    effects: [
+                      PaddingEffect(to: const .symmetric(vertical: 12)),
+                      ScaleEffect(to: 1.01),
+                    ],
                     child: Material(
-                      clipBehavior: Clip.hardEdge,
+                      clipBehavior: .hardEdge,
                       animationDuration: Duration(milliseconds: 300),
                       color: theme.colorScheme.surfaceContainer,
                       borderRadius: .vertical(
-                        top: fromTopRadius,
-                        bottom: fromBottomRadius,
+                        top: topRadius,
+                        bottom: bottomRadius,
                       ),
                       child: InkWell(
                         onTap: () {
@@ -69,9 +72,12 @@ class _ExpandingCardsState extends State<ExpandingCards> {
                                   Icon(_cardIfno[i].$2, size: 20),
                                   SizedBox(width: 12),
                                   Expanded(child: Text(_cardIfno[i].$1)),
-                                  RotateActor.turns(
-                                    to: -2,
-                                    child: Icon(Icons.expand_more_rounded),
+                                  RotateActor.degrees(
+                                    to: -180,
+                                    child: Icon(
+                                      Icons.expand_more_rounded,
+                                      color: theme.colorScheme.onSurface.withValues(alpha: .6),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -85,8 +91,10 @@ class _ExpandingCardsState extends State<ExpandingCards> {
                                 child: Padding(
                                   padding: const .only(left: 8, right: 8, bottom: 12),
                                   child: Text(
-                                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec auctor, nisl eget ultricies lacinia.',
-                                    style: theme.textTheme.bodySmall,
+                                    'Lorem ipsum dolor sit amet, consectetur for on adipiscing elit. Donec auctor, nisl eget ultricies lacinia.',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurface.withValues(alpha: .7),
+                                    ),
                                   ),
                                 ),
                               ),
