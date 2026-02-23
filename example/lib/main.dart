@@ -65,21 +65,22 @@ class DemoPage extends StatefulWidget {
 }
 
 class _DemoPageState extends State<DemoPage> with SingleTickerProviderStateMixin {
-  late final _tabsController = CueTabController(length: 5, vsync: this);
+  // late final _tabsController = CueTabController(length: 5, vsync: this);
   final _pageController = CuePageController(viewportFraction: .1);
+  late final _cueController = CueIndexController(length: 5, vsync: this);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        bottom: TabBar(
-          controller: _tabsController,
-          tabs: [
-            for (int index = 0; index < 5; index++)
-              Tab(
-                child: Text('Tab ${index + 1}'),
-              ),
-          ],
-        ),
+        // bottom: TabBar(
+        //   controller: _cueController,
+        //   tabs: [
+        //     for (int index = 0; index < 5; index++)
+        //       Tab(
+        //         child: Text('Tab ${index + 1}'),
+        //       ),
+        //   ],
+        // ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -92,7 +93,7 @@ class _DemoPageState extends State<DemoPage> with SingleTickerProviderStateMixin
                 Padding(
                   padding: const EdgeInsets.all(0.0),
                   child: Cue.indexed(
-                    controller: _pageController,
+                    controller: _cueController,
                     targetIndex: index,
                     child: GestureDetector(
                       onTap: () {
@@ -102,9 +103,9 @@ class _DemoPageState extends State<DemoPage> with SingleTickerProviderStateMixin
                         //   curve: Curves.linear,
                         // );
 
-                        _pageController.animateToPage(
+                        _cueController.animateTo(
                           index,
-                          duration: Duration(milliseconds: 300),
+                          duration: Duration(milliseconds: 600),
                           curve: Curves.easeInOut,
                         );
                       },

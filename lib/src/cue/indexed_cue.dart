@@ -23,7 +23,7 @@ class _IndexedCueState extends _CueState<_IndexedCue> {
   @override
   bool get isBounded => true;
 
-  Listenable get listenable => widget.controller.tickListneable;
+  Listenable get listenable => widget.controller.tickListenable;
   @override
   void initState() {
     super.initState();
@@ -51,7 +51,7 @@ class _IndexedCueState extends _CueState<_IndexedCue> {
   @override
   void didUpdateWidget(covariant _IndexedCue oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.controller != oldWidget.controller || listenable != oldWidget.controller.tickListneable) {
+    if (widget.controller != oldWidget.controller || listenable != oldWidget.controller.tickListenable) {
       listenable.removeListener(_updateAnimation);
       listenable.addListener(_updateAnimation);
       _updateAnimation();
@@ -79,23 +79,24 @@ mixin IndexedCueController implements Listenable {
     if (!animateAll && isAnimating) {
       final isRelevant = targetIndex == lastSettledIndex || targetIndex == destinationIndex;
       if (!isRelevant) return 0.0;
-
-      // Normalize progress across the full travel distance
-      final totalDistance = (destinationIndex - lastSettledIndex).abs().toDouble();
-      if (totalDistance == 0) return calculateOffsetFor(targetIndex);
-
-      final progress = (globalOffset - lastSettledIndex).abs() / totalDistance;
-      // lastSettledIndex animates from 1.0 → 0.0, destinationIndex from 0.0 → 1.0
-      return targetIndex == destinationIndex ? progress.clamp(0.0, 1.0) : (1.0 - progress).clamp(0.0, 1.0);
+      return calculateOffsetFor(targetIndex, isDestination: targetIndex == destinationIndex);
     }
     return calculateOffsetFor(targetIndex);
   }
 
-  Listenable get tickListneable => this;
+  Listenable get tickListenable => this;
 
-  double calculateOffsetFor(int targetIndex) {
+  double calculateOffsetFor(int targetIndex, {bool isDestination = false}) {
     final distance = (globalOffset - targetIndex).abs();
-    return (1.0 - distance).clamp(0.0, 1.0);
+    if (!isDestination) return (1.0 - distance).clamp(0.0, 1.0);
+
+    // Normalize progress across the full travel distance so active and
+    // destination indexes animate in parallel regardless of page distance.
+    final totalDistance = (destinationIndex - lastSettledIndex).abs().toDouble();
+    if (totalDistance <= 1.0) return (1.0 - distance).clamp(0.0, 1.0);
+
+    final progress = ((globalOffset - lastSettledIndex) / (destinationIndex - lastSettledIndex)).clamp(0.0, 1.0);
+    return isDestination ? progress : 1.0 - progress;
   }
 }
 
@@ -209,11 +210,157 @@ class CueTabController extends TabController with IndexedCueController {
   bool get isAnimating => indexIsChanging;
 
   @override
-  Listenable get tickListneable => animation ?? this;
+  Listenable get tickListenable => animation ?? this;
 
   @override
   double get globalOffset {
     if (animation == null) return index.toDouble();
     return animation!.value;
+  }
+}
+
+class CueIndexController with ChangeNotifier, IndexedCueController {
+  CueIndexController({
+    required this.length,
+    required TickerProvider vsync,
+    int initialIndex = 0,
+    Duration duration = const Duration(milliseconds: 300),
+    Duration? reverseDuration,
+    this.animateAll = false,
+  }) : assert(length > 0, 'length must be greater than 0'),
+       assert(
+         initialIndex >= 0 && initialIndex < length,
+         'initialIndex must be in range [0, length)',
+       ),
+       _currentIndex = initialIndex,
+       _destinationIndex = initialIndex,
+       _lastSettledIndex = initialIndex {
+    _animationController = AnimationController(
+      vsync: vsync,
+      duration: duration,
+      reverseDuration: reverseDuration,
+      lowerBound: 0.0,
+      upperBound: (length - 1).toDouble(),
+      value: initialIndex.toDouble(),
+      debugLabel: 'CueIndexController',
+    )..addListener(notifyListeners);
+  }
+
+  /// The total number of items managed by this controller.
+  final int length;
+
+  @override
+  final bool animateAll;
+
+  late final AnimationController _animationController;
+
+  int _currentIndex;
+  int _destinationIndex;
+  int _lastSettledIndex;
+
+  /// The underlying [AnimationController] used to drive the animation.
+  AnimationController get animationController => _animationController;
+
+  @override
+  int get currentIndex => _currentIndex;
+
+  @override
+  int get destinationIndex => _destinationIndex;
+
+  @override
+  int get lastSettledIndex => _lastSettledIndex;
+
+  @override
+  bool get isAnimating => _animationController.isAnimating;
+
+  @override
+  double get globalOffset => _animationController.value;
+
+  @override
+  Listenable get tickListenable => _animationController;
+
+  /// Animates to the given [index].
+  ///
+  /// If an animation is already in progress, it is cancelled first. The
+  /// cancelled animation's [Future] resolves with a [TickerCanceled] error,
+  /// which is silently swallowed — the controller snaps its internal state to
+  /// the nearest integer index at the point of cancellation.
+  ///
+  /// The [duration] and [curve] parameters override the controller defaults
+  /// for this specific animation.
+  Future<void> animateTo(
+    int index, {
+    Duration? duration,
+    Curve curve = Curves.linear,
+  }) {
+    assert(index >= 0 && index < length, 'index must be in range [0, length)');
+    _lastSettledIndex = _currentIndex;
+    _destinationIndex = index;
+    notifyListeners();
+    // Calling animateTo on the underlying AnimationController while it is
+    // already running will cancel the previous TickerFuture, causing its
+    // .orCancel future to complete with a TickerCanceled error. The catchError
+    // below handles that case for the *new* future as well (e.g. when jumpTo
+    // or dispose is called while this animation is in flight).
+    return _animationController
+        .animateTo(
+          index.toDouble(),
+          duration: duration,
+          curve: curve,
+        )
+        .orCancel
+        .then((_) {
+          _currentIndex = index;
+          _lastSettledIndex = index;
+          notifyListeners();
+        })
+        .catchError(
+          (Object _) {
+            // Animation was cancelled (e.g. jumpTo, stop, or dispose was called).
+            // Snap internal state to the nearest integer at the current position.
+            _currentIndex = _animationController.value.round();
+            _lastSettledIndex = _currentIndex;
+            _destinationIndex = _currentIndex;
+          },
+          test: (e) => e is TickerCanceled,
+        );
+  }
+
+  /// Stops the current animation at its current position.
+  ///
+  /// The [currentIndex] and [lastSettledIndex] are snapped to the nearest
+  /// integer index. Any in-flight [animateTo] future will complete with a
+  /// [TickerCanceled] error that is silently handled.
+  void stop() {
+    _animationController.stop();
+    _currentIndex = _animationController.value.round();
+    _destinationIndex = _currentIndex;
+    _lastSettledIndex = _currentIndex;
+    notifyListeners();
+  }
+
+  /// Jumps immediately to the given [index] without animation.
+  ///
+  /// Any in-flight animation is cancelled before the jump. The cancelled
+  /// animation's future is silently discarded.
+  void jumpTo(int index) {
+    assert(index >= 0 && index < length, 'index must be in range [0, length)');
+    _animationController.stop();
+    _animationController.value = index.toDouble();
+    _currentIndex = index;
+    _destinationIndex = index;
+    _lastSettledIndex = index;
+    notifyListeners();
+  }
+
+  /// Releases the resources used by this controller.
+  ///
+  /// Must be called when the controller is no longer needed, typically in
+  /// [State.dispose].
+  @override
+  void dispose() {
+    _animationController.removeListener(notifyListeners);
+    _animationController.dispose();
+    super.dispose();
   }
 }
