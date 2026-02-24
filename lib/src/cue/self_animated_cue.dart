@@ -144,6 +144,22 @@ abstract class _SelfAnimatedState<T extends _SelfAnimatedCue> extends _CueState<
 
   void onControllerReady() {}
 
+  void playForward() {
+    if (widget.simulation != null) {
+      controller.animateWith(_createSimulation(true));
+    } else {
+      controller.forward();
+    }
+  }
+
+  void playBackward() {
+    if (widget.simulation != null) {
+      controller.animateBackWith(_createSimulation(false));
+    } else {
+      controller.reverse();
+    }
+  }
+
   void play({bool loop = false, bool reverseOnLoop = false}) {
     if (mounted) {
       if (simulation != null) {

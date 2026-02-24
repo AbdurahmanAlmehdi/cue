@@ -164,7 +164,7 @@ class SlideActor extends SingleEffectProxy<Offset> {
   const SlideActor.x({
     super.key,
     required double from,
-    required double to,
+    double to = 0,
     required super.child,
     super.role,
     super.curve,
@@ -194,7 +194,7 @@ class SlideActor extends SingleEffectProxy<Offset> {
   const SlideActor.y({
     super.key,
     required double from,
-    required double to,
+    double to = 0,
     required super.child,
     super.curve,
     super.timing,

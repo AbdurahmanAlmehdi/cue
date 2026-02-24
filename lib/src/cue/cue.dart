@@ -1,13 +1,15 @@
 import 'package:cue/cue.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter/rendering.dart';
+import 'dart:math' as math;
 part 'indexed_cue.dart';
 part 'on_change_cue.dart';
 part 'route_transition_cue.dart';
 part 'self_animated_cue.dart';
 part 'on_hover_cue.dart';
 part 'on_toggle_cue.dart';
+part 'on_scroll_visiable_cue.dart';
 part 'controlled_cue.dart';
 part 'cue_scope.dart';
 
@@ -96,6 +98,22 @@ abstract class Cue extends StatefulWidget {
     required IndexedCueController controller,
     required int targetIndex,
   }) = _IndexedCue;
+
+  // This only works within the nearest scrollable ancestor and is not meant to be used as a general purpose visibility detector.
+  // it doesn't support nested scrollables and is not meant to be used as a general purpose visibility detector.
+
+  // if you need a general purpose visibility detector, use the VisibilityDetector package. an trigger Cue animations based on visibility changes using that package and Cue's imperative API.
+  const factory Cue.onScrollVisible({
+    required Key key,
+    required Widget child,
+    Curve? curve,
+    String? debugLabel,
+    Duration duration,
+    Duration? reverseDuration,
+    CueSimulation? simulation,
+    bool enabled,
+    double visibilityThreshold,
+  }) = _OnScrollVisibleCue;
 }
 
 abstract class _CueState<T extends Cue> extends State<Cue> {
