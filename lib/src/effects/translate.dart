@@ -263,7 +263,7 @@ class TranslateActor extends SingleEffectProxy<Offset> {
 
   const TranslateActor({
     super.key,
-    required super.from,
+    super.from = Offset.zero,
     super.to = Offset.zero,
     required super.child,
     super.curve,
