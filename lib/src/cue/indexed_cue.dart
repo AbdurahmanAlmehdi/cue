@@ -5,11 +5,11 @@ class _IndexedCue extends Cue {
     super.key,
     super.debugLabel,
     required super.child,
-    required this.targetIndex,
+    required this.index,
     required this.controller,
   }) : super._();
 
-  final int targetIndex;
+  final int index;
   final IndexedCueController controller;
 
   @override
@@ -37,7 +37,7 @@ class _IndexedCueState extends _CueState<_IndexedCue> {
   }
 
   void _updateAnimation() {
-    final value = widget.controller.valueFor(widget.targetIndex);
+    final value = widget.controller.valueFor(widget.index);
     final status = switch (value) {
       1.0 => AnimationStatus.completed,
       0.0 => AnimationStatus.dismissed,

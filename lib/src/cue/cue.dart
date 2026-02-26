@@ -82,7 +82,7 @@ abstract class Cue extends StatefulWidget {
     required Widget child,
     String? debugLabel,
     required IndexedCueController controller,
-    required int targetIndex,
+    required int index,
   }) = _IndexedCue;
 
   const factory Cue.onProgress({

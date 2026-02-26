@@ -87,7 +87,7 @@ class BlurActor extends SingleEffectBase<double> {
   const BlurActor({
     super.key,
     required super.from,
-    required super.to,
+    super.to = 0.0,
     required super.child,
     super.curve,
     super.timing,

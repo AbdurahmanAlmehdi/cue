@@ -21,7 +21,7 @@ class _NotificationBellState extends State<NotificationBell> {
           child: SizedBox.square(
             dimension: 38,
             child: Stack(
-              clipBehavior: Clip.none,
+              clipBehavior: .none,
               children: [
                 RotateActor.keyframes(
                   frames: [
@@ -39,22 +39,35 @@ class _NotificationBellState extends State<NotificationBell> {
                 Positioned(
                   top: -7,
                   right: 2,
-                  child: ScaleActor.keyframes(
-                    frames: [.begin(1), .key(1.3, at: .5), .end(1)],
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                      constraints: BoxConstraints(minWidth: 18),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(12),
+                  child: Actor(
+                    effects: [
+                      PathMotionEffect.arc(
+                        radius: 5,
+                        startAngle: -12,
+                        sweepAngle: 100,
                       ),
-                      alignment: .center,
-                      child: Text(
-                        '$_notificationsCount',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontFamily: 'monospace',
+                    ],
+                    child: ScaleActor.keyframes(
+                      frames: [
+                        .begin(1),
+                        .key(1.3, at: .5),
+                        .end(1),
+                      ],
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        constraints: BoxConstraints(minWidth: 18),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        alignment: .center,
+                        child: Text(
+                          '$_notificationsCount',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ),
                     ),
