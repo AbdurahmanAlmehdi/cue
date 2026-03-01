@@ -27,7 +27,7 @@ class ColorEffect extends TweenEffect<Color?> {
   }) : super.internal();
 
   @override
-  Animatable<Color?> buildSinglePhaseAnimtable(Color? from, Color? to) {
+  Animatable<Color?> createSingleTween(Color? from, Color? to) {
     return ColorTween(begin: from, end: to);
   }
 

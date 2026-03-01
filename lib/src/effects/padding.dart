@@ -22,10 +22,7 @@ class PaddingEffect extends TweenEffect<EdgeInsetsGeometry> {
   }) : super.internal();
 
   @override
-  Animatable<EdgeInsetsGeometry> buildSinglePhaseAnimtable(
-    EdgeInsetsGeometry from,
-    EdgeInsetsGeometry to,
-  ) {
+  Animatable<EdgeInsetsGeometry> createSingleTween(EdgeInsetsGeometry from, EdgeInsetsGeometry to) {
     return EdgeInsetsGeometryTween(begin: from, end: to);
   }
 

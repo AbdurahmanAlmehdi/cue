@@ -69,7 +69,7 @@ class RotateEffect extends TweenEffect<double> {
   }) : unit = RotateUnit.quarterTurns;
 
   @override
-  double transform(double value) {
+  double transform(_, double value) {
     switch (unit) {
       case RotateUnit.degrees:
         return value * math.pi / 180;

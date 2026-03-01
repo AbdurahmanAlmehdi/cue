@@ -28,7 +28,7 @@ class PhyscialModalEffect extends TweenEffect<ModalProps> {
   }) : super.internal();
 
   @override
-  Animatable<ModalProps> buildSinglePhaseAnimtable(ModalProps from, ModalProps to) {
+  Animatable<ModalProps> createSingleTween(ModalProps from, ModalProps to) {
     return _ModalPropsTween(begin: from, end: to);
   }
 

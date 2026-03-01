@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:cue/cue.dart';
-import 'package:cue/src/effects/base/animated_prop.dart';
 import 'package:cue/src/effects/base/multi_tween_effect.dart';
 import 'package:cue/src/effects/base/tween_effect.dart';
 import 'package:cue/src/effects/base/utils.dart';
@@ -34,13 +33,7 @@ part '../path_motion.dart';
 typedef TweenBuilder<T> = Animatable<T> Function(T from, T to);
 
 abstract class Effect {
-  final Timing? timing;
-  final Curve? curve;
-
-  const Effect({
-    this.timing,
-    this.curve,
-  });
+  const Effect();
 
   Animation<Object?> buildAnimation(Animation<double> driver, ActorContext data);
 

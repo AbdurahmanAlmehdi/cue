@@ -4,13 +4,15 @@ class PathMotionEffect extends Effect {
   final Path path;
   final bool autoRotate;
   final AlignmentGeometry alignment;
+  final Curve? curve;
+  final Timing? timing;
 
   const PathMotionEffect({
     required this.path,
     this.autoRotate = false,
     this.alignment = Alignment.center,
-    super.curve,
-    super.timing,
+    this.curve,
+    this.timing,
   });
 
   PathMotionEffect.circular({
@@ -18,8 +20,8 @@ class PathMotionEffect extends Effect {
     this.alignment = Alignment.center,
     required double radius,
     Offset center = Offset.zero,
-    super.curve,
-    super.timing,
+    this.curve,
+    this.timing,
   }) : path = Path()..addOval(Rect.fromCircle(center: center, radius: radius));
 
   PathMotionEffect.arc({
@@ -29,8 +31,8 @@ class PathMotionEffect extends Effect {
     required double sweepAngle,
     this.autoRotate = false,
     this.alignment = Alignment.center,
-    super.curve,
-    super.timing,
+    this.curve,
+    this.timing,
   }) : path = Path()
          ..addArc(
            Rect.fromCircle(center: center, radius: radius),

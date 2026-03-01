@@ -41,7 +41,7 @@ class RotateLayoutEffect extends TweenEffect<double> {
   }) : super.internal();
 
   @override
-  double transform(double value) {
+  double transform(_, double value) {
     switch (unit) {
       case RotateUnit.degrees:
         return value * math.pi / 180;

@@ -117,7 +117,7 @@ class _AxisSlideEffect extends TweenEffectBase<double, Offset> implements SlideE
        super.internal();
 
   @override
-  Offset transform(double value) {
+  Offset transform(_, double value) {
     switch (_axis) {
       case Axis.horizontal:
         return Offset(value, 0);

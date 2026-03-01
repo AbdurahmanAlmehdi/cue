@@ -1,6 +1,6 @@
 part of 'base/effect.dart';
 
-class AlignEffect extends TweenEffect<AlignmentGeometry?> {
+class AlignEffect extends TweenEffectBase<AlignmentGeometry?, Alignment?> {
   const AlignEffect({
     super.from,
     super.to,
@@ -22,11 +22,19 @@ class AlignEffect extends TweenEffect<AlignmentGeometry?> {
   }) : super.internal();
 
   @override
-  Animatable<AlignmentGeometry?> buildSinglePhaseAnimtable(
-    AlignmentGeometry? from,
-    AlignmentGeometry? to,
+  Alignment? transform(ActorContext ctx, AlignmentGeometry? value) {
+    return value?.resolve(ctx.textDirection);
+  }
+
+  @override
+  Animatable<Alignment?> createSingleTween(
+    Alignment? from,
+    Alignment? to,
   ) {
-    return AlignmentGeometryTween(begin: from, end: to);
+    if (isConstant) {
+      return ConstantTween<Alignment?>(from);
+    }
+    return AlignmentTween(begin: from, end: to);
   }
 
   @override

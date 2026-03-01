@@ -3,37 +3,32 @@ import 'package:cue/src/effects/base/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Effect {
-  final T? _from;
-  final T? _to;
-  final List<Keyframe<T>>? _keyframes;
-
+abstract class TweenEffectBase<T extends Object?, R extends Object?> extends AnimatablePropBase<T, R>
+    implements Effect {
   const TweenEffectBase({
-    required T from,
-    required T to,
+    required T super.from,
+    required T super.to,
     super.curve,
     super.timing,
-  }) : _keyframes = null,
-       _from = from,
-       _to = to;
+  }) : super(keyframes: null);
 
   const TweenEffectBase.keyframes(
     List<Keyframe<T>> keyframes, {
     super.curve,
-  }) : _keyframes = keyframes,
-       _from = null,
-       _to = null;
+  }) : super(
+         from: null,
+         to: null,
+         keyframes: keyframes,
+       );
 
   @internal
   const TweenEffectBase.internal({
-    T? from,
-    T? to,
-    List<Keyframe<T>>? keyframes,
+    super.from,
+    super.to,
+    super.keyframes,
     super.curve,
     super.timing,
-  }) : _keyframes = keyframes,
-       _from = from,
-       _to = to;
+  });
 
   @nonVirtual
   @override
@@ -47,55 +42,9 @@ abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Eff
 
   Widget apply(BuildContext context, Animation<R> animation, Widget child);
 
-  R transform(T value);
-
-  Animatable<R> buildSinglePhaseAnimtable(R from, R to) {
-    return Tween<R>(begin: from, end: to);
-  }
-
-  ({Animatable<R> tween, Timing? timing}) _buildTween({
-    T? from,
-    T? to,
-    List<Keyframe<T>>? keyframes,
-    Timing? defaultTiming,
-  }) {
-    final List<Phase<R>> phases;
-
-    Timing? timing = defaultTiming;
-    if (keyframes == null) {
-      assert(
-        from != null && to != null,
-        'Begin and end values must be provided when not using keyframes',
-      );
-      phases = [
-        Phase<R>(
-          begin: transform(from as T),
-          end: transform(to as T),
-          weight: 100,
-        ),
-      ];
-    } else {
-      assert(keyframes.isNotEmpty, 'Keyframes list cannot be empty');
-      final result = Phase.normalize(keyframes, transform);
-      phases = result.phases;
-      if (result.timing != null) {
-        timing = result.timing;
-      }
-    }
-    return (
-      tween: buildFromPhases<R>(phases, buildSinglePhaseAnimtable),
-      timing: timing,
-    );
-  }
-
   @override
   Animation<R> buildAnimation(Animation<double> driver, ActorContext context) {
-    final tweenRes = _buildTween(
-      from: _from,
-      to: _to,
-      keyframes: _keyframes,
-      defaultTiming: timing ?? context.timing,
-    );
+    final tweenRes = resolveTween(context);
 
     final tween = tweenRes.tween;
     if (tween is ConstantTween<R>) {
@@ -133,26 +82,6 @@ abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Eff
       ActorRole.reverse => ReverseOrStoppedAnimation(driver).drive(animatable),
     };
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TweenEffectBase &&
-          runtimeType == other.runtimeType &&
-          _from == other._from &&
-          _to == other._to &&
-          listEquals(_keyframes, other._keyframes) &&
-          curve == other.curve &&
-          timing == other.timing;
-
-  @override
-  int get hashCode => Object.hash(
-    _from,
-    _to,
-    curve,
-    timing,
-    Object.hashAll(_keyframes ?? []),
-  );
 }
 
 abstract class TweenEffect<T extends Object?> extends TweenEffectBase<T, T> {
@@ -164,7 +93,7 @@ abstract class TweenEffect<T extends Object?> extends TweenEffectBase<T, T> {
   });
 
   @override
-  T transform(T value) => value;
+  T transform(_, T value) => value;
 
   const TweenEffect.keyframes(
     super.keyframes, {

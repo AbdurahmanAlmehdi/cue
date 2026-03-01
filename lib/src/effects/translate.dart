@@ -117,7 +117,7 @@ class _AxisTranslate extends TweenEffectBase<double, Offset> implements Translat
   const _AxisTranslate.xKeyframes(super.keyframes, {super.curve}) : _axis = Axis.horizontal, super.keyframes();
 
   @override
-  Offset transform(double value) {
+  Offset transform(_, double value) {
     switch (_axis) {
       case Axis.horizontal:
         return Offset(value, 0);

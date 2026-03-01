@@ -3,14 +3,18 @@ import 'package:cue/src/effects/base/utils.dart';
 import 'package:flutter/widgets.dart';
 
 abstract class MulitTweenEffect<T extends Object?> extends Effect {
+  final Curve? curve;
+  final Timing? timing;
+
   const MulitTweenEffect({
-    super.timing,
-    super.curve,
+    this.curve,
+    this.timing,
   });
 
   @override
   Animation<T> buildAnimation(Animation<double> driver, ActorContext context) {
     final animatable = buildTween(context);
+
     Animatable<T>? reverseAnimatable;
     if (context.reverseCurve != null || context.reverseTiming != null) {
       reverseAnimatable = applyCurves<T>(

@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:cue/cue.dart';
 import 'package:example/examples/delete_confirmation.dart';
+import 'package:example/examples/expanding_cards.dart';
+import 'package:example/examples/horizinally_expanding_cards.dart';
 import 'package:example/examples/indicator_to_button.dart';
 import 'package:example/examples/three_dots_action.dart';
 import 'package:flutter/foundation.dart';
@@ -52,29 +54,38 @@ class __OnChangeDemoState extends State<_OnChangeDemo> {
     final theme = Theme.of(context);
     BoxDecoration;
     return Scaffold(
-      backgroundColor: theme.colorScheme.surfaceContainer,
+      // backgroundColor: theme.colorScheme.surfaceContainer,
       appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.only(top: 48, bottom: 60),
         child: Center(
-          child: Cue.onToggle(
-            toggled: _checked,
-            // motion: .simulation(Spring.bouncy(damping: 16)),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(32),
-              onTap: () {
-                setState(() {
-                  _checked = !_checked;
-                });
-              },
-              child: SizedBox.square(
-                dimension: 44,
-                child: DecoratedBoxActor(
-                  color: .fixed(Colors.red),
-                  borderRadius: .from(.circular(0), to: .circular(32)),
+          child: Column(
+            children: [
+              Cue.onToggle(
+                toggled: _checked,
+                // motion: .simulation(Spring.bouncy(damping: 16)),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(32),
+                  onTap: () {
+                    setState(() {
+                      _checked = !_checked;
+                    });
+                  },
+                  child: SizedBox.square(
+                    dimension: 44,
+                    child: DecoratedBoxActor(
+                      color: .keyframes([
+                        Keyframe(Colors.red, at: .0),
+                        Keyframe(Colors.green, at: .4),
+                        Keyframe(Colors.blue, at: 7.0),
+                        Keyframe(Colors.yellow, at: 1),
+                      ]),
+                      borderRadius: .from(.circular(0), to: .circular(32)),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),
