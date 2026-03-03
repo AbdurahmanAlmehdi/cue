@@ -1,5 +1,5 @@
 import 'package:cue/cue.dart';
-import 'package:cue/src/effects/base/utils.dart';
+import 'package:cue/src/acts/base/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

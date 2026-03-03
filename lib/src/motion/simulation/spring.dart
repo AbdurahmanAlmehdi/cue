@@ -31,7 +31,6 @@ class Spring extends CueSimulation {
 
   @override
   Simulation build(SimulationBuildData data) {
-    print('${data.progress} ${data.velocity}');
     return SpringSimulation(
       springDescription,
       data.progress,

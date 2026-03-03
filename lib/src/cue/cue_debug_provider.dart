@@ -14,11 +14,6 @@ class CueDebugTools extends StatefulWidget {
     return context.findAncestorWidgetOfExactType<CueDebugTools>() != null;
   }
 
-  static void openOverlay(BuildContext context) {
-    final provider = context.findAncestorStateOfType<_CueDebugToolsState>();
-    provider?.openOverlay(context);
-  }
-
   static VoidCallback? attachDebugTarget(
     BuildContext context, {
     required String id,
@@ -27,7 +22,6 @@ class CueDebugTools extends StatefulWidget {
     CueSimulation? simulation,
   }) {
     final provider = context.findAncestorStateOfType<_CueDebugToolsState>();
-    provider?.openOverlay(context);
     return provider?.attachDebugTarget(
       context,
       id: id,
@@ -44,6 +38,10 @@ class CueDebugTools extends StatefulWidget {
     }
     return scope;
   }
+
+  static DebugDataProvider? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<DebugDataProvider>();
+  }
 }
 
 class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProviderStateMixin {
@@ -56,7 +54,6 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
       verticalOffset: 0,
       isSelectMode: false,
       activeTargetId: null,
-      highlightedTargetId: null,
       targets: const {},
     ),
   );
@@ -109,11 +106,6 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
 
     _controller.duration = duration;
 
-    _overlayData.value = _overlayData.value.copyWith(
-      isMinimized: false,
-      isSelectMode: false,
-      activeTargetId: id,
-    );
     void deattachCallback() {
       final updatedTargets = Map<String, _DebugTarget>.from(_overlayData.value.targets)..remove(id);
       _overlayData.value = _overlayData.value.copyWith(targets: updatedTargets);
@@ -156,7 +148,6 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
       listenable: _overlayData,
       builder: (context, _) {
         return DebugDataProvider(
-          highlightedTargetId: _overlayData.value.highlightedTargetId,
           activeTargetId: _overlayData.value.activeTargetId,
           animation: _controller.view,
           isMinimized: _overlayData.value.isMinimized,
@@ -294,10 +285,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                     ),
                                     icon: Icon(Icons.play_circle),
                                     onPressed: () {
-                                      _dataNotifier.value = _data.copyWith(
-                                        isMinimized: false,
-                                        isSelectMode: _data.activeTargetId == null,
-                                      );
+                                      _dataNotifier.value = _data.copyWith(isMinimized: false, isSelectMode: false);
                                     },
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
@@ -412,8 +400,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                                                                 child: Container(
                                                                                   alignment: Alignment.centerLeft,
                                                                                   color:
-                                                                                      _data.highlightedTargetId ==
-                                                                                          target.id
+                                                                                      _data.activeTargetId == target.id
                                                                                       ? Colors.orange.withValues(
                                                                                           alpha: .1,
                                                                                         )
@@ -430,39 +417,19 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                                                                   ),
                                                                                 ),
                                                                                 onTap: () {
-                                                                                  final isHighlighted =
-                                                                                      _data.highlightedTargetId ==
-                                                                                      target.id;
-                                                                                  if (isHighlighted) {
-                                                                                    _dataNotifier.value = _data
-                                                                                        .copyWith(
-                                                                                          activeTargetId: target.id,
-                                                                                          isSelectMode: false,
-                                                                                          highlightedTargetId: null,
-                                                                                        );
-                                                                                    Navigator.of(context).pop();
-                                                                                  } else {
-                                                                                    _dataNotifier.value = _data
-                                                                                        .copyWith(
-                                                                                          highlightedTargetId:
-                                                                                              target.id,
-                                                                                        );
-                                                                                  }
+                                                                                  _dataNotifier.value = _data.copyWith(
+                                                                                    activeTargetId: target.id,
+                                                                                  );
                                                                                 },
                                                                               ),
                                                                           ],
                                                                         ),
                                                                         OutlinedButton(
                                                                           onPressed: () {
-                                                                            if (_data.highlightedTargetId != null) {
-                                                                              _dataNotifier.value = _data.copyWith(
-                                                                                activeTargetId:
-                                                                                    _data.highlightedTargetId,
-                                                                                isSelectMode: false,
-                                                                                highlightedTargetId: null,
-                                                                              );
-                                                                            }
                                                                             Navigator.of(context).pop();
+                                                                            _dataNotifier.value = _data.copyWith(
+                                                                              isSelectMode: false,
+                                                                            );
                                                                           },
                                                                           style: OutlinedButton.styleFrom(
                                                                             tapTargetSize: .shrinkWrap,
@@ -744,7 +711,6 @@ class _OverlayData {
   final double verticalOffset;
   final bool isSelectMode;
   final String? activeTargetId;
-  final String? highlightedTargetId;
   final Map<String, _DebugTarget> targets;
 
   _OverlayData({
@@ -755,7 +721,6 @@ class _OverlayData {
     required this.isSelectMode,
     required this.activeTargetId,
     required this.targets,
-    required this.highlightedTargetId,
   });
 
   @override
@@ -769,8 +734,7 @@ class _OverlayData {
           isSelectMode == other.isSelectMode &&
           verticalOffset == other.verticalOffset &&
           activeTargetId == other.activeTargetId &&
-          mapEquals(targets, other.targets) &&
-          highlightedTargetId == other.highlightedTargetId;
+          mapEquals(targets, other.targets);
 
   @override
   int get hashCode => Object.hash(
@@ -780,7 +744,6 @@ class _OverlayData {
     verticalOffset,
     isSelectMode,
     activeTargetId,
-    highlightedTargetId,
     Object.hashAll(targets.values),
   );
 
@@ -793,7 +756,6 @@ class _OverlayData {
     double? verticalOffset,
     bool? isSelectMode,
     String? activeTargetId,
-    String? highlightedTargetId,
     Map<String, _DebugTarget>? targets,
   }) {
     return _OverlayData(
@@ -802,7 +764,6 @@ class _OverlayData {
       isMinimized: isMinimized ?? this.isMinimized,
       verticalOffset: verticalOffset ?? this.verticalOffset,
       isSelectMode: isSelectMode ?? this.isSelectMode,
-      highlightedTargetId: highlightedTargetId ?? this.highlightedTargetId,
       activeTargetId: activeTargetId ?? this.activeTargetId,
       targets: targets ?? this.targets,
     );
@@ -816,7 +777,6 @@ class DebugDataProvider extends InheritedWidget {
     required this.isMinimized,
     required this.isSelectMode,
     required this.activeTargetId,
-    required this.highlightedTargetId,
     required super.child,
   });
 
@@ -824,15 +784,13 @@ class DebugDataProvider extends InheritedWidget {
   final bool isMinimized;
   final bool isSelectMode;
   final String? activeTargetId;
-  final String? highlightedTargetId;
 
   @override
   bool updateShouldNotify(covariant DebugDataProvider oldWidget) {
     return animation != oldWidget.animation ||
         isMinimized != oldWidget.isMinimized ||
         isSelectMode != oldWidget.isSelectMode ||
-        activeTargetId != oldWidget.activeTargetId ||
-        highlightedTargetId != oldWidget.highlightedTargetId;
+        activeTargetId != oldWidget.activeTargetId;
   }
 }
 

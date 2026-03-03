@@ -1,10 +1,10 @@
 import 'package:cue/cue.dart';
-import 'package:example/examples/expanding_cards.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:example/examples/bottom_bar.dart';
+import 'package:example/examples/options_button.dart';
+import 'package:example/examples/smooth_toggle.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax/iconsax.dart';
 
 void main() {
   runApp(const MyApp());
@@ -85,57 +85,6 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class DemoPage extends StatefulWidget {
-  const DemoPage({super.key});
-
-  @override
-  State<DemoPage> createState() => _DemoPageState();
-}
-
-class _DemoPageState extends State<DemoPage> with SingleTickerProviderStateMixin {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(0.0),
-            child: SizedBox(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    child: Text('Show Sheet'),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(),
-                            body: Cue.onTransition(
-                              child: Center(
-                                child: SlideActor.y(
-                                  from: 10.0,
-                                  child: Text('Hello from the new page!'),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

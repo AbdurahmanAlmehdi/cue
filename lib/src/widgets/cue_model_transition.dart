@@ -1,4 +1,5 @@
 import 'package:cue/cue.dart';
+import 'package:cue/src/motion/cue_motion.dart';
 import 'package:flutter/material.dart';
 
 @optionalTypeArgs
@@ -11,24 +12,22 @@ class CueModalTransition extends StatefulWidget {
     super.key,
     required this.triggerBuilder,
     required this.builder,
-    this.duration = const Duration(milliseconds: 300),
     this.backdrop,
     this.alignment,
     this.barrierDismissible = true,
     this.barrierLabel = 'ModalTransition',
     this.barrierColor = const Color(0x80000000),
-    this.simulation,
+    this.motion = .defaultDuration,
     this.hideTriggerOnTransition = false,
   });
 
-  final Duration duration;
   final ModalContentBuilder builder;
   final Widget Function(BuildContext context, ShowModalFunction showDialog) triggerBuilder;
   final AlignmentGeometry? alignment;
   final Widget? backdrop;
   final bool barrierDismissible;
   final Color? barrierColor;
-  final CueSimulation? simulation;
+  final CueMotion motion;
   final String barrierLabel;
   final bool hideTriggerOnTransition;
 
@@ -68,9 +67,8 @@ class _CueModalTransitionState extends State<CueModalTransition> {
       barrierDismissible: widget.barrierDismissible,
       barrierLabel: widget.barrierLabel,
       barrierColor: widget.barrierColor,
-      transitionDuration: widget.duration,
       transitionBuilder: (context, anim, _, child) => child,
-      simulation: widget.simulation,
+      motion: widget.motion,
       onAnimationStatusChanged: (status) {
         if (mounted) {
           setState(() {
@@ -193,25 +191,49 @@ class _ModalRoute<T extends Object> extends RawDialogRoute<T> {
     super.barrierDismissible,
     super.barrierLabel,
     super.barrierColor,
-    super.transitionDuration,
     super.transitionBuilder,
-    this.simulation,
-    required this.onAnimationStatusChanged,
-  });
 
-  final CueSimulation? simulation;
-  final ValueChanged<AnimationStatus> onAnimationStatusChanged;
+    required this.motion,
+    required this.onAnimationStatusChanged,
+  }) : super();
+
+  final CueMotion motion;
+  final AnimationStatusListener onAnimationStatusChanged;
+
+  @override
+  Duration get transitionDuration => switch (motion) {
+    TimedMotion(duration: final duration) => duration,
+    _ => Duration.zero,
+  };
+
+  @override
+  Duration get reverseTransitionDuration => switch (motion) {
+    TimedMotion(
+      reverseDuration: final reverseDuration,
+      duration: final duration,
+    ) =>
+      reverseDuration ?? duration,
+    _ => transitionDuration,
+  };
 
   @override
   AnimationController createAnimationController() {
     final AnimationController ctrl;
-    if (simulation == null) {
+    if (motion is TimedMotion) {
       ctrl = super.createAnimationController();
     } else {
       ctrl = AnimationController.unbounded(vsync: navigator!);
     }
     ctrl.addStatusListener(onAnimationStatusChanged);
     return ctrl;
+  }
+
+  @override
+  Animation<double> createAnimation() {
+    return switch (motion) {
+      SimulationMotion _ => super.createAnimation(),
+      TimedMotion m => m.applyCurve(super.createAnimation()),
+    };
   }
 
   @override
@@ -222,8 +244,10 @@ class _ModalRoute<T extends Object> extends RawDialogRoute<T> {
 
   @override
   Simulation? createSimulation({required bool forward}) {
-    if (simulation case final simulation?) {
-      return simulation.build(
+    if (motion is SimulationMotion) {
+      final simMotion = motion as SimulationMotion;
+      final sim = forward ? simMotion.simulation : simMotion.reverse ?? simMotion.simulation;
+      return sim.build(
         SimulationBuildData(
           velocity: controller?.velocity,
           forward: forward,

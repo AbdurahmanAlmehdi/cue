@@ -1,7 +1,7 @@
-part of 'base/effect.dart';
+part of 'base/act.dart';
 
-abstract class ClipEffect extends Effect {
-  const factory ClipEffect({
+abstract class ClipAct extends Act {
+  const factory ClipAct({
     Size fromSize,
     BorderRadiusGeometry borderRadius,
     AlignmentGeometry alignment,
@@ -9,14 +9,14 @@ abstract class ClipEffect extends Effect {
     Timing? timing,
   }) = _ClipEffect;
 
-  const factory ClipEffect.circular({
+  const factory ClipAct.circular({
     Size fromSize,
     AlignmentGeometry alignment,
     Curve? curve,
     Timing? timing,
   }) = _ClipEffect.circular;
 
-  const factory ClipEffect.horizontal({
+  const factory ClipAct.width({
     double from,
     double to,
     AlignmentGeometry alignment,
@@ -24,7 +24,7 @@ abstract class ClipEffect extends Effect {
     Timing? timing,
   }) = _AxisClipEffect.horizontal;
 
-  const factory ClipEffect.vertical({
+  const factory ClipAct.height({
     double from,
     double to,
     AlignmentGeometry alignment,
@@ -33,7 +33,7 @@ abstract class ClipEffect extends Effect {
   }) = _AxisClipEffect.vertical;
 }
 
-class _AxisClipEffect extends TweenEffect<double> implements ClipEffect {
+class _AxisClipEffect extends TweenAct<double> implements ClipAct {
   final Axis _axis;
   final AlignmentGeometry alignment;
 
@@ -76,7 +76,7 @@ class _AxisClipEffect extends TweenEffect<double> implements ClipEffect {
   }
 }
 
-class _ClipEffect extends TweenEffect<double> implements ClipEffect {
+class _ClipEffect extends TweenAct<double> implements ClipAct {
   final Size fromSize;
   final BorderRadiusGeometry? borderRadius;
   final AlignmentGeometry? alignment;
@@ -193,109 +193,4 @@ class ExpandingPathClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant ExpandingPathClipper oldClipper) {
     return oldClipper.progress != progress || oldClipper.minSize != minSize;
   }
-}
-
-class ClipActor extends SingleEffectBase<Size> {
-  final double? _fromAxisSize;
-  final double? _toAxisSize;
-  final BorderRadiusGeometry? borderRadius;
-  final AlignmentGeometry alignment;
-  final Axis? _axis;
-
-  const ClipActor({
-    super.key,
-    Size fromSize = Size.zero,
-    BorderRadiusGeometry this.borderRadius = BorderRadius.zero,
-    this.alignment = Alignment.center,
-    required super.child,
-    super.role,
-    super.curve,
-    super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
-  }) : _axis = null,
-       _fromAxisSize = null,
-       _toAxisSize = null,
-       super(from: fromSize, to: Size.zero);
-
-  const ClipActor.circular({
-    super.key,
-    Size fromSize = Size.zero,
-    this.alignment = Alignment.center,
-    required super.child,
-    super.role,
-    super.curve,
-    super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
-  }) : _axis = null,
-       _fromAxisSize = null,
-       _toAxisSize = null,
-       borderRadius = null,
-       super(from: fromSize, to: Size.zero);
-
-  const ClipActor.horizontal({
-    super.key,
-    double from = 0,
-    double to = 1,
-    this.alignment = AlignmentDirectional.centerStart,
-    required super.child,
-    super.curve,
-    super.role,
-    super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
-  }) : _axis = Axis.horizontal,
-       _fromAxisSize = from,
-       _toAxisSize = to,
-       borderRadius = BorderRadius.zero,
-       super(from: Size.zero, to: Size.zero);
-
-  const ClipActor.vertical({
-    super.key,
-    double from = 0,
-    double to = 1,
-    this.alignment = AlignmentDirectional.topCenter,
-    required super.child,
-    super.curve,
-    super.role,
-    super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
-  }) : _axis = Axis.vertical,
-       _toAxisSize = to,
-       _fromAxisSize = from,
-       borderRadius = BorderRadius.zero,
-       super(from: Size.zero, to: Size.zero);
-
-  @override
-  Effect get effect => switch (_axis) {
-    Axis.horizontal => ClipEffect.horizontal(
-      from: _fromAxisSize!,
-      to: _toAxisSize!,
-      alignment: alignment,
-      curve: curve,
-      timing: timing,
-    ),
-    Axis.vertical => ClipEffect.vertical(
-      from: _fromAxisSize!,
-      to: _toAxisSize!,
-      alignment: alignment,
-      curve: curve,
-      timing: timing,
-    ),
-    _ when borderRadius != null => ClipEffect(
-      fromSize: from!,
-      alignment: alignment,
-      borderRadius: borderRadius!,
-      curve: curve,
-      timing: timing,
-    ),
-    _ => ClipEffect.circular(
-      fromSize: from!,
-      alignment: alignment,
-      curve: curve,
-      timing: timing,
-    ),
-  };
 }

@@ -11,7 +11,7 @@ class OptionsButton extends StatelessWidget {
     return CueModalTransition(
       barrierColor: Colors.transparent,
       alignment: Alignment.center,
-      simulation: const Spring.smooth(),
+      motion: const .simulation(Spring.smooth()),
       triggerBuilder: (context, showModal) {
         return ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -27,10 +27,12 @@ class OptionsButton extends StatelessWidget {
         );
       },
       builder: (context, rect) {
-        return ClipActor(
-          fromSize: rect.size,
-          borderRadius: .circular(32),
-          alignment: .center,
+        return Actor(
+          act: ClipAct(
+            fromSize: rect.size,
+            borderRadius: .circular(32),
+            alignment: .center,
+          ),
           child: Padding(
             padding: const .all(2.0),
             child: FractionallySizedBox(
@@ -46,29 +48,35 @@ class OptionsButton extends StatelessWidget {
                   crossAxisAlignment: .start,
                   children: [
                     Actor(
-                      translate: .fromGlobal(offset: rect.topLeft),
-                      textStyle: .tween(
-                        from: labelStyle.copyWith(color: theme.primaryColor),
-                        to: labelStyle.copyWith(fontSize: 22),
-                      ),
+                      act: .compose([
+                        .translateFromGlobal(offset: rect.topLeft),
+                        .textStyle(
+                          from: labelStyle.copyWith(color: theme.primaryColor),
+                          to: labelStyle.copyWith(fontSize: 22),
+                        ),
+                      ]),
                       child: Padding(
                         padding: .symmetric(horizontal: 24, vertical: 14),
                         child: Text('Options'),
                       ),
                     ),
                     Actor(
-                      opacity: .fadeIn(),
-                      scale: .zoomIn(from: .2),
-                      blur: .focus(),
-                      slide: .tweenY(from: .5),
+                      act: .compose([
+                        .focus(),
+                        .zoomIn(from: .8),
+                        .fadeIn(),
+                        .slideUp(),
+                      ]),
                       child: Padding(
                         padding: const .fromLTRB(16, 0, 16, 16),
                         child: Column(
                           children: [
                             for (var i = 0; i < 4; i++)
                               Actor(
-                                translate: .tweenY(from: 10 * (i + 1)),
-                                scale: .zoomIn(from: i * -.1),
+                                act: .compose([
+                                  .translateY(from: 10 * (i + 1)),
+                                  .zoomIn(from: i * -.1),
+                                ]),
                                 child: Card(
                                   clipBehavior: .hardEdge,
                                   elevation: 0,

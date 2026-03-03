@@ -41,9 +41,8 @@ class _BottomBarState extends State<BottomBar> {
                         value: _activeTab,
                         fromCurrentValue: true,
                         motion: .simulation(Spring.smooth(damping: 30)),
-                        child: SlideActor(
-                          from: .zero,
-                          to: Offset(slideStep * _activeTab, 0),
+                        child: Actor(
+                          act: .translate(from: .zero, to: Offset(slideStep * _activeTab, 0)),
                           child: Container(
                             width: expandedWidth,
                             height: 48,
@@ -68,19 +67,20 @@ class _BottomBarState extends State<BottomBar> {
                                 toggled: _activeTab == i,
                                 motion: .simulation(Spring.smooth(damping: 30)),
                                 child: Actor(
-                                  size: .tween(
-                                    from: .width(collapsedWidth),
-                                    to: .width(expandedWidth),
-                                  ),
-                                  colorTint: .tween(from: Colors.white60, to: Colors.black),
+                                  act: .compose([
+                                    .resize(from: .width(collapsedWidth), to: .width(expandedWidth)),
+                                    .colorTint(from: Colors.white60, to: Colors.black),
+                                  ]),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(_tabs[i].icon, color: Colors.white),
                                       Actor(
-                                        opacity: .fadeIn(),
-                                        clip: .horizontal(alignment: .centerRight),
-                                        scale: .zoomIn(from: .7),
+                                        act: .compose([
+                                          .clipWidth(),
+                                          .fadeIn(),
+                                          .zoomIn(from: .7),
+                                        ]),
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                           child: Text(

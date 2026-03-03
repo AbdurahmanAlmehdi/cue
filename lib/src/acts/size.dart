@@ -1,6 +1,6 @@
-part of 'base/effect.dart';
+part of 'base/act.dart';
 
-class SizeEffect extends TweenEffect<double> {
+class SizeAct extends TweenAct<double> {
   final AlignmentGeometry? alignment;
   final Clip clipBehavior;
   final bool allowOverflow;
@@ -8,7 +8,7 @@ class SizeEffect extends TweenEffect<double> {
   final NSize? _toSize;
   final List<Keyframe<NSize?>>? _sizeKeyframes;
 
-  const SizeEffect({
+  const SizeAct({
     NSize? from,
     NSize? to,
     super.curve,
@@ -21,7 +21,7 @@ class SizeEffect extends TweenEffect<double> {
        _sizeKeyframes = null,
        super(from: 0, to: 1);
 
-  const SizeEffect.reveal({
+  const SizeAct.reveal({
     NSize from = NSize.zero,
     super.curve,
     super.timing,
@@ -33,20 +33,7 @@ class SizeEffect extends TweenEffect<double> {
        _sizeKeyframes = null,
        super(from: 0, to: 1);
 
-  const SizeEffect.tween({
-    NSize? from,
-    NSize? to,
-    super.curve,
-    super.timing,
-    this.alignment,
-    this.clipBehavior = Clip.hardEdge,
-    this.allowOverflow = false,
-  }) : _toSize = to,
-       _fromSize = from,
-       _sizeKeyframes = null,
-       super(from: 0, to: 1);
-
-  const SizeEffect.keyframes(
+  const SizeAct.keyframes(
     List<Keyframe<NSize?>> keyframes, {
     super.curve,
     this.alignment,
@@ -56,21 +43,6 @@ class SizeEffect extends TweenEffect<double> {
        _toSize = null,
        _sizeKeyframes = keyframes,
        super.keyframes(const []);
-
-  @internal
-  const SizeEffect.internal({
-    NSize? from,
-    NSize? to,
-    List<Keyframe<NSize?>>? keyframes,
-    super.curve,
-    super.timing,
-    this.alignment,
-    this.clipBehavior = Clip.hardEdge,
-    this.allowOverflow = false,
-  }) : _fromSize = from,
-       _toSize = to,
-       _sizeKeyframes = keyframes,
-       super.internal();
 
   ({Animatable<double> tween, Timing? timing}) _buildSizeTween({
     List<Keyframe<NSize?>>? keyframes,
@@ -596,50 +568,6 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     _clipRectLayer.layer = null;
     super.dispose();
   }
-}
-
-class SizeActor extends SingleEffectBase<NSize> {
-  final AlignmentGeometry alignment;
-  final bool allowOverflow;
-  final Clip clipBehavior;
-
-  const SizeActor({
-    super.key,
-    required super.from,
-    super.to = NSize.childSize,
-    this.alignment = Alignment.center,
-    this.allowOverflow = false,
-    this.clipBehavior = Clip.hardEdge,
-    required super.child,
-    super.curve,
-    super.timing,
-    super.role,
-    super.reverseCurve,
-    super.reverseTiming,
-  });
-
-  const SizeActor.keyframes({
-    super.key,
-    required super.frames,
-    this.alignment = Alignment.center,
-    this.allowOverflow = false,
-    this.clipBehavior = Clip.hardEdge,
-    required super.child,
-    super.curve,
-    super.role,
-    super.reverseCurve,
-    super.reverseTiming,
-  }) : super.keyframes();
-
-  @override
-  Effect get effect => SizeEffect.internal(
-    from: from,
-    to: to,
-    alignment: alignment,
-    allowOverflow: allowOverflow,
-    clipBehavior: clipBehavior,
-    keyframes: frames,
-  );
 }
 
 /// A size specification where each axis can be `null` to mean

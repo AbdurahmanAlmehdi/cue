@@ -125,12 +125,17 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
   late final _debugId = '$debugName-${widget.debugLabel ?? ''}${identityHashCode(widget)}';
 
   @override
-  void didUpdateWidget(covariant Cue oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    super.initState();
     if (kDebugMode) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (CueDebugTools.isWrappedByDebugProvider(context)) {
-          CueDebugTools.attachDebugTarget(
+          _deattachDebugOverlay = CueDebugTools.attachDebugTarget(
             context,
             id: _debugId,
             duration: const Duration(seconds: 1),
@@ -151,48 +156,38 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
   @override
   Widget build(BuildContext context) {
     final animation = getAnimation(context);
-
-    Widget child = RepaintBoundary(
-      child: CueScope(
-        animation: animation,
-        isBounded: isBounded,
-        willReanimateNotifier: willReanimateNotifier,
-        reanimateFromCurrent: reanimateFromCurrent,
-        child: widget.child,
-      ),
-    );
-
     if (kDebugMode) {
-      if (CueDebugTools.isWrappedByDebugProvider(context)) {
-        final scope = CueDebugTools.of(context);
-        if (scope.isSelectMode && scope.highlightedTargetId == _debugId) {
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            child: IgnorePointer(
-              child: DecoratedBox(
-                position: DecorationPosition.foreground,
-                decoration: BoxDecoration(
+      final debugToolsScope = CueDebugTools.maybeOf(context);
+      if (debugToolsScope != null) {
+        final isActive = debugToolsScope.activeTargetId == _debugId;
+        final useDebugAnimation = !debugToolsScope.isMinimized && isActive;
+        return DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: isActive && debugToolsScope.isSelectMode
+              ? BoxDecoration(
                   color: Colors.amber.withValues(alpha: .2),
                   border: Border.all(
                     color: Colors.amber.withValues(alpha: .8),
                   ),
-                ),
-                child: child,
-              ),
-            ),
-          );
-        }
-        if (!scope.isMinimized && scope.activeTargetId == _debugId) {
-          return CueScope(
-            reanimateFromCurrent: false,
-            animation: scope.animation,
+                )
+              : const BoxDecoration(),
+          child: CueScope(
+            reanimateFromCurrent: reanimateFromCurrent,
+            animation: useDebugAnimation ? debugToolsScope.animation : animation,
+            willReanimateNotifier: willReanimateNotifier,
             isBounded: isBounded,
             child: widget.child,
-          );
-        }
+          ),
+        );
       }
     }
-    return child;
+    return CueScope(
+      animation: animation,
+      isBounded: isBounded,
+      willReanimateNotifier: willReanimateNotifier,
+      reanimateFromCurrent: reanimateFromCurrent,
+      child: widget.child,
+    );
   }
 
   Animation<double> getAnimation(BuildContext context);

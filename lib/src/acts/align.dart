@@ -1,0 +1,36 @@
+part of 'base/act.dart';
+
+class AlignAct extends TweenActBase<AlignmentGeometry?, Alignment?> {
+  const AlignAct({
+    super.from,
+    super.to,
+    super.curve,
+    super.timing,
+  });
+
+  const AlignAct.keyframes(super.keyframes, {super.curve}) : super.keyframes();
+
+  @override
+  Alignment? transform(ActorContext ctx, AlignmentGeometry? value) {
+    return value?.resolve(ctx.textDirection);
+  }
+
+  @override
+  Animatable<Alignment?> createSingleTween(Alignment? from, Alignment? to) {
+    return AlignmentTween(begin: from, end: to);
+  }
+
+  @override
+  Widget apply(BuildContext context, Animation<AlignmentGeometry?> animation, Widget child) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        return Align(
+          alignment: animation.value ?? Alignment.center,
+          child: child,
+        );
+      },
+      child: child,
+    );
+  }
+}

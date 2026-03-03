@@ -1,0 +1,387 @@
+import 'dart:math' as math;
+import 'dart:ui';
+
+import 'package:cue/cue.dart';
+import 'package:cue/src/acts/base/multi_tween_act.dart';
+import 'package:cue/src/acts/base/tween_act.dart';
+import 'package:cue/src/acts/base/utils.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+part '../size.dart';
+part '../fractional_size.dart';
+part '../translate.dart';
+part '../decorate.dart';
+part '../color_tint.dart';
+part '../rotate.dart';
+part '../rotate_layout.dart';
+part '../scale.dart';
+part '../opacity.dart';
+part '../blur.dart';
+part '../align.dart';
+part '../padding.dart';
+part '../style.dart';
+part '../clip_reveal.dart';
+part '../slide.dart';
+part '../position.dart';
+part '../transfrom.dart';
+part '../card.dart';
+part '../paint.dart';
+part '../path_motion.dart';
+
+typedef TweenBuilder<T> = Animatable<T> Function(T from, T to);
+
+abstract class Act {
+  const Act();
+
+  const factory Act.compose(List<Act> acts) = ComposeAct;
+
+  const factory Act.scale({
+    required double from,
+    required double to,
+    Curve? curve,
+    Timing? timing,
+  }) = ScaleAct;
+
+  const factory Act.zoomIn({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = ScaleAct.zoomIn;
+
+  const factory Act.zoomOut({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = ScaleAct.zoomOut;
+
+  const factory Act.resize({
+    NSize? from,
+    NSize? to,
+    Curve? curve,
+    Timing? timing,
+    AlignmentGeometry alignment,
+    Clip clipBehavior,
+    bool allowOverflow,
+  }) = SizeAct;
+
+  const factory Act.translate({
+    required Offset from,
+    Offset to,
+    Curve? curve,
+    Timing? timing,
+  }) = TranslateAct;
+
+  const factory Act.translateX({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = TranslateAct.fromX;
+
+  const factory Act.translateY({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = TranslateAct.y;
+
+  const factory Act.translateFromGlobal({
+    required Offset offset,
+    Offset toLocal,
+    Curve? curve,
+    Timing? timing,
+  }) = TranslateAct.fromGlobal;
+
+  const factory Act.translateFromGlobalRect(
+    Rect rect, {
+    AlignmentGeometry alignment,
+    Offset toLocal,
+    Curve? curve,
+    Timing? timing,
+  }) = TranslateAct.fromGlobalRect;
+
+  const factory Act.translateFromGlobalKey(
+    GlobalKey key, {
+    AlignmentGeometry alignment,
+    Offset toLocal,
+    Curve? curve,
+    Timing? timing,
+  }) = TranslateAct.fromGlobalKey;
+
+  const factory Act.slide({
+    required Offset from,
+    required Offset to,
+    Curve? curve,
+    Timing? timing,
+  }) = SlideAct;
+
+  const factory Act.slideX({
+    required double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = SlideAct.fromX;
+
+  const factory Act.slideY({
+    required double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = SlideAct.fromY;
+
+  const factory Act.slideUp({
+    Curve? curve,
+    Timing? timing,
+  }) = SlideAct.up;
+
+  const factory Act.slideDown({
+    Curve? curve,
+    Timing? timing,
+  }) = SlideAct.down;
+
+  const factory Act.slideFromLeading({
+    Curve? curve,
+    Timing? timing,
+  }) = SlideAct.fromLeading;
+
+  const factory Act.slideFromTrailing({
+    Curve? curve,
+    Timing? timing,
+  }) = SlideAct.fromTrailing;
+
+  const factory Act.opacity({
+    required double from,
+    required double to,
+    Curve? curve,
+    Timing? timing,
+  }) = OpacityAct;
+
+  const factory Act.fadeIn({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = OpacityAct.fadeIn;
+
+  const factory Act.fadeOut({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = OpacityAct.fadeOut;
+
+  const factory Act.align({
+    AlignmentGeometry from,
+    AlignmentGeometry to,
+    Curve? curve,
+    Timing? timing,
+  }) = AlignAct;
+
+  const factory Act.padding({
+    EdgeInsetsGeometry from,
+    EdgeInsetsGeometry to,
+    Curve? curve,
+    Timing? timing,
+  }) = PaddingAct;
+
+  const factory Act.blur({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = BlurAct;
+
+  const factory Act.focus({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = BlurAct.focus;
+
+  const factory Act.unfocus({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = BlurAct.unfocus;
+
+  const factory Act.backdropBlur({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+    BlendMode blendMode,
+  }) = BackdropBlurAct;
+
+  const factory Act.colorTint({
+    required Color from,
+    required Color to,
+    Curve? curve,
+    Timing? timing,
+  }) = ColorTintAct;
+
+  const factory Act.clip({
+    Size fromSize,
+    BorderRadiusGeometry borderRadius,
+    AlignmentGeometry alignment,
+    Curve? curve,
+    Timing? timing,
+  }) = ClipAct;
+
+  const factory Act.clipHeight({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = ClipAct.height;
+
+  const factory Act.clipWidth({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+  }) = ClipAct.width;
+
+  const factory Act.circularClip({
+    Size fromSize,
+    AlignmentGeometry alignment,
+    Curve? curve,
+    Timing? timing,
+  }) = ClipAct.circular;
+
+  const factory Act.rotate({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+    RotateUnit unit,
+    RotateAxis axis,
+  }) = RotateAct;
+
+  const factory Act.rotateLayout({
+    double from,
+    double to,
+    Curve? curve,
+    Timing? timing,
+    RotateUnit unit,
+  }) = RotateLayoutAct;
+
+  const factory Act.flipX({
+    Curve? curve,
+    Timing? timing,
+  }) = RotateAct.flipX;
+
+  const factory Act.flipY({
+    Curve? curve,
+    Timing? timing,
+  }) = RotateAct.flipY;
+
+  const factory Act.textStyle({
+    required TextStyle from,
+    required TextStyle to,
+    Curve? curve,
+    Timing? timing,
+  }) = TextStyleAct;
+
+  const factory Act.iconTheme({
+    required IconThemeData from,
+    required IconThemeData to,
+    Curve? curve,
+    Timing? timing,
+  }) = IconThemeAct;
+
+  const factory Act.transform({
+    required Matrix4 from,
+    required Matrix4 to,
+    Curve? curve,
+    Timing? timing,
+  }) = TransformAct;
+
+  Animation<Object?> buildAnimation(Animation<double> driver, ActorContext data);
+
+  Widget build(BuildContext context, covariant Animation<Object?> animation, Widget child);
+
+  List<Act> get flattened;
+}
+
+class ComposeAct extends Act {
+  final List<Act> acts;
+
+  const ComposeAct(this.acts);
+
+  @override
+  Animation<Object?> buildAnimation(Animation<double> driver, ActorContext data) {
+    throw StateError('ComposeAct should not be used directly');
+  }
+
+  @override
+  Widget build(BuildContext context, Animation<Object?> animation, Widget child) {
+    throw StateError('ComposeAct should not be used directly');
+  }
+
+  @override
+  List<Act> get flattened {
+    final result = <Act>[];
+    for (final act in acts) {
+      result.addAll(act.flattened);
+    }
+    return result;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is ComposeAct && runtimeType == other.runtimeType && listEquals(acts, other.acts);
+
+  @override
+  int get hashCode => Object.hashAll(acts);
+}
+
+class ActorContext {
+  final Timing? timing;
+  final Timing? reverseTiming;
+  final Curve? curve;
+  final Curve? reverseCurve;
+  final bool isBounded;
+  final ActorRole role;
+  final TextDirection textDirection;
+  final Object? implicitFrom;
+
+  const ActorContext({
+    this.timing,
+    this.curve,
+    this.isBounded = true,
+    this.reverseTiming,
+    this.reverseCurve,
+    required this.textDirection,
+    this.role = ActorRole.both,
+    this.implicitFrom,
+  });
+
+  ActorContext copyWith({
+    Timing? timing,
+    Timing? reverseTiming,
+    Curve? curve,
+    Curve? reverseCurve,
+    bool? isBounded,
+    ActorRole? role,
+    TextDirection? textDirection,
+    Object? implicitFrom,
+  }) {
+    return ActorContext(
+      timing: timing ?? this.timing,
+      reverseTiming: reverseTiming ?? this.reverseTiming,
+      curve: curve ?? this.curve,
+      reverseCurve: reverseCurve ?? this.reverseCurve,
+      isBounded: isBounded ?? this.isBounded,
+      role: role ?? this.role,
+      textDirection: textDirection ?? this.textDirection,
+      implicitFrom: implicitFrom ?? this.implicitFrom,
+    );
+  }
+}
+
+enum ActorRole { forward, reverse, both }

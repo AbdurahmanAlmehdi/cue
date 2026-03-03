@@ -1,36 +1,38 @@
 import 'package:cue/cue.dart';
-import 'package:cue/src/effects/base/utils.dart';
+import 'package:cue/src/acts/base/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-class RawActor extends StatefulWidget {
+class Actor extends StatefulWidget {
   final Curve? curve;
   final Curve? reverseCurve;
   final Timing? timing;
   final Timing? reverseTiming;
   final ActorRole role;
-  final List<Effect> effects;
+  final Act act;
   final Widget child;
 
-  const RawActor({
+  const Actor({
     super.key,
-    required this.effects,
-    required this.child,
+    required this.act,
     this.role = ActorRole.both,
     this.curve,
     this.reverseCurve,
     this.timing,
     this.reverseTiming,
+    required this.child,
   });
 
   @override
-  State<RawActor> createState() => RawActorState();
+  State<Actor> createState() => ActorState();
 }
 
-class RawActorState extends State<RawActor> {
+class ActorState extends State<Actor> {
   final _animations = <Type, Animation<Object?>>{};
-  final _cachedAnimations = <Effect, Animation<Object?>>{};
+  final _cachedAnimations = <Act, Animation<Object?>>{};
   final _animationSnapshots = <Type, Object?>{};
+
+  late List<Act> _acts = widget.act.flattened;
 
   void _onWillReAnimate(bool forward) {
     for (final entry in _animations.entries) {
@@ -42,9 +44,8 @@ class RawActorState extends State<RawActor> {
 
   void _setupAnimations(CueScope scope) {
     _cachedScope = scope;
-
     assert(() {
-      if (widget.effects.map((e) => e.runtimeType).toSet().length != widget.effects.length) {
+      if (_acts.map((e) => e.runtimeType).toSet().length != _acts.length) {
         throw StateError(
           'Multiple effects of the same type are not supported. Please ensure all effects in the list are of different types.',
         );
@@ -52,12 +53,13 @@ class RawActorState extends State<RawActor> {
       return true;
     }());
 
-    _animations.removeWhere((effect, _) => !widget.effects.map((e) => e.runtimeType).contains(effect));
-    _cachedAnimations.removeWhere((effect, _) => !widget.effects.contains(effect));
-    for (final effect in widget.effects) {
-      if (!_cachedAnimations.containsKey(effect)) {
-        final implicitFrom = scope.reanimateFromCurrent ? _animationSnapshots[effect.runtimeType] : null;
-        final animation = effect.buildAnimation(
+    _animations.removeWhere((effect, _) => !_acts.map((e) => e.runtimeType).contains(effect));
+    _cachedAnimations.removeWhere((effect, _) => !_acts.contains(effect));
+    for (final act in _acts) {
+      _cachedAnimations.containsKey(act);
+      if (!_cachedAnimations.containsKey(act)) {
+        final implicitFrom = scope.reanimateFromCurrent ? _animationSnapshots[act.runtimeType] : null;
+        final animation = act.buildAnimation(
           scope.animation,
           ActorContext(
             textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
@@ -70,16 +72,16 @@ class RawActorState extends State<RawActor> {
             implicitFrom: implicitFrom,
           ),
         );
-        _animations[effect.runtimeType] = animation;
-        _cachedAnimations[effect] = animation;
+        _animations[act.runtimeType] = animation;
+        _cachedAnimations[act] = animation;
       }
     }
   }
 
   @override
-  void didUpdateWidget(covariant RawActor oldWidget) {
+  void didUpdateWidget(covariant Actor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!listEquals(oldWidget.effects, widget.effects) ||
+    if (oldWidget.act != widget.act ||
         oldWidget.curve != widget.curve ||
         oldWidget.timing != widget.timing ||
         oldWidget.reverseCurve != widget.reverseCurve ||
@@ -88,11 +90,19 @@ class RawActorState extends State<RawActor> {
       if (oldWidget.role != widget.role) {
         // If the role has changed, we need to clear all cached animations
         //to ensure they are rebuilt with the correct role.
-        _animations.clear();
-        _cachedAnimations.clear();
+        _clearCache();
+      }
+      if (oldWidget.act != widget.act) {
+        _acts = widget.act.flattened;
       }
       _setupAnimations(CueScope.of(context));
     }
+  }
+
+  void _clearCache() {
+    _animations.clear();
+    _cachedAnimations.clear();
+    _animationSnapshots.clear();
   }
 
   @override
@@ -104,20 +114,23 @@ class RawActorState extends State<RawActor> {
       scope.willReanimateNotifier?.addEventListener(_onWillReAnimate);
     }
     if (_cachedScope == null || scope.updateShouldNotify(_cachedScope!)) {
+      if (_cachedScope?.animation != scope.animation) {
+        _clearCache();
+      }
       _setupAnimations(scope);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.effects.isEmpty) return widget.child;
+    if (_acts.isEmpty) return widget.child;
     Widget current = widget.child;
-    for (final effect in widget.effects.reversed) {
-      if (_animations[effect.runtimeType] case final animation?) {
-        current = effect.build(context, animation, current);
+    for (final act in _acts.reversed) {
+      if (_animations[act.runtimeType] case final animation?) {
+        current = act.build(context, animation, current);
       } else {
         throw StateError(
-          'Animation for effect $effect not found. This should not happen as animations are set up in initState and didUpdateWidget.',
+          'Animation for effect $act not found. This should not happen as animations are set up in initState and didUpdateWidget.',
         );
       }
     }
@@ -131,7 +144,7 @@ class RawActorState extends State<RawActor> {
   }
 }
 
-abstract class SingleEffectBase<T> extends StatelessWidget {
+abstract class SingleActorBase<T> extends StatelessWidget {
   final Widget child;
   final Curve? curve;
   final Curve? reverseCurve;
@@ -145,7 +158,7 @@ abstract class SingleEffectBase<T> extends StatelessWidget {
   T? get from => _from;
   T? get to => _to;
 
-  const SingleEffectBase({
+  const SingleActorBase({
     super.key,
     required this.child,
     required T from,
@@ -159,7 +172,7 @@ abstract class SingleEffectBase<T> extends StatelessWidget {
        _from = from,
        _to = to;
 
-  const SingleEffectBase.keyframes({
+  const SingleActorBase.keyframes({
     required List<Keyframe<T>> this.frames,
     super.key,
     required this.child,
@@ -171,17 +184,17 @@ abstract class SingleEffectBase<T> extends StatelessWidget {
        _from = null,
        _to = null;
 
-  Effect get effect;
+  Act get effect;
 
   @override
   Widget build(BuildContext context) {
-    return RawActor(
+    return Actor(
       curve: curve,
       timing: timing,
       reverseCurve: reverseCurve,
       reverseTiming: reverseTiming,
       role: role,
-      effects: [effect],
+      act: effect,
       child: child,
     );
   }

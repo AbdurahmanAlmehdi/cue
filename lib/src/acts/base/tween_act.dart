@@ -1,18 +1,17 @@
 import 'package:cue/cue.dart';
-import 'package:cue/src/effects/base/utils.dart';
+import 'package:cue/src/acts/base/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-abstract class TweenEffectBase<T extends Object?, R extends Object?> extends AnimatablePropBase<T, R>
-    implements Effect {
-  const TweenEffectBase({
+abstract class TweenActBase<T extends Object?, R extends Object?> extends AnimatablePropBase<T, R> implements Act {
+  const TweenActBase({
     required T super.from,
     required T super.to,
     super.curve,
     super.timing,
   }) : super(keyframes: null);
 
-  const TweenEffectBase.keyframes(
+  const TweenActBase.keyframes(
     List<Keyframe<T>> keyframes, {
     super.curve,
   }) : super(
@@ -22,13 +21,16 @@ abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Ani
        );
 
   @internal
-  const TweenEffectBase.internal({
+  const TweenActBase.internal({
     super.from,
     super.to,
     super.keyframes,
     super.curve,
     super.timing,
   });
+
+  @override
+  List<Act> get flattened => [this];
 
   @nonVirtual
   @override
@@ -84,8 +86,8 @@ abstract class TweenEffectBase<T extends Object?, R extends Object?> extends Ani
   }
 }
 
-abstract class TweenEffect<T extends Object?> extends TweenEffectBase<T, T> {
-  const TweenEffect({
+abstract class TweenAct<T extends Object?> extends TweenActBase<T, T> {
+  const TweenAct({
     required super.from,
     required super.to,
     super.curve,
@@ -95,13 +97,13 @@ abstract class TweenEffect<T extends Object?> extends TweenEffectBase<T, T> {
   @override
   T transform(_, T value) => value;
 
-  const TweenEffect.keyframes(
+  const TweenAct.keyframes(
     super.keyframes, {
     super.curve,
   }) : super.keyframes();
 
   @internal
-  const TweenEffect.internal({
+  const TweenAct.internal({
     super.from,
     super.to,
     super.keyframes,

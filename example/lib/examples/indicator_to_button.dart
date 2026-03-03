@@ -69,12 +69,14 @@ class _IndicatorToButtonState extends State<IndicatorToButton> {
                             borderRadius: BorderRadius.circular(32),
                           ),
                           child: Actor(
-                            size: .tween(
-                              from: .square(10),
-                              to: isLast ? .height(44) : NSize(w: 38, h: 10),
-                            ),
-                            scale: isLast ? .zoomIn() : null,
-                            slide: isLast ? .tweenX(from: -1) : null,
+                            act: .compose([
+                              .resize(
+                                from: .square(10),
+                                to: isLast ? .height(44) : NSize(w: 38, h: 10),
+                              ),
+                              if (isLast) .zoomIn(),
+                              if (isLast) .slideX(from: -1),
+                            ]),
                             child: isLast
                                 ? Padding(
                                     padding: const .symmetric(horizontal: 16),

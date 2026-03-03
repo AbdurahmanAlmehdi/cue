@@ -1,16 +1,16 @@
-part of 'base/effect.dart';
+part of 'base/act.dart';
 
-class PositionEffect extends TweenEffect<Position> {
+class PositionAct extends TweenAct<Position> {
   final Size? _relativeTo;
 
-  const PositionEffect({
+  const PositionAct({
     required super.from,
     required super.to,
     super.curve,
     super.timing,
   }) : _relativeTo = null;
 
-  const PositionEffect.relative({
+  const PositionAct.relative({
     required super.from,
     required super.to,
     required Size size,
@@ -19,7 +19,7 @@ class PositionEffect extends TweenEffect<Position> {
   }) : _relativeTo = size;
 
   @internal
-  const PositionEffect.internal({
+  const PositionAct.internal({
     required super.from,
     required super.to,
     super.curve,
@@ -29,7 +29,7 @@ class PositionEffect extends TweenEffect<Position> {
   }) : _relativeTo = relativeTo,
        super.internal();
 
-  const PositionEffect.keyframes(
+  const PositionAct.keyframes(
     super.keyframes, {
     super.curve,
     Size? relativeTo,
@@ -124,7 +124,7 @@ class _PositionTween extends Tween<Position> {
   Position lerp(double t) => Position.lerp(begin!, end!, t);
 }
 
-class PositionActor extends SingleEffectBase<Position> {
+class PositionActor extends SingleActorBase<Position> {
   final Size? _relativeTo;
 
   const PositionActor({
@@ -165,7 +165,7 @@ class PositionActor extends SingleEffectBase<Position> {
   }) : _relativeTo = size;
 
   @override
-  Effect get effect => PositionEffect.internal(
+  Act get effect => PositionAct.internal(
     from: from,
     to: to,
     keyframes: frames,

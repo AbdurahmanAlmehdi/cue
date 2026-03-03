@@ -12,7 +12,7 @@ class DeleteConfirmationDialog extends StatelessWidget {
       alignment: Alignment.bottomRight,
       barrierColor: Colors.transparent,
       hideTriggerOnTransition: true,
-      simulation: Spring.bouncy(damping: 19),
+      motion: const .simulation(Spring.bouncy(damping: 19)),
       triggerBuilder: (context, open) => FloatingActionButton(
         onPressed: open,
         backgroundColor: theme.colorScheme.surface,
@@ -22,85 +22,84 @@ class DeleteConfirmationDialog extends StatelessWidget {
         child: Icon(Iconsax.trash),
       ),
       builder: (context, rect) {
-        return TranslateActor(
-          to: Offset(-28, -28),
+        return Actor(
+          act: .translate(from: Offset(-28, -28)),
           child: Material(
             clipBehavior: .hardEdge,
             borderRadius: BorderRadius.circular(32),
             color: theme.colorScheme.surface,
             elevation: 1,
             shadowColor: Colors.black.withValues(alpha: .3),
-            child: SizeActor(
-              from: .size(rect.size),
-              to: .width(220),
-              allowOverflow: true,
-              child: SlideActor.y(
-                from: 0.4,
-                child: Column(
-                  mainAxisSize: .min,
-                  crossAxisAlignment: .end,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        RawActor(
-                          effects: [
-                            BlurEffect(from: 10),
-                            OpacityEffect(),
-                          ],
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Are you sure you want to delete this item?',
-                                  textAlign: .center,
-                                  style: theme.textTheme.bodyMedium,
+            child: Actor(
+              act: .compose([
+                .resize(from: .size(rect.size), to: .width(220), allowOverflow: true),
+                .slideY(from: 0.4),
+              ]),
+              child: Column(
+                mainAxisSize: .min,
+                crossAxisAlignment: .end,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Actor(
+                        act: .compose([
+                          .fadeIn(),
+                          .blur(from: 10),
+                        ]),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                          child: Column(
+                            children: [
+                              Text(
+                                'Are you sure you want to delete this item?',
+                                textAlign: .center,
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'This action cannot be undone.',
+                                textAlign: .center,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface.withValues(alpha: .5),
                                 ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'This action cannot be undone.',
-                                  textAlign: .center,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurface.withValues(alpha: .5),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: theme.colorScheme.error.withValues(alpha: .05),
-                            foregroundColor: theme.colorScheme.error,
-                            padding: .symmetric(horizontal: 20.0, vertical: 12.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                          ),
-                          label: Text('Delete Item'),
-                          iconAlignment: .end,
-                          icon: RawActor(
-                            effects: [
-                              TranslateEffect.fromGlobalRect(rect),
-                              IconThemeEffect(
-                                from: IconThemeData(size: 24),
-                                to: IconThemeData(size: 20),
                               ),
                             ],
-                            child: Icon(
-                              Iconsax.trash,
-                              color: theme.colorScheme.error,
-                            ),
                           ),
                         ),
-                        SizedBox(height: 8),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.error.withValues(alpha: .05),
+                          foregroundColor: theme.colorScheme.error,
+                          padding: .symmetric(horizontal: 20.0, vertical: 12.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                        ),
+                        label: Text('Delete Item'),
+                        iconAlignment: .end,
+                        icon: Actor(
+                          act: .compose([
+                            .translateFromGlobalRect(rect),
+                            .iconTheme(
+                              from: IconThemeData(size: 24),
+                              to: IconThemeData(size: 20),
+                            ),
+                          ]),
+
+                          child: Icon(
+                            Iconsax.trash,
+                            color: theme.colorScheme.error,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

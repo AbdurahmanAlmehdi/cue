@@ -31,13 +31,13 @@ class _SmoothSwitchState extends State<SmoothSwitch> {
             _toggled = details.localPosition.dx > width / 2;
           });
         },
-        child: ScaleActor.keyframes(
-          frames: [
+        child: Actor(
+          act: ScaleAct.keyframes([
             Keyframe(1, at: .0),
             Keyframe(.90, at: .45),
             Keyframe(.99, at: .65),
             Keyframe(1.0, at: 1.0),
-          ],
+          ]),
           child: Container(
             width: width,
             height: height,

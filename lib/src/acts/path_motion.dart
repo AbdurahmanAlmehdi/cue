@@ -1,13 +1,13 @@
-part of 'base/effect.dart';
+part of 'base/act.dart';
 
-class PathMotionEffect extends Effect {
+class PathMotionAct extends Act {
   final Path path;
   final bool autoRotate;
   final AlignmentGeometry alignment;
   final Curve? curve;
   final Timing? timing;
 
-  const PathMotionEffect({
+  const PathMotionAct({
     required this.path,
     this.autoRotate = false,
     this.alignment = Alignment.center,
@@ -15,7 +15,7 @@ class PathMotionEffect extends Effect {
     this.timing,
   });
 
-  PathMotionEffect.circular({
+  PathMotionAct.circular({
     this.autoRotate = false,
     this.alignment = Alignment.center,
     required double radius,
@@ -24,7 +24,7 @@ class PathMotionEffect extends Effect {
     this.timing,
   }) : path = Path()..addOval(Rect.fromCircle(center: center, radius: radius));
 
-  PathMotionEffect.arc({
+  PathMotionAct.arc({
     required double radius,
     Offset center = Offset.zero,
     required double startAngle,
@@ -39,6 +39,9 @@ class PathMotionEffect extends Effect {
            startAngle * math.pi / 180,
            sweepAngle * math.pi / 180,
          );
+
+  @override
+  List<Act> get flattened => [this];
 
   @override
   Animation<Matrix4> buildAnimation(Animation<double> driver, ActorContext data) {

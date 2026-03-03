@@ -1,15 +1,18 @@
 import 'package:cue/cue.dart';
-import 'package:cue/src/effects/base/utils.dart';
+import 'package:cue/src/acts/base/utils.dart';
 import 'package:flutter/widgets.dart';
 
-abstract class MulitTweenEffect<T extends Object?> extends Effect {
+abstract class MulitTweenAct<T extends Object?> extends Act {
   final Curve? curve;
   final Timing? timing;
 
-  const MulitTweenEffect({
+  const MulitTweenAct({
     this.curve,
     this.timing,
   });
+
+  @override
+  List<Act> get flattened => [this];
 
   @override
   Animation<T> buildAnimation(Animation<double> driver, ActorContext context) {
@@ -48,12 +51,11 @@ abstract class MulitTweenEffect<T extends Object?> extends Effect {
 
   Animatable<T> buildTween(ActorContext context);
 
-  //equality
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
-    return other is MulitTweenEffect<T> && other.timing == timing && other.curve == curve;
+    return other is MulitTweenAct<T> && other.timing == timing && other.curve == curve;
   }
 
   @override

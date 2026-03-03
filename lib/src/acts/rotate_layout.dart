@@ -1,44 +1,35 @@
-part of 'base/effect.dart';
+part of 'base/act.dart';
 
-class RotateLayoutEffect extends TweenEffect<double> {
+class RotateLayoutAct extends TweenAct<double> {
   final RotateUnit unit;
 
-  const RotateLayoutEffect({
+  const RotateLayoutAct({
     super.from = 0,
     super.to = 0,
     super.curve,
     super.timing,
-  }) : unit = RotateUnit.radians;
+    this.unit = RotateUnit.degrees,
+  });
 
-  const RotateLayoutEffect.keyframes(
+  const RotateLayoutAct.keyframes(
     super.keyframes, {
     super.curve,
     this.unit = RotateUnit.radians,
   }) : super.keyframes();
 
-  const RotateLayoutEffect.degrees({
+  const RotateLayoutAct.degrees({
     super.from = 0,
     super.to = 0,
     super.curve,
     super.timing,
   }) : unit = RotateUnit.degrees;
 
-  const RotateLayoutEffect.turns({
+  const RotateLayoutAct.turns({
     super.from = 0,
     super.to = 0,
     super.curve,
     super.timing,
   }) : unit = RotateUnit.quarterTurns;
-
-  @internal
-  const RotateLayoutEffect.internal({
-    super.from,
-    super.to,
-    super.keyframes,
-    super.curve,
-    super.timing,
-    this.unit = RotateUnit.radians,
-  }) : super.internal();
 
   @override
   double transform(_, double value) {
@@ -148,57 +139,4 @@ class _RenderRotateLayout extends RenderProxyBox {
       oldLayer: layer is TransformLayer ? layer as TransformLayer? : null,
     );
   }
-}
-
-class RotateLayoutActor extends SingleEffectBase<double> {
-  final RotateUnit unit;
-
-  const RotateLayoutActor({
-    super.key,
-    super.from = 0,
-    super.to = 0,
-    required super.child,
-    super.role,
-    super.curve,
-    super.timing,
-  }) : unit = RotateUnit.radians;
-
-  const RotateLayoutActor.degrees({
-    super.key,
-    super.from = 0,
-    super.to = 0,
-    required super.child,
-    super.role,
-    super.curve,
-    super.timing,
-  }) : unit = RotateUnit.degrees;
-
-  const RotateLayoutActor.turns({
-    super.key,
-    super.from = 0,
-    super.to = 0,
-    required super.child,
-    super.role,
-    super.curve,
-    super.timing,
-  }) : unit = RotateUnit.quarterTurns;
-
-  const RotateLayoutActor.keyframes({
-    required super.child,
-    required super.frames,
-    super.key,
-    super.role,
-    super.curve,
-    this.unit = RotateUnit.radians,
-  }) : super.keyframes();
-
-  @override
-  Effect get effect => RotateLayoutEffect.internal(
-    from: from,
-    to: to,
-    keyframes: frames,
-    curve: curve,
-    timing: timing,
-    unit: unit,
-  );
 }

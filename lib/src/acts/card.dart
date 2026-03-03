@@ -1,4 +1,4 @@
-part of 'base/effect.dart';
+part of 'base/act.dart';
 
 /// Animates card-like surface properties: elevation shadow, background color,
 /// shadow color, surface tint color, and shape (border radius or arbitrary
@@ -11,7 +11,7 @@ part of 'base/effect.dart';
 /// Use [borderRadius] for the common case of animating rounded corners on a
 /// rectangle. Use [shape] for arbitrary [ShapeBorder] animations (e.g.
 /// [StadiumBorder], [BeveledRectangleBorder]). The two are mutually exclusive.
-class CardEffect extends MulitTweenEffect<CardProps> {
+class CardAct extends MulitTweenAct<CardProps> {
   final Clip clipBehavior;
   final bool borderOnForeground;
   final ColorProp? color;
@@ -23,7 +23,7 @@ class CardEffect extends MulitTweenEffect<CardProps> {
   final ShapeBorderProp? shape;
   final bool semanticContainer;
 
-  CardEffect({
+  CardAct({
     this.color,
     this.borderRadius,
     this.shape,
@@ -125,7 +125,7 @@ class CardEffect extends MulitTweenEffect<CardProps> {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
-    return other is CardEffect &&
+    return other is CardAct &&
         other.color == color &&
         other.shadowColor == shadowColor &&
         other.surfaceTintColor == surfaceTintColor &&
@@ -221,10 +221,10 @@ class _CardPropsProxyTween extends Animatable<CardProps> {
 }
 
 /// A convenience widget that animates card-like surface properties using
-/// [CardEffect].
+/// [CardAct].
 ///
-/// Wraps an [RawActor] with a single [CardEffect]. For composing multiple effects,
-/// use [RawActor] directly with [CardEffect] in the effects list.
+/// Wraps an [Actor] with a single [CardAct]. For composing multiple effects,
+/// use [Actor] directly with [CardAct] in the effects list.
 class CardActor extends StatelessWidget {
   final ColorProp? color;
   final ColorProp? shadowColor;
@@ -267,25 +267,23 @@ class CardActor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RawActor(
+    return Actor(
       curve: curve,
       timing: timing,
       reverseCurve: reverseCurve,
       reverseTiming: reverseTiming,
       role: role,
-      effects: [
-        CardEffect(
-          color: color,
-          shadowColor: shadowColor ?? const ColorProp.fixed(Color(0xFF000000)),
-          surfaceTintColor: surfaceTintColor,
-          elevation: elevation,
-          borderRadius: borderRadius,
-          shape: shape,
-          clipBehavior: clipBehavior,
-          borderOnForeground: borderOnForeground,
-          margin: margin,
-        ),
-      ],
+      act: CardAct(
+        color: color,
+        shadowColor: shadowColor ?? const ColorProp.fixed(Color(0xFF000000)),
+        surfaceTintColor: surfaceTintColor,
+        elevation: elevation,
+        borderRadius: borderRadius,
+        shape: shape,
+        clipBehavior: clipBehavior,
+        borderOnForeground: borderOnForeground,
+        margin: margin,
+      ),
       child: child ?? const SizedBox.shrink(),
     );
   }

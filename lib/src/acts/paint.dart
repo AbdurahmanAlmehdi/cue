@@ -1,10 +1,10 @@
-part of 'base/effect.dart';
+part of 'base/act.dart';
 
-class PaintEffect extends TweenEffect<double> {
+class PaintAct extends TweenAct<double> {
   final EffectPainter painter;
   final bool paintOnTop;
 
-  PaintEffect({
+  PaintAct({
     required this.painter,
     this.paintOnTop = false,
     super.curve,
@@ -22,7 +22,7 @@ class PaintEffect extends TweenEffect<double> {
   }
 }
 
-class PaintActor extends SingleEffectBase<double> {
+class PaintActor extends SingleActorBase<double> {
   final EffectPainter painter;
   final bool paintOnTop;
 
@@ -36,7 +36,7 @@ class PaintActor extends SingleEffectBase<double> {
   }) : super(from: 0.0, to: 1.0);
 
   @override
-  Effect get effect => PaintEffect(
+  Act get effect => PaintAct(
     painter: painter,
     paintOnTop: paintOnTop,
   );

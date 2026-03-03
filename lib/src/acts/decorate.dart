@@ -1,6 +1,6 @@
-part of 'base/effect.dart';
+part of 'base/act.dart';
 
-class DecoratedBoxEffect extends MulitTweenEffect<BoxDecoration> {
+class DecoratedBoxAct extends MulitTweenAct<BoxDecoration> {
   final ColorProp? color;
   final BorderRadiusProp? borderRadius;
   final BoxBorderProp? border;
@@ -9,7 +9,7 @@ class DecoratedBoxEffect extends MulitTweenEffect<BoxDecoration> {
   final BoxShape shape;
   final DecorationPosition position;
 
-  DecoratedBoxEffect({
+  DecoratedBoxAct({
     this.color,
     this.borderRadius,
     this.border,
@@ -51,7 +51,7 @@ class DecoratedBoxEffect extends MulitTweenEffect<BoxDecoration> {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
-    return other is DecoratedBoxEffect &&
+    return other is DecoratedBoxAct &&
         other.color == color &&
         other.borderRadius == borderRadius &&
         other.border == border &&
@@ -129,23 +129,21 @@ class DecoratedBoxActor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RawActor(
+    return Actor(
       curve: curve,
       timing: timing,
       reverseCurve: reverseCurve,
       reverseTiming: reverseTiming,
       role: role,
-      effects: [
-        DecoratedBoxEffect(
-          color: color,
-          borderRadius: borderRadius,
-          border: border,
-          boxShadow: boxShadow,
-          gradient: gradient,
-          shape: shape,
-          position: position,
-        ),
-      ],
+      act: DecoratedBoxAct(
+        color: color,
+        borderRadius: borderRadius,
+        border: border,
+        boxShadow: boxShadow,
+        gradient: gradient,
+        shape: shape,
+        position: position,
+      ),
       child: child ?? const SizedBox.shrink(),
     );
   }

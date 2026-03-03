@@ -50,10 +50,12 @@ class _HorizontallyExpandingCardsState extends State<HorizontallyExpandingCards>
                       elevation: 0,
                       shape: RoundedSuperellipseBorder(borderRadius: .circular(20)),
                       clipBehavior: .antiAlias,
-                      child: SizeActor(
-                        from: .width(availableWidth * 0.16),
-                        to: .width(availableWidth * 0.6),
-                        allowOverflow: true,
+                      child: Actor(
+                        act: .resize(
+                          from: .width(availableWidth * 0.16),
+                          to: .width(availableWidth * 0.6),
+                          allowOverflow: true,
+                        ),
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             image: DecorationImage(
@@ -77,11 +79,11 @@ class _HorizontallyExpandingCardsState extends State<HorizontallyExpandingCards>
                                 mainAxisAlignment: .end,
                                 crossAxisAlignment: .start,
                                 children: [
-                                  RawActor(
-                                    effects: [
-                                      AlignEffect(from: .bottomCenter, to: .bottomLeft),
-                                      RotateLayoutEffect.turns(from: -1),
-                                    ],
+                                  Actor(
+                                    act: .compose([
+                                      .align(from: .bottomCenter, to: .bottomLeft),
+                                      .rotateLayout(from: -1, unit: .quarterTurns),
+                                    ]),
                                     child: Text(
                                       cardsInfo[i].title,
                                       style: textTheme.titleMedium?.copyWith(
@@ -92,11 +94,11 @@ class _HorizontallyExpandingCardsState extends State<HorizontallyExpandingCards>
                                   ),
                                   SizedBox(height: 2),
                                   Flexible(
-                                    child: RawActor(
-                                      effects: [
-                                        OpacityEffect(),
-                                        ClipEffect.vertical(from: .3),
-                                      ],
+                                    child: Actor(
+                                      act: .compose([
+                                        .fadeIn(),
+                                        .clipHeight(from: .3),
+                                      ]),
                                       child: Padding(
                                         padding: .only(bottom: 14),
                                         child: Text(

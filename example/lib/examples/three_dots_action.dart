@@ -38,15 +38,19 @@ class ThreeDotsAction extends StatelessWidget {
                 shape: CircleBorder(),
                 onPressed: () => Navigator.of(context).pop(),
                 child: Actor(
-                  blur: .focus(from: 6),
-                  opacity: .fadeIn(),
-                  slide: .tweenY(from: rect.height / 3),
+                  act: .compose([
+                    .fadeIn(from: 0),
+                    .focus(from: 8),
+                    .slideY(from: rect.height / 3),
+                  ]),
                   child: const Icon(Icons.keyboard_arrow_down),
                 ),
               ),
-              TranslateActor.y(
-                from: -rect.height / 3,
-                to: -rect.height - 4, // 4 is little extra padding
+              Actor(
+                act: TranslateAct.y(
+                  from: -rect.height / 3,
+                  to: -rect.height - 4, // 4 is little extra padding
+                ),
                 child: Column(
                   mainAxisSize: .min,
                   children: [
@@ -56,8 +60,10 @@ class ThreeDotsAction extends StatelessWidget {
                       Icons.translate,
                     ])
                       Actor(
-                        padding: .tween(from: .all(1), to: .only(bottom: 10.0)),
-                        size: .tween(from: .square(5), to: .square(44)),
+                        act: .compose([
+                          .padding(from: .all(1), to: .only(bottom: 10.0)),
+                          .resize(from: .square(5), to: .square(44)),
+                        ]),
                         child: FloatingActionButton(
                           mini: true,
                           backgroundColor: Colors.black,
@@ -66,8 +72,7 @@ class ThreeDotsAction extends StatelessWidget {
                           heroTag: null,
                           onPressed: () {},
                           child: Actor(
-                            blur: .focus(from: 8),
-                            opacity: .fadeIn(),
+                            act: .compose([.focus(from: 8), .fadeIn()]),
                             child: Icon(icon, color: Colors.white, size: 24),
                           ),
                         ),
