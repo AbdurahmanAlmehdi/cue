@@ -6,12 +6,32 @@ class OpacityAct extends TweenAct<double> {
     super.to = 1.0,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   });
 
-  const OpacityAct.fadeIn({super.from = 0.0, super.to = 1.0, super.curve, super.timing});
-  const OpacityAct.fadeOut({super.from = 1.0, super.to = 0.0, super.curve, super.timing});
+  const OpacityAct.fadeIn({
+    super.from = 0.0,
+    super.to = 1.0,
+    super.curve,
+    super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
+  });
+  const OpacityAct.fadeOut({
+    super.from = 1.0,
+    super.to = 0.0,
+    super.curve,
+    super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
+  });
 
-  const OpacityAct.keyframes(super.keyframes, {super.curve}) : super.keyframes();
+  const OpacityAct.keyframes(
+    super.keyframes, {
+    super.curve,
+    super.reverseCurve,
+  }) : super.keyframes();
 
   @override
   Widget apply(BuildContext context, Animation<double> animation, Widget child) {

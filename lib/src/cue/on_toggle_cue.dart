@@ -20,9 +20,6 @@ class _TogglableCue extends SelfAnimatedCue {
 
 class _ToggledStageState extends SelfAnimatedState<_TogglableCue> {
   @override
-  Animation<double> getAnimation(BuildContext context) => animation;
-
-  @override
   String get debugName => 'ToggledCue';
 
   @override

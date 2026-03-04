@@ -1,6 +1,6 @@
 part of 'base/act.dart';
 
-class SizeAct extends TweenAct<double> {
+class ResizeAct extends TweenAct<double> {
   final AlignmentGeometry? alignment;
   final Clip clipBehavior;
   final bool allowOverflow;
@@ -8,11 +8,13 @@ class SizeAct extends TweenAct<double> {
   final NSize? _toSize;
   final List<Keyframe<NSize?>>? _sizeKeyframes;
 
-  const SizeAct({
+  const ResizeAct({
     NSize? from = NSize.childSize,
     NSize? to = NSize.childSize,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
     this.alignment,
     this.clipBehavior = Clip.hardEdge,
     this.allowOverflow = false,
@@ -21,21 +23,10 @@ class SizeAct extends TweenAct<double> {
        _sizeKeyframes = null,
        super(from: 0, to: 1);
 
-  const SizeAct.reveal({
-    NSize from = NSize.zero,
-    super.curve,
-    super.timing,
-    this.alignment,
-    this.clipBehavior = Clip.hardEdge,
-    this.allowOverflow = true,
-  }) : _fromSize = from,
-       _toSize = NSize.childSize,
-       _sizeKeyframes = null,
-       super(from: 0, to: 1);
-
-  const SizeAct.keyframes(
+  const ResizeAct.keyframes(
     List<Keyframe<NSize?>> keyframes, {
     super.curve,
+    super.reverseCurve,
     this.alignment,
     this.clipBehavior = Clip.hardEdge,
     this.allowOverflow = false,
@@ -65,7 +56,7 @@ class SizeAct extends TweenAct<double> {
   }
 
   @override
-  Animation<double> buildAnimation(Animation<double> driver, ActorContext data) {
+  Animation<double> buildAnimation(Animation<double> driver, ActContext context) {
     /// The actual size tween will be built in the RenderObject
     /// where we have access to the constraints so we can normalize sizes properly.
     /// Here we just return the driver animation
@@ -75,26 +66,28 @@ class SizeAct extends TweenAct<double> {
 
     final tweenRes = _buildSizeTween(
       keyframes: _sizeKeyframes,
-      timing: timing ?? data.timing,
+      timing: timing ?? context.timing,
     );
 
     final animatable = applyCurves(
       tweenRes.tween,
-      curve: data.curve,
-      timing: tweenRes.timing,
-      isBounded: data.isBounded,
+      curve: context.curve,
+      timing: tweenRes.timing ?? timing ?? context.timing,
+      isBounded: context.isBounded,
     );
 
     Animatable<double>? reverseAnimtable;
-    if (data.reverseCurve != null || data.reverseTiming != null) {
+    final effectiveReverseTiming = reverseTiming ?? context.reverseTiming;
+    final effectiveReverseCurve = reverseCurve ?? context.reverseCurve;
+    if (effectiveReverseCurve != null || effectiveReverseTiming != null) {
       reverseAnimtable = applyCurves(
         tweenRes.tween,
-        curve: data.reverseCurve,
-        timing: data.reverseTiming,
-        isBounded: data.isBounded,
+        curve: effectiveReverseCurve,
+        timing: tweenRes.timing ?? effectiveReverseTiming,
+        isBounded: context.isBounded,
       );
     }
-    return switch (data.role) {
+    return switch (context.role) {
       ActorRole.both =>
         reverseAnimtable != null
             ? DualAnimation(

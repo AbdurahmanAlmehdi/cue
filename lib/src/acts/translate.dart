@@ -6,11 +6,14 @@ abstract class TranslateAct extends Act {
     Offset to,
     Curve? curve,
     Timing? timing,
+    Curve? reverseCurve,
+    Timing? reverseTiming,
   }) = _TranslateOffset;
 
   const factory TranslateAct.keyframes(
     List<Keyframe<Offset>> keyframes, {
     Curve? curve,
+    Curve? reverseCurve,
   }) = _TranslateOffset.keyframes;
 
   const factory TranslateAct.fromX({
@@ -18,11 +21,14 @@ abstract class TranslateAct extends Act {
     double to,
     Curve? curve,
     Timing? timing,
+    Curve? reverseCurve,
+    Timing? reverseTiming,
   }) = _AxisTranslate.horizontal;
 
   const factory TranslateAct.keyframesX(
     List<Keyframe<double>> keyframes, {
     Curve? curve,
+    Curve? reverseCurve,
   }) = _AxisTranslate.keyframesX;
 
   const factory TranslateAct.y({
@@ -30,11 +36,14 @@ abstract class TranslateAct extends Act {
     double to,
     Curve? curve,
     Timing? timing,
+    Curve? reverseCurve,
+    Timing? reverseTiming,
   }) = _AxisTranslate.vertical;
 
   const factory TranslateAct.keyframesY(
     List<Keyframe<double>> keyframes, {
     Curve? curve,
+    Curve? reverseCurve,
   }) = _AxisTranslate.keyframesY;
 
   const factory TranslateAct.fromGlobal({
@@ -42,6 +51,8 @@ abstract class TranslateAct extends Act {
     Offset toLocal,
     Curve? curve,
     Timing? timing,
+    Curve? reverseCurve,
+    Timing? reverseTiming,
   }) = _TranslateFromGlobalEffect.offset;
 
   const factory TranslateAct.fromGlobalRect(
@@ -50,6 +61,8 @@ abstract class TranslateAct extends Act {
     Offset toLocal,
     Curve? curve,
     Timing? timing,
+    Curve? reverseCurve,
+    Timing? reverseTiming,
   }) = _TranslateFromGlobalEffect.fromRect;
 
   const factory TranslateAct.fromGlobalKey(
@@ -58,6 +71,8 @@ abstract class TranslateAct extends Act {
     Offset toLocal,
     Curve? curve,
     Timing? timing,
+    Curve? reverseCurve,
+    Timing? reverseTiming,
   }) = _TranslateFromGlobalEffect.fromKey;
 }
 
@@ -67,9 +82,15 @@ class _TranslateOffset extends TweenAct<Offset> implements TranslateAct {
     super.to = Offset.zero,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   });
 
-  const _TranslateOffset.keyframes(super.keyframes, {super.curve}) : super.keyframes();
+  const _TranslateOffset.keyframes(
+    super.keyframes, {
+    super.curve,
+    super.reverseCurve,
+  }) : super.keyframes();
 
   @override
   Widget apply(BuildContext context, Animation<Offset> animation, Widget child) {
@@ -89,6 +110,8 @@ class _AxisTranslate extends TweenActBase<double, Offset> implements TranslateAc
     super.to = 0,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : _axis = Axis.vertical;
 
   const _AxisTranslate.horizontal({
@@ -96,11 +119,23 @@ class _AxisTranslate extends TweenActBase<double, Offset> implements TranslateAc
     super.to = 0,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : _axis = Axis.horizontal;
 
-  const _AxisTranslate.keyframesY(super.keyframes, {super.curve}) : _axis = Axis.vertical, super.keyframes();
+  const _AxisTranslate.keyframesY(
+    super.keyframes, {
+    super.curve,
+    super.reverseCurve,
+  }) : _axis = Axis.vertical,
+       super.keyframes();
 
-  const _AxisTranslate.keyframesX(super.keyframes, {super.curve}) : _axis = Axis.horizontal, super.keyframes();
+  const _AxisTranslate.keyframesX(
+    super.keyframes, {
+    super.curve,
+    super.reverseCurve,
+  }) : _axis = Axis.horizontal,
+       super.keyframes();
 
   @override
   Offset transform(_, double value) {
@@ -156,6 +191,8 @@ class _TranslateFromGlobalEffect extends TweenAct<double> implements TranslateAc
     this.toLocal = Offset.zero,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : rect = null,
        alignment = null,
        globalKey = null,
@@ -167,6 +204,8 @@ class _TranslateFromGlobalEffect extends TweenAct<double> implements TranslateAc
     this.alignment = Alignment.center,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : offset = null,
        globalKey = null,
        super(from: 0, to: 1);
@@ -177,6 +216,8 @@ class _TranslateFromGlobalEffect extends TweenAct<double> implements TranslateAc
     this.alignment = Alignment.center,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : offset = null,
        rect = null,
        super(from: 0, to: 1);

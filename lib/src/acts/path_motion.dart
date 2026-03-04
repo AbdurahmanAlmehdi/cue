@@ -6,6 +6,8 @@ class PathMotionAct extends Act {
   final AlignmentGeometry alignment;
   final Curve? curve;
   final Timing? timing;
+  final Curve? reverseCurve;
+  final Timing? reverseTiming;
 
   const PathMotionAct({
     required this.path,
@@ -13,6 +15,8 @@ class PathMotionAct extends Act {
     this.alignment = Alignment.center,
     this.curve,
     this.timing,
+    this.reverseCurve,
+    this.reverseTiming,
   });
 
   PathMotionAct.circular({
@@ -22,6 +26,8 @@ class PathMotionAct extends Act {
     Offset center = Offset.zero,
     this.curve,
     this.timing,
+    this.reverseCurve,
+    this.reverseTiming,
   }) : path = Path()..addOval(Rect.fromCircle(center: center, radius: radius));
 
   PathMotionAct.arc({
@@ -33,6 +39,8 @@ class PathMotionAct extends Act {
     this.alignment = Alignment.center,
     this.curve,
     this.timing,
+    this.reverseCurve,
+    this.reverseTiming,
   }) : path = Path()
          ..addArc(
            Rect.fromCircle(center: center, radius: radius),
@@ -41,21 +49,24 @@ class PathMotionAct extends Act {
          );
 
   @override
-  List<Act> get flattened => [this];
+  List<(Act, ActContext)> resolve(ActContext context) {
+    return [(this, context)];
+  }
 
   @override
-  Animation<Matrix4> buildAnimation(Animation<double> driver, ActorContext data) {
+  Animation<Matrix4> buildAnimation(Animation<double> driver, ActContext context) {
     final metrics = path.computeMetrics().toList();
     if (metrics.isEmpty) {
       throw Exception('Path must have one metric');
     } else if (metrics.length > 1) {
       throw Exception('Path must have only one metric');
     }
+    //TODO: finish this
     final animatble = applyCurves<Matrix4>(
       _AnimtablePath(metrics.first, autoRotate: autoRotate),
-      curve: curve ?? data.curve,
-      timing: timing ?? data.timing,
-      isBounded: data.isBounded,
+      curve: curve ?? context.curve,
+      timing: timing ?? context.timing,
+      isBounded: context.isBounded,
     );
     return animatble.animate(driver);
   }

@@ -8,6 +8,8 @@ class PositionAct extends TweenAct<Position> {
     required super.to,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : _relativeTo = null;
 
   const PositionAct.relative({
@@ -16,6 +18,8 @@ class PositionAct extends TweenAct<Position> {
     required Size size,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : _relativeTo = size;
 
   @internal
@@ -24,6 +28,8 @@ class PositionAct extends TweenAct<Position> {
     required super.to,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
     Size? relativeTo,
     super.keyframes,
   }) : _relativeTo = relativeTo,
@@ -32,6 +38,7 @@ class PositionAct extends TweenAct<Position> {
   const PositionAct.keyframes(
     super.keyframes, {
     super.curve,
+    super.reverseCurve,
     Size? relativeTo,
   }) : _relativeTo = relativeTo,
        super.keyframes();
@@ -172,5 +179,7 @@ class PositionActor extends SingleActorBase<Position> {
     relativeTo: _relativeTo,
     curve: curve,
     timing: timing,
+    reverseCurve: reverseCurve,
+    reverseTiming: reverseTiming,
   );
 }

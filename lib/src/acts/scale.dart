@@ -8,6 +8,8 @@ class ScaleAct extends TweenAct<double> {
     required super.to,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
     this.alignment,
   });
 
@@ -16,6 +18,8 @@ class ScaleAct extends TweenAct<double> {
     super.to = 1.0,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
     this.alignment,
   });
 
@@ -24,12 +28,15 @@ class ScaleAct extends TweenAct<double> {
     super.to = 0.0,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
     this.alignment,
   });
 
   const ScaleAct.keyframes(
     super.keyframes, {
     super.curve,
+    super.reverseCurve,
     this.alignment,
   }) : super.keyframes();
 

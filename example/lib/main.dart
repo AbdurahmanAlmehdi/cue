@@ -1,6 +1,7 @@
 import 'package:cue/cue.dart';
 import 'package:example/examples/bottom_bar.dart';
 import 'package:example/examples/options_button.dart';
+import 'package:example/examples/slack_style_fab.dart';
 import 'package:example/examples/smooth_toggle.dart';
 
 import 'package:flutter/foundation.dart';
@@ -56,31 +57,36 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
       // backgroundColor: theme.colorScheme.surfaceContainer,
       appBar: AppBar(),
       body: Padding(
-        padding: const EdgeInsets.only(top: 48, bottom: 0),
-        child: Column(
-          children: [
-            BottomBar(),
-            Cue.onChange(
-              value: scale,
-              fromCurrentValue: true,
-              child: Actor(
-                act: .slideX(to: scale),
-                child: Container(
-                  width: 100,
-                  height: 50,
-                  color: Colors.red,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  scale = scale + .3;
-                });
-              },
-              child: Text('Slide'),
-            ),
-          ],
+        padding: const EdgeInsets.only(top: 48, bottom: 48, left: 24, right: 24),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              SlackStyleFab(),
+              // Cue.onChange(
+              //   value: scale,
+              //   fromCurrentValue: true,
+              //   child: Actor(
+              //     act: .slideX(to: scale),
+              //     child: Container(
+              //       width: 100,
+              //       height: 50,
+              //       color: Colors.red,
+              //     ),
+              //   ),
+              // ),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     setState(() {
+              //       scale = scale + .3;
+              //     });
+              //   },
+              //   child: Text('Slide'),
+              // ),
+            ],
+          ),
         ),
       ),
     );

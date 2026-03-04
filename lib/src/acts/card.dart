@@ -34,6 +34,8 @@ class CardAct extends MulitTweenAct<CardProps> {
     this.shadowColor = const ColorProp.fixed(Color(0xFF000000)),
     super.timing,
     super.curve,
+    super.reverseCurve,
+    super.reverseTiming,
     this.semanticContainer = true,
     this.margin,
   }) : assert(
@@ -43,20 +45,20 @@ class CardAct extends MulitTweenAct<CardProps> {
        );
 
   @override
-  Animatable<CardProps> buildTween(ActorContext context) {
-    final implicitFrom = context.implicitFrom as CardProps?;
-    ActorContext overrideCtx(Object? from) {
-      return context.copyWith(implicitFrom: from, timing: timing, curve: curve);
+  Animatable<CardProps> buildTween(ActContext context) {
+    final iFrom = context.implicitFrom as CardProps?;
+    ActContext withFrom(Object? from) {
+      return context.copyWith(implicitFrom: from);
     }
 
     return _CardPropsProxyTween(
-      elevation: elevation?.asAnimtable(overrideCtx(implicitFrom?.elevation)),
-      color: color?.asAnimtable(overrideCtx(implicitFrom?.color)),
-      shadowColor: shadowColor.asAnimtable(overrideCtx(implicitFrom?.shadowColor)),
-      surfaceTintColor: surfaceTintColor?.asAnimtable(overrideCtx(implicitFrom?.surfaceTintColor)),
-      borderRadius: borderRadius?.asAnimtable(overrideCtx(implicitFrom?.borderRadius)),
-      shape: shape?.asAnimtable(overrideCtx(implicitFrom?.shape)),
-      margin: margin?.asAnimtable(overrideCtx(implicitFrom?.margin)),
+      elevation: elevation?.asAnimtable(withFrom(iFrom?.elevation)),
+      color: color?.asAnimtable(withFrom(iFrom?.color)),
+      shadowColor: shadowColor.asAnimtable(withFrom(iFrom?.shadowColor)),
+      surfaceTintColor: surfaceTintColor?.asAnimtable(withFrom(iFrom?.surfaceTintColor)),
+      borderRadius: borderRadius?.asAnimtable(withFrom(iFrom?.borderRadius)),
+      shape: shape?.asAnimtable(withFrom(iFrom?.shape)),
+      margin: margin?.asAnimtable(withFrom(iFrom?.margin)),
     );
   }
 
@@ -268,10 +270,6 @@ class CardActor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Actor(
-      curve: curve,
-      timing: timing,
-      reverseCurve: reverseCurve,
-      reverseTiming: reverseTiming,
       role: role,
       act: CardAct(
         color: color,
@@ -283,6 +281,10 @@ class CardActor extends StatelessWidget {
         clipBehavior: clipBehavior,
         borderOnForeground: borderOnForeground,
         margin: margin,
+        curve: curve,
+        timing: timing,
+        reverseCurve: reverseCurve,
+        reverseTiming: reverseTiming,
       ),
       child: child ?? const SizedBox.shrink(),
     );

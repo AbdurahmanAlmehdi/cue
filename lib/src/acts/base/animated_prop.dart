@@ -10,33 +10,53 @@ abstract class AnimatablePropBase<T extends Object?, R extends Object?> {
     this.keyframes,
     this.timing,
     this.curve,
+    this.reverseTiming,
+    this.reverseCurve,
   });
 
-  const AnimatablePropBase.tween({required T this.from, required T this.to, this.timing, this.curve})
-    : keyframes = null;
-  const AnimatablePropBase.fixed(T value) : from = value, to = value, keyframes = null, timing = null, curve = null;
-  const AnimatablePropBase.keyframes(List<Keyframe<T>> this.keyframes, {this.curve})
+  const AnimatablePropBase.tween({
+    required T this.from,
+    required T this.to,
+    this.timing,
+    this.curve,
+    this.reverseTiming,
+    this.reverseCurve,
+  }) : keyframes = null;
+
+  const AnimatablePropBase.fixed(T value)
+    : from = value,
+      to = value,
+      keyframes = null,
+      timing = null,
+      curve = null,
+      reverseTiming = null,
+      reverseCurve = null;
+
+  const AnimatablePropBase.keyframes(List<Keyframe<T>> this.keyframes, {this.curve, this.reverseCurve})
     : from = null,
       to = null,
-      timing = null;
+      timing = null,
+      reverseTiming = null;
 
   final T? from;
   final T? to;
   final List<Keyframe<T>>? keyframes;
   final Timing? timing;
   final Curve? curve;
+  final Timing? reverseTiming;
+  final Curve? reverseCurve;
 
   bool get isConstant => from != null && to != null && from == to;
 
-  R transform(ActorContext context, T value);
+  R transform(ActContext context, T value);
 
   Animatable<R> createSingleTween(R from, R to) {
     return Tween<R>(begin: from, end: to);
   }
 
-  ({Animatable<R> tween, Timing? timing}) resolveTween(ActorContext context) {
+  ({Animatable<R> tween, Timing? timing}) resolveTween(ActContext context) {
     final Animatable<R> tween;
-    Timing? timing = this.timing ?? context.timing;
+    Timing? timing;
     if (keyframes != null) {
       assert(keyframes!.isNotEmpty, 'Keyframes list cannot be empty');
       final res = Phase.normalize<T, R>(keyframes!, (v) => transform(context, v));
@@ -58,7 +78,7 @@ abstract class AnimatablePropBase<T extends Object?, R extends Object?> {
     return (tween: tween, timing: timing);
   }
 
-  Animatable<R> asAnimtable(ActorContext context) {
+  Animatable<R> asAnimtable(ActContext context) {
     final res = resolveTween(context);
     return applyCurves(
       res.tween,
@@ -137,7 +157,7 @@ class BorderRadiusProp extends AnimatablePropBase<BorderRadiusGeometry?, BorderR
     : super.keyframes();
 
   @override
-  BorderRadius? transform(ActorContext context, BorderRadiusGeometry? value) {
+  BorderRadius? transform(ActContext context, BorderRadiusGeometry? value) {
     return value?.resolve(context.textDirection);
   }
 
@@ -237,7 +257,7 @@ class EdgeInsetsProp extends AnimatablePropBase<EdgeInsetsGeometry?, EdgeInsets?
   const EdgeInsetsProp.keyframes(super.keyframes, {super.curve}) : super.keyframes();
 
   @override
-  EdgeInsets? transform(ActorContext context, EdgeInsetsGeometry? value) {
+  EdgeInsets? transform(ActContext context, EdgeInsetsGeometry? value) {
     return value?.resolve(context.textDirection);
   }
 

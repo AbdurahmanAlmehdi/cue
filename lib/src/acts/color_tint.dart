@@ -6,6 +6,8 @@ class ColorTintAct extends TweenAct<Color?> {
     required super.to,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
     this.blendMode = BlendMode.srcIn,
   });
 
@@ -14,6 +16,7 @@ class ColorTintAct extends TweenAct<Color?> {
   const ColorTintAct.keyframes(
     super.keyframes, {
     super.curve,
+    super.reverseCurve,
     this.blendMode = BlendMode.srcIn,
   }) : super.keyframes();
 

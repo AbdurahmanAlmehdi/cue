@@ -5,17 +5,33 @@ import 'package:flutter/widgets.dart';
 abstract class MulitTweenAct<T extends Object?> extends Act {
   final Curve? curve;
   final Timing? timing;
+  final Curve? reverseCurve;
+  final Timing? reverseTiming;
 
   const MulitTweenAct({
     this.curve,
     this.timing,
+    this.reverseCurve,
+    this.reverseTiming,
   });
 
   @override
-  List<Act> get flattened => [this];
+  List<(Act, ActContext)> resolve(ActContext context) {
+    return [
+      (
+        this,
+        context.copyWith(
+          curve: curve,
+          timing: timing,
+          reverseCurve: reverseCurve,
+          reverseTiming: reverseTiming,
+        ),
+      ),
+    ];
+  }
 
   @override
-  Animation<T> buildAnimation(Animation<double> driver, ActorContext context) {
+  Animation<T> buildAnimation(Animation<double> driver, ActContext context) {
     final animatable = buildTween(context);
 
     Animatable<T>? reverseAnimatable;
@@ -49,15 +65,19 @@ abstract class MulitTweenAct<T extends Object?> extends Act {
 
   Widget apply(BuildContext context, covariant Animation<T> animation, Widget child);
 
-  Animatable<T> buildTween(ActorContext context);
+  Animatable<T> buildTween(ActContext context);
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
-    return other is MulitTweenAct<T> && other.timing == timing && other.curve == curve;
+    return other is MulitTweenAct<T> &&
+        other.timing == timing &&
+        other.curve == curve &&
+        other.reverseTiming == reverseTiming &&
+        other.reverseCurve == reverseCurve;
   }
 
   @override
-  int get hashCode => Object.hash(timing, curve);
+  int get hashCode => Object.hash(timing, curve, reverseTiming, reverseCurve);
 }

@@ -6,12 +6,15 @@ class FractionalSizeAct extends TweenAct<Size> {
     super.to = Size.zero,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
     this.alignment = Alignment.center,
   });
 
   const FractionalSizeAct.keyframes(
     super.keyframes, {
     super.curve,
+    super.reverseCurve,
     this.alignment = Alignment.center,
   }) : super.keyframes();
 

@@ -2,7 +2,6 @@ part of 'base/act.dart';
 
 abstract class ClipAct extends Act {
   const factory ClipAct({
-    Size fromSize,
     BorderRadiusGeometry borderRadius,
     AlignmentGeometry alignment,
     bool useSuperellipse,
@@ -11,7 +10,6 @@ abstract class ClipAct extends Act {
   }) = _ClipEffect;
 
   const factory ClipAct.circular({
-    Size fromSize,
     AlignmentGeometry alignment,
     Curve? curve,
     Timing? timing,
@@ -78,28 +76,28 @@ class _AxisClipEffect extends TweenAct<double> implements ClipAct {
 }
 
 class _ClipEffect extends TweenAct<double> implements ClipAct {
-  final Size fromSize;
   final BorderRadiusGeometry? borderRadius;
   final AlignmentGeometry? alignment;
   final bool useSuperellipse;
 
   const _ClipEffect({
-    this.fromSize = Size.zero,
     BorderRadiusGeometry this.borderRadius = BorderRadius.zero,
     this.alignment,
     super.curve,
     super.timing,
     this.useSuperellipse = false,
-  }) : super(from: 0, to: 1);
+    super.from = 0,
+    super.to = 1,
+  });
 
   const _ClipEffect.circular({
-    this.fromSize = Size.zero,
     this.alignment,
     super.curve,
     super.timing,
+    super.from = 0,
+    super.to = 1,
   }) : borderRadius = null,
-       useSuperellipse = false,
-       super(from: 0, to: 1);
+       useSuperellipse = false;
 
   @override
   Widget apply(
@@ -111,48 +109,38 @@ class _ClipEffect extends TweenAct<double> implements ClipAct {
     final effectiveAlignment = alignment?.resolve(directionality) ?? Alignment.topLeft;
     final effectiveBorderRadius = borderRadius?.resolve(directionality);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final toSize = constraints.biggest;
-        final minWidthFactor = fromSize.width / toSize.width;
-        final minHeightFactor = fromSize.height / toSize.height;
-        return AnimatedBuilder(
-          animation: animation,
-          builder: (context, child) {
-            final clampedValue = animation.value.clamp(0.0, 1.0);
-            return Align(
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        final clampedValue = animation.value.clamp(0.0, 1.0);
+        return Align(
+          alignment: effectiveAlignment,
+          widthFactor: clampedValue,
+          heightFactor: clampedValue,
+          child: ClipPath(
+            clipper: ExpandingPathClipper(
+              progress: clampedValue,
+              borderRadius: effectiveBorderRadius,
               alignment: effectiveAlignment,
-              widthFactor: clampedValue.clamp(minWidthFactor, 1),
-              heightFactor: clampedValue.clamp(minHeightFactor, 1),
-              child: ClipPath(
-                clipper: ExpandingPathClipper(
-                  progress: clampedValue,
-                  minSize: fromSize,
-                  borderRadius: effectiveBorderRadius,
-                  alignment: effectiveAlignment,
-                  useSuperellipse: useSuperellipse,
-                ),
-                child: child,
-              ),
-            );
-          },
-          child: child,
+              useSuperellipse: useSuperellipse,
+            ),
+            child: child,
+          ),
         );
       },
+      child: child,
     );
   }
 }
 
 class ExpandingPathClipper extends CustomClipper<Path> {
   final double progress;
-  final Size minSize;
   final BorderRadius? borderRadius;
   final Alignment alignment;
   final bool useSuperellipse;
 
   ExpandingPathClipper({
     required this.progress,
-    required this.minSize,
     this.borderRadius,
     required this.alignment,
     this.useSuperellipse = false,
@@ -160,19 +148,8 @@ class ExpandingPathClipper extends CustomClipper<Path> {
 
   @override
   Path getClip(Size size) {
-    double minWidth = minSize.width;
-    if (minWidth.isInfinite) {
-      minWidth = size.width;
-    }
-    double minHeight = minSize.height;
-    if (minHeight.isInfinite) {
-      minHeight = size.height;
-    }
-
-    final animatableWidth = size.width - minWidth;
-    final animatableHeight = size.height - minHeight;
-    final currentWidth = minWidth + animatableWidth * progress;
-    final currentHeight = minHeight + animatableHeight * progress;
+    final currentWidth = size.width * progress;
+    final currentHeight = size.height * progress;
     // Calculate the alignment point within the available size
     final alignmentOffset = alignment.alongSize(size);
     // Calculate the alignment point within the clipped rect
@@ -202,7 +179,6 @@ class ExpandingPathClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(covariant ExpandingPathClipper oldClipper) {
     return oldClipper.progress != progress ||
-        oldClipper.minSize != minSize ||
         oldClipper.borderRadius != borderRadius ||
         oldClipper.alignment != alignment;
   }

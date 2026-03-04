@@ -22,7 +22,7 @@ part '../blur.dart';
 part '../align.dart';
 part '../padding.dart';
 part '../style.dart';
-part '../clip_reveal.dart';
+part '../clip.dart';
 part '../slide.dart';
 part '../position.dart';
 part '../transfrom.dart';
@@ -35,7 +35,13 @@ typedef TweenBuilder<T> = Animatable<T> Function(T from, T to);
 abstract class Act {
   const Act();
 
-  const factory Act.compose(List<Act> acts) = ComposeAct;
+  const factory Act.compose(
+    List<Act> acts, {
+    Curve? curve,
+    Timing? timing,
+    Curve? reverseCurve,
+    Timing? reverseTiming,
+  }) = ComposeAct;
 
   const factory Act.scale({
     required double from,
@@ -66,7 +72,7 @@ abstract class Act {
     AlignmentGeometry alignment,
     Clip clipBehavior,
     bool allowOverflow,
-  }) = SizeAct;
+  }) = ResizeAct;
 
   const factory Act.translate({
     required Offset from,
@@ -225,7 +231,6 @@ abstract class Act {
   }) = ColorTintAct;
 
   const factory Act.clip({
-    Size fromSize,
     BorderRadiusGeometry borderRadius,
     AlignmentGeometry alignment,
     bool useSuperellipse,
@@ -250,7 +255,6 @@ abstract class Act {
   }) = ClipAct.width;
 
   const factory Act.circularClip({
-    Size fromSize,
     AlignmentGeometry alignment,
     Curve? curve,
     Timing? timing,
@@ -316,20 +320,30 @@ abstract class Act {
     Timing? timing,
   }) = DecoratedBoxAct;
 
-  Animation<Object?> buildAnimation(Animation<double> driver, ActorContext data);
+  Animation<Object?> buildAnimation(Animation<double> driver, ActContext context);
 
   Widget build(BuildContext context, covariant Animation<Object?> animation, Widget child);
 
-  List<Act> get flattened;
+  List<(Act, ActContext)> resolve(ActContext base);
 }
 
 class ComposeAct extends Act {
   final List<Act> acts;
+  final Curve? curve;
+  final Timing? timing;
+  final Curve? reverseCurve;
+  final Timing? reverseTiming;
 
-  const ComposeAct(this.acts);
+  const ComposeAct(
+    this.acts, {
+    this.curve,
+    this.timing,
+    this.reverseCurve,
+    this.reverseTiming,
+  });
 
   @override
-  Animation<Object?> buildAnimation(Animation<double> driver, ActorContext data) {
+  Animation<Object?> buildAnimation(Animation<double> driver, ActContext context) {
     throw StateError('ComposeAct should not be used directly');
   }
 
@@ -339,23 +353,36 @@ class ComposeAct extends Act {
   }
 
   @override
-  List<Act> get flattened {
-    final result = <Act>[];
+  List<(Act, ActContext)> resolve(ActContext base) {
+    final result = <(Act, ActContext)>[];
+    final context = base.copyWith(
+      curve: curve,
+      timing: timing,
+      reverseCurve: reverseCurve,
+      reverseTiming: reverseTiming,
+    );
     for (final act in acts) {
-      result.addAll(act.flattened);
+      result.addAll(act.resolve(context));
     }
     return result;
   }
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is ComposeAct && runtimeType == other.runtimeType && listEquals(acts, other.acts);
+      identical(this, other) ||
+      other is ComposeAct &&
+          runtimeType == other.runtimeType &&
+          listEquals(acts, other.acts) &&
+          curve == other.curve &&
+          timing == other.timing &&
+          reverseCurve == other.reverseCurve &&
+          reverseTiming == other.reverseTiming;
 
   @override
   int get hashCode => Object.hashAll(acts);
 }
 
-class ActorContext {
+class ActContext {
   final Timing? timing;
   final Timing? reverseTiming;
   final Curve? curve;
@@ -365,18 +392,18 @@ class ActorContext {
   final TextDirection textDirection;
   final Object? implicitFrom;
 
-  const ActorContext({
+  const ActContext({
     this.timing,
     this.curve,
     this.isBounded = true,
     this.reverseTiming,
     this.reverseCurve,
-    required this.textDirection,
+    this.textDirection = TextDirection.ltr,
     this.role = ActorRole.both,
     this.implicitFrom,
   });
 
-  ActorContext copyWith({
+  ActContext copyWith({
     Timing? timing,
     Timing? reverseTiming,
     Curve? curve,
@@ -386,7 +413,7 @@ class ActorContext {
     TextDirection? textDirection,
     Object? implicitFrom,
   }) {
-    return ActorContext(
+    return ActContext(
       timing: timing ?? this.timing,
       reverseTiming: reverseTiming ?? this.reverseTiming,
       curve: curve ?? this.curve,

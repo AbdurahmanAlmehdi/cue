@@ -16,24 +16,27 @@ class DecoratedBoxAct extends MulitTweenAct<BoxDecoration> {
     this.boxShadow,
     this.gradient,
     super.timing,
+    super.reverseTiming,
+    super.reverseCurve,
     super.curve,
     this.position = DecorationPosition.background,
     this.shape = BoxShape.rectangle,
   });
 
   @override
-  Animatable<BoxDecoration> buildTween(ActorContext context) {
-    final implicitFrom = context.implicitFrom as BoxDecoration?;
-    ActorContext overrideCtx(Object? from) {
-      return context.copyWith(implicitFrom: from, timing: timing, curve: curve);
+  Animatable<BoxDecoration> buildTween(ActContext context) {
+    final iFrom = context.implicitFrom as BoxDecoration?;
+
+    ActContext withFrom(Object? from) {
+      return context.copyWith(implicitFrom: from);
     }
 
     return _DecorationProxyTween(
-      color: color?.asAnimtable(overrideCtx(implicitFrom?.color)),
-      borderRadius: borderRadius?.asAnimtable(overrideCtx(implicitFrom?.borderRadius)),
-      border: border?.asAnimtable(overrideCtx(implicitFrom?.border)),
-      boxShadow: boxShadow?.asAnimtable(overrideCtx(implicitFrom?.boxShadow)),
-      gradient: gradient?.asAnimtable(overrideCtx(implicitFrom?.gradient)),
+      color: color?.asAnimtable(withFrom(iFrom?.color)),
+      borderRadius: borderRadius?.asAnimtable(withFrom(iFrom?.borderRadius)),
+      border: border?.asAnimtable(withFrom(iFrom?.border)),
+      boxShadow: boxShadow?.asAnimtable(withFrom(iFrom?.boxShadow)),
+      gradient: gradient?.asAnimtable(withFrom(iFrom?.gradient)),
       shape: shape,
     );
   }
@@ -130,10 +133,6 @@ class DecoratedBoxActor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Actor(
-      curve: curve,
-      timing: timing,
-      reverseCurve: reverseCurve,
-      reverseTiming: reverseTiming,
       role: role,
       act: DecoratedBoxAct(
         color: color,
@@ -143,6 +142,10 @@ class DecoratedBoxActor extends StatelessWidget {
         gradient: gradient,
         shape: shape,
         position: position,
+        curve: curve,
+        timing: timing,
+        reverseCurve: reverseCurve,
+        reverseTiming: reverseTiming,
       ),
       child: child ?? const SizedBox.shrink(),
     );

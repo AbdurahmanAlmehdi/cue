@@ -6,11 +6,14 @@ class TextStyleAct extends TweenAct<TextStyle> {
     required super.to,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   });
 
   const TextStyleAct.keyframes(
     super.keyframes, {
     super.curve,
+    super.reverseCurve,
   }) : super.keyframes();
 
   @override
@@ -30,21 +33,15 @@ class IconThemeAct extends TweenAct<IconThemeData> {
     required super.to,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   });
 
   const IconThemeAct.keyframes(
     super.keyframes, {
     super.curve,
+    super.reverseCurve,
   }) : super.keyframes();
-
-  @internal
-  const IconThemeAct.internal({
-    super.from,
-    super.to,
-    super.keyframes,
-    super.curve,
-    super.timing,
-  }) : super.internal();
 
   @override
   Animatable<IconThemeData> createSingleTween(IconThemeData from, IconThemeData to) {

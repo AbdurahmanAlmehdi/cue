@@ -27,79 +27,77 @@ class OptionsButton extends StatelessWidget {
         );
       },
       builder: (context, rect) {
-        return Actor(
-          act: ClipAct(
-            fromSize: rect.size,
-            borderRadius: .circular(32),
-            alignment: .center,
-          ),
-          child: Padding(
-            padding: const .all(2.0),
-            child: FractionallySizedBox(
-              widthFactor: .8,
+        return Padding(
+          padding: const .all(2.0),
+          child: FractionallySizedBox(
+            widthFactor: .8,
+            child: Center(
               child: Material(
                 color: theme.colorScheme.surfaceContainer,
                 shape: RoundedSuperellipseBorder(
                   borderRadius: .circular(32),
                 ),
                 elevation: 1,
-                child: Column(
-                  mainAxisSize: .min,
-                  crossAxisAlignment: .start,
-                  children: [
-                    Actor(
-                      act: .compose([
-                        .translateFromGlobal(offset: rect.topLeft),
-                        .textStyle(
-                          from: labelStyle.copyWith(color: theme.primaryColor),
-                          to: labelStyle.copyWith(fontSize: 22),
+                child: Actor(
+                  act: .resize(from: .size(rect.size), allowOverflow: true),
+                  child: Column(
+                    mainAxisSize: .min,
+                    crossAxisAlignment: .start,
+                    children: [
+                      Actor(
+                        act: .compose([
+                          .translateFromGlobal(offset: rect.topLeft),
+                          .textStyle(
+                            from: labelStyle.copyWith(color: theme.primaryColor),
+                            to: labelStyle.copyWith(fontSize: 22),
+                          ),
+                        ]),
+                        child: Padding(
+                          padding: .symmetric(horizontal: 24, vertical: 14),
+                          child: Text('Options'),
                         ),
-                      ]),
-                      child: Padding(
-                        padding: .symmetric(horizontal: 24, vertical: 14),
-                        child: Text('Options'),
                       ),
-                    ),
-                    Actor(
-                      act: .compose([
-                        .focus(),
-                        .zoomIn(from: .8),
-                        .fadeIn(),
-                        .slideUp(),
-                      ]),
-                      child: Padding(
-                        padding: const .fromLTRB(16, 0, 16, 16),
-                        child: Column(
-                          children: [
-                            for (var i = 0; i < 4; i++)
-                              Actor(
-                                act: .compose([
-                                  .translateY(from: 10 * (i + 1)),
-                                  .zoomIn(from: i * -.1),
-                                ]),
-                                child: Card(
-                                  clipBehavior: .hardEdge,
-                                  elevation: 0,
-                                  child: ListTile(
-                                    onTap: () => Navigator.of(context).pop(),
-                                    leading: Icon(
-                                      [
-                                        Icons.animation,
-                                        Icons.access_alarm_outlined,
-                                        Icons.sailing_outlined,
-                                        Icons.sanitizer_outlined,
-                                      ][i],
+                      Actor(
+                        act: .compose([
+                          .focus(),
+                          .zoomIn(from: .8),
+                          .fadeIn(),
+                          .slideUp(),
+                        ]),
+                        child: Padding(
+                          padding: const .fromLTRB(16, 0, 16, 16),
+                          child: Column(
+                            children: [
+                              for (var i = 0; i < 4; i++)
+                                Actor(
+                                  act: .compose([
+                                    .translateY(from: 10 * (i + 1)),
+                                    .zoomIn(from: i * -.1),
+                                  ]),
+                                  child: Card(
+                                    clipBehavior: .hardEdge,
+                                    elevation: 0,
+                                    child: ListTile(
+                                      onTap: () => Navigator.of(context).pop(),
+                                      leading: Icon(
+                                        [
+                                          Icons.animation,
+                                          Icons.access_alarm_outlined,
+                                          Icons.sailing_outlined,
+                                          Icons.sanitizer_outlined,
+                                        ][i],
+                                      ),
+                                      title: Text('Option ${i + 1}'),
+                                      subtitle: Text('Subtitle text goes here'),
                                     ),
-                                    title: Text('Option ${i + 1}'),
-                                    subtitle: Text('Subtitle text goes here'),
                                   ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

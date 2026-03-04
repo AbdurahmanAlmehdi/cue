@@ -4,10 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 class Actor extends StatefulWidget {
-  final Curve? curve;
-  final Curve? reverseCurve;
-  final Timing? timing;
-  final Timing? reverseTiming;
   final ActorRole role;
   final Act act;
   final Widget child;
@@ -16,10 +12,6 @@ class Actor extends StatefulWidget {
     super.key,
     required this.act,
     this.role = ActorRole.both,
-    this.curve,
-    this.reverseCurve,
-    this.timing,
-    this.reverseTiming,
     required this.child,
   });
 
@@ -32,7 +24,7 @@ class ActorState extends State<Actor> {
   final _cachedAnimations = <Act, Animation<Object?>>{};
   final _animationSnapshots = <Type, Object?>{};
 
-  late List<Act> _acts = widget.act.flattened;
+  late List<(Act, ActContext)> _acts = widget.act.resolve(const ActContext());
 
   void _onWillReAnimate(bool forward) {
     for (final entry in _animations.entries) {
@@ -53,21 +45,17 @@ class ActorState extends State<Actor> {
       return true;
     }());
 
-    _animations.removeWhere((effect, _) => !_acts.map((e) => e.runtimeType).contains(effect));
-    _cachedAnimations.removeWhere((effect, _) => !_acts.contains(effect));
-    for (final act in _acts) {
-      _cachedAnimations.containsKey(act);
+    _animations.removeWhere((act, _) => !_acts.map((e) => e.$1.runtimeType).contains(act));
+    _cachedAnimations.removeWhere((effect, _) => !_acts.map((e) => e.$1).contains(effect));
+    for (final entry in _acts) {
+      final (act, actContext) = entry;
       if (!_cachedAnimations.containsKey(act)) {
         final implicitFrom = scope.reanimateFromCurrent ? _animationSnapshots[act.runtimeType] : null;
         final animation = act.buildAnimation(
           scope.animation,
-          ActorContext(
+          actContext.copyWith(
             textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
-            curve: widget.curve,
-            timing: widget.timing,
             isBounded: scope.isBounded,
-            reverseCurve: widget.reverseCurve,
-            reverseTiming: widget.reverseTiming,
             role: widget.role,
             implicitFrom: implicitFrom,
           ),
@@ -81,19 +69,14 @@ class ActorState extends State<Actor> {
   @override
   void didUpdateWidget(covariant Actor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.act != widget.act ||
-        oldWidget.curve != widget.curve ||
-        oldWidget.timing != widget.timing ||
-        oldWidget.reverseCurve != widget.reverseCurve ||
-        oldWidget.reverseTiming != widget.reverseTiming ||
-        oldWidget.role != widget.role) {
+    if (oldWidget.act != widget.act || oldWidget.role != widget.role) {
       if (oldWidget.role != widget.role) {
         // If the role has changed, we need to clear all cached animations
         //to ensure they are rebuilt with the correct role.
         _clearCache();
       }
       if (oldWidget.act != widget.act) {
-        _acts = widget.act.flattened;
+        _acts = widget.act.resolve(const ActContext());
       }
       _setupAnimations(CueScope.of(context));
     }
@@ -125,7 +108,8 @@ class ActorState extends State<Actor> {
   Widget build(BuildContext context) {
     if (_acts.isEmpty) return widget.child;
     Widget current = widget.child;
-    for (final act in _acts.reversed) {
+    for (final entry in _acts.reversed) {
+      final (act, _) = entry;
       if (_animations[act.runtimeType] case final animation?) {
         current = act.build(context, animation, current);
       } else {
@@ -188,15 +172,7 @@ abstract class SingleActorBase<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Actor(
-      curve: curve,
-      timing: timing,
-      reverseCurve: reverseCurve,
-      reverseTiming: reverseTiming,
-      role: role,
-      act: effect,
-      child: child,
-    );
+    return Actor(role: role, act: effect, child: child);
   }
 }
 

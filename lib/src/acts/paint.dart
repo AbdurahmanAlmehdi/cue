@@ -9,6 +9,8 @@ class PaintAct extends TweenAct<double> {
     this.paintOnTop = false,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : super(from: 0.0, to: 1.0);
 
   @override
@@ -33,12 +35,18 @@ class PaintActor extends SingleActorBase<double> {
     required super.child,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : super(from: 0.0, to: 1.0);
 
   @override
   Act get effect => PaintAct(
     painter: painter,
     paintOnTop: paintOnTop,
+    curve: curve,
+    timing: timing,
+    reverseCurve: reverseCurve,
+    reverseTiming: reverseTiming,
   );
 }
 

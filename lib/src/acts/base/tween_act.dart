@@ -9,11 +9,14 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animat
     required T super.to,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : super(keyframes: null);
 
   const TweenActBase.keyframes(
     List<Keyframe<T>> keyframes, {
     super.curve,
+    super.reverseCurve,
   }) : super(
          from: null,
          to: null,
@@ -27,10 +30,14 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animat
     super.keyframes,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   });
 
   @override
-  List<Act> get flattened => [this];
+  List<(Act, ActContext)> resolve(ActContext context) {
+    return [(this, context)];
+  }
 
   @nonVirtual
   @override
@@ -45,28 +52,30 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animat
   Widget apply(BuildContext context, Animation<R> animation, Widget child);
 
   @override
-  Animation<R> buildAnimation(Animation<double> driver, ActorContext context) {
+  Animation<R> buildAnimation(Animation<double> driver, ActContext context) {
     final tweenRes = resolveTween(context);
 
     final tween = tweenRes.tween;
     if (tween is ConstantTween<R>) {
-      // todo: rethink what status should the animation be in
+      // TODO: rethink what status should the animation be in
       return AlwaysStoppedAnimation(tween.begin as R);
     }
 
     final animatable = applyCurves(
       tween,
-      curve: context.curve,
-      timing: tweenRes.timing,
+      curve: curve ?? context.curve,
+      timing: tweenRes.timing ?? timing ?? context.timing,
       isBounded: context.isBounded,
     );
 
     Animatable<R>? reverseAnimatable;
-    if (context.reverseCurve != null || context.reverseTiming != null) {
+    final effectiveReverseCurve = reverseCurve ?? context.reverseCurve;
+    final effectiveReverseTiming = reverseTiming ?? context.reverseTiming;
+    if (effectiveReverseCurve != null || effectiveReverseTiming != null) {
       reverseAnimatable = applyCurves<R>(
         tween,
-        curve: context.reverseCurve,
-        timing: context.reverseTiming,
+        curve: effectiveReverseCurve,
+        timing: tweenRes.timing ?? effectiveReverseTiming,
         isBounded: context.isBounded,
       );
     }
@@ -92,6 +101,8 @@ abstract class TweenAct<T extends Object?> extends TweenActBase<T, T> {
     required super.to,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   });
 
   @override
@@ -100,6 +111,7 @@ abstract class TweenAct<T extends Object?> extends TweenActBase<T, T> {
   const TweenAct.keyframes(
     super.keyframes, {
     super.curve,
+    super.reverseCurve,
   }) : super.keyframes();
 
   @internal
@@ -109,5 +121,7 @@ abstract class TweenAct<T extends Object?> extends TweenActBase<T, T> {
     super.keyframes,
     super.curve,
     super.timing,
+    super.reverseCurve,
+    super.reverseTiming,
   }) : super.internal();
 }

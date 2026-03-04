@@ -31,6 +31,7 @@ abstract class Cue extends StatefulWidget {
     Key? key,
     String? debugLabel,
     bool isBounded,
+    Act? act,
     required Animation<double> animation,
     required Widget child,
   }) = _ControlledCue;
