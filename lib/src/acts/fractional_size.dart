@@ -1,11 +1,11 @@
 part of 'base/act.dart';
 
-class FractionalResizeAct extends MulitTweenAct<FractionaSizeProps> {
+class FractionalSizeAct extends MulitTweenAct<FractionaSizeProps> {
   final DoubleProp? widthFactor;
   final DoubleProp? heightFactor;
   final AlignmentProp alignment;
 
-  const FractionalResizeAct({
+  const FractionalSizeAct({
     super.curve,
     super.timing,
     super.reverseCurve,

@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-part '../sized_clip.dart';
+part '../clip_size.dart';
 part '../fractional_size.dart';
 part '../translate.dart';
 part '../decorate.dart';
@@ -65,13 +65,13 @@ abstract class Act {
     Timing? timing,
   }) = ScaleAct.zoomOut;
 
-  const factory Act.fractionalResize({
+  const factory Act.fractionalSize({
     DoubleProp? widthFactor,
     DoubleProp? heightFactor,
     AlignmentProp alignment,
     Curve? curve,
     Timing? timing,
-  }) = FractionalResizeAct;
+  }) = FractionalSizeAct;
 
   const factory Act.translate({
     required Offset from,

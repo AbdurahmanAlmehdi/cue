@@ -128,7 +128,7 @@ class _AnimatedSizeClip extends SingleChildRenderObjectWidget {
   }
 }
 
-class _RenderAnimatedSizeClip extends RenderAligningShiftedBox with _AnimatedNSizeHelperMixin {
+class _RenderAnimatedSizeClip extends RenderAligningShiftedBox {
   _RenderAnimatedSizeClip({
     required Animation<double> driver,
     required NSize? fromSize,
@@ -138,97 +138,24 @@ class _RenderAnimatedSizeClip extends RenderAligningShiftedBox with _AnimatedNSi
     super.textDirection,
     Clip clipBehavior = Clip.hardEdge,
   }) : _driver = driver,
+       _fromSize = fromSize,
+       _toSize = toSize,
+       _sizeKeyframes = sizeKeyframes,
        _clipBehavior = clipBehavior {
-    _fromSize = fromSize;
-    _toSize = toSize;
-    _sizeKeyframes = sizeKeyframes;
     _addintionalConstrains = _calculateAddintionalContrains();
   }
 
   Animation<double> _driver;
 
-  @override
   Animation<double> get driver => _driver;
 
   set driver(Animation<double> value) {
     if (_driver == value) return;
-    _driver = value;
-    _sizeAnimation?.removeListener(markNeedsLayout);
+    _sizeAnimation?.removeListener(_onAnimationUpdate);
     _sizeAnimation = null;
+    _driver = value;
     markNeedsLayout();
   }
-
-  bool _hasVisualOverflow = false;
-
-  Clip _clipBehavior;
-
-  Clip get clipBehavior => _clipBehavior;
-
-  set clipBehavior(Clip value) {
-    if (_clipBehavior == value) return;
-    _clipBehavior = value;
-    markNeedsPaint();
-  }
-
-  final LayerHandle<ClipRectLayer> _clipRectLayer = LayerHandle<ClipRectLayer>();
-
-  @override
-  void performLayout() {
-    _hasVisualOverflow = false;
-
-    if (child == null) {
-      size = constraints.smallest;
-      return;
-    }
-
-    child!.layout(_addintionalConstrains.enforce(constraints), parentUsesSize: true);
-
-    // Build animation based on current constraints and child natural size
-    buildAnimationIfNeeded(constraints.biggest, child!.size);
-    assert(_sizeAnimation != null);
-    final maxSize = _cachedMaxSize ?? Size.zero;
-    final animatedSize = _sizeAnimation!.value!;
-
-    size = constraints.constrain(animatedSize);
-
-    final constrainedMaxSize = constraints.constrain(maxSize);
-
-    // Align the child within our bounds
-    alignChild();
-    // Check if child is larger than our animated size (causes overflow)
-    if (constrainedMaxSize.width > size.width || constrainedMaxSize.height > size.height) {
-      _hasVisualOverflow = true;
-    }
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    if (child != null && _hasVisualOverflow && clipBehavior != Clip.none) {
-      // When allowOverflow is true, always clip the overflow
-      final Rect rect = Offset.zero & size;
-      _clipRectLayer.layer = context.pushClipRect(
-        needsCompositing,
-        offset,
-        rect,
-        super.paint,
-        clipBehavior: clipBehavior,
-        oldLayer: _clipRectLayer.layer,
-      );
-    } else {
-      _clipRectLayer.layer = null;
-      super.paint(context, offset);
-    }
-  }
-
-  @override
-  void dispose() {
-    _clipRectLayer.layer = null;
-    super.dispose();
-  }
-}
-
-mixin _AnimatedNSizeHelperMixin on RenderObject {
-  Animation<double> get driver;
 
   NSize? _fromSize;
 
@@ -260,6 +187,20 @@ mixin _AnimatedNSizeHelperMixin on RenderObject {
     _invalidateAnimationCache();
   }
 
+  bool _hasVisualOverflow = false;
+
+  Clip _clipBehavior;
+
+  Clip get clipBehavior => _clipBehavior;
+
+  set clipBehavior(Clip value) {
+    if (_clipBehavior == value) return;
+    _clipBehavior = value;
+    markNeedsPaint();
+  }
+
+  final LayerHandle<ClipRectLayer> _clipRectLayer = LayerHandle<ClipRectLayer>();
+
   // Cached animation and related state
   Animation<Size?>? _sizeAnimation;
   Size? _cachedMaxSize;
@@ -268,7 +209,7 @@ mixin _AnimatedNSizeHelperMixin on RenderObject {
   Size? _lastChildNaturalSize;
 
   void _invalidateAnimationCache() {
-    _sizeAnimation?.removeListener(markNeedsLayout);
+    _sizeAnimation?.removeListener(_onAnimationUpdate);
     _sizeAnimation = null;
     _cachedMaxSize = null;
     _addintionalConstrains = _calculateAddintionalContrains();
@@ -344,13 +285,13 @@ mixin _AnimatedNSizeHelperMixin on RenderObject {
     return Size(maxWidth, maxHeight);
   }
 
-  void buildAnimationIfNeeded(Size constraintSize, Size childNaturalSize) {
+  void _buildAnimationIfNeeded(Size constraintSize, Size childNaturalSize) {
     // Check if we need to rebuild the animation
     if (_sizeAnimation != null && _lastConstraintSize == constraintSize && _lastChildNaturalSize == childNaturalSize) {
       return; // Animation is already built and neither constraints nor child size changed
     }
     // Remove old animation listener if it exists
-    _sizeAnimation?.removeListener(markNeedsLayout);
+    _sizeAnimation?.removeListener(_onAnimationUpdate);
 
     // Build phases with resolved sizes
     final phases = _buildPhases(
@@ -367,24 +308,28 @@ mixin _AnimatedNSizeHelperMixin on RenderObject {
     );
 
     // Build and cache the animation
-    _sizeAnimation = driver.drive(animtable);
+    _sizeAnimation = _driver.drive(animtable);
     _cachedMaxSize = _calculateMaxSize(phases);
     _lastConstraintSize = constraintSize;
     _lastChildNaturalSize = childNaturalSize;
 
     // Add listener to the new animation
-    _sizeAnimation!.addListener(markNeedsLayout);
+    _sizeAnimation!.addListener(_onAnimationUpdate);
+  }
+
+  void _onAnimationUpdate() {
+    markNeedsLayout();
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _sizeAnimation?.addListener(markNeedsLayout);
+    _sizeAnimation?.addListener(_onAnimationUpdate);
   }
 
   @override
   void detach() {
-    _sizeAnimation?.removeListener(markNeedsLayout);
+    _sizeAnimation?.removeListener(_onAnimationUpdate);
     super.detach();
   }
 
@@ -422,8 +367,57 @@ mixin _AnimatedNSizeHelperMixin on RenderObject {
   }
 
   @override
+  void performLayout() {
+    _hasVisualOverflow = false;
+
+    if (child == null) {
+      size = constraints.smallest;
+      return;
+    }
+
+    child!.layout(_addintionalConstrains.enforce(constraints), parentUsesSize: true);
+
+    // Build animation based on current constraints and child natural size
+    _buildAnimationIfNeeded(constraints.biggest, child!.size);
+    assert(_sizeAnimation != null);
+    final maxSize = _cachedMaxSize ?? Size.zero;
+    final animatedSize = _sizeAnimation!.value!;
+
+    size = constraints.constrain(animatedSize);
+
+    final constrainedMaxSize = constraints.constrain(maxSize);
+
+    // Align the child within our bounds
+    alignChild();
+    // Check if child is larger than our animated size (causes overflow)
+    if (constrainedMaxSize.width > size.width || constrainedMaxSize.height > size.height) {
+      _hasVisualOverflow = true;
+    }
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (child != null && _hasVisualOverflow && clipBehavior != Clip.none) {
+      // When allowOverflow is true, always clip the overflow
+      final Rect rect = Offset.zero & size;
+      _clipRectLayer.layer = context.pushClipRect(
+        needsCompositing,
+        offset,
+        rect,
+        super.paint,
+        clipBehavior: clipBehavior,
+        oldLayer: _clipRectLayer.layer,
+      );
+    } else {
+      _clipRectLayer.layer = null;
+      super.paint(context, offset);
+    }
+  }
+
+  @override
   void dispose() {
-    _sizeAnimation?.removeListener(markNeedsLayout);
+    _sizeAnimation?.removeListener(_onAnimationUpdate);
+    _clipRectLayer.layer = null;
     super.dispose();
   }
 }
