@@ -73,7 +73,7 @@ class _IndicatorToButtonState extends State<IndicatorToButton> {
                           ),
                           child: Actor(
                             act: .compose([
-                              .resize(
+                              .clipSize(
                                 from: .square(10),
                                 to: isLast ? .height(44) : NSize(w: 38, h: 10),
                               ),

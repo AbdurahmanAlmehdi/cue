@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-part '../size.dart';
+part '../sized_clip.dart';
 part '../fractional_size.dart';
 part '../translate.dart';
 part '../decorate.dart';
@@ -63,16 +63,6 @@ abstract class Act {
     Curve? curve,
     Timing? timing,
   }) = ScaleAct.zoomOut;
-
-  const factory Act.resize({
-    NSize? from,
-    NSize? to,
-    Curve? curve,
-    Timing? timing,
-    AlignmentGeometry alignment,
-    Clip clipBehavior,
-    bool allowOverflow,
-  }) = ResizeAct;
 
   const factory Act.fractionalResize({
     DoubleProp? widthFactor,
@@ -245,6 +235,15 @@ abstract class Act {
     Curve? curve,
     Timing? timing,
   }) = ClipAct;
+
+  const factory Act.clipSize({
+    NSize? from,
+    NSize? to,
+    Curve? curve,
+    Timing? timing,
+    AlignmentGeometry alignment,
+    Clip clipBehavior,
+  }) = ClipSizeAct;
 
   const factory Act.clipHeight({
     double from,

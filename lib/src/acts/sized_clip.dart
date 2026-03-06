@@ -1,14 +1,13 @@
 part of 'base/act.dart';
 
-class ResizeAct extends TweenAct<double> {
+class ClipSizeAct extends TweenAct<double> {
   final AlignmentGeometry? alignment;
   final Clip clipBehavior;
-  final bool allowOverflow;
   final NSize? _fromSize;
   final NSize? _toSize;
-  final List<Keyframe<NSize?>>? _sizeKeyframes;
+  final List<Keyframe<NSize>>? _sizeKeyframes;
 
-  const ResizeAct({
+  const ClipSizeAct({
     NSize? from = NSize.childSize,
     NSize? to = NSize.childSize,
     super.curve,
@@ -17,88 +16,55 @@ class ResizeAct extends TweenAct<double> {
     super.reverseTiming,
     this.alignment,
     this.clipBehavior = Clip.hardEdge,
-    this.allowOverflow = true,
   }) : _fromSize = from,
        _toSize = to,
        _sizeKeyframes = null,
        super(from: 0, to: 1);
 
-  const ResizeAct.keyframes(
-    List<Keyframe<NSize?>> keyframes, {
+  const ClipSizeAct.keyframes(
+    List<Keyframe<NSize>> keyframes, {
     super.curve,
     super.reverseCurve,
     this.alignment,
     this.clipBehavior = Clip.hardEdge,
-    this.allowOverflow = true,
   }) : _fromSize = null,
        _toSize = null,
        _sizeKeyframes = keyframes,
        super.keyframes(const []);
 
-  ({Animatable<double> tween, Timing? timing}) _buildSizeTween({
-    List<Keyframe<NSize?>>? keyframes,
-    Timing? timing,
-  }) {
-    Animatable<double> animatable = Tween(begin: 0.0, end: 1.0);
-    if (keyframes != null) {
-      double minStart = 0;
-      double maxEnd = 1;
-      for (final keyframe in keyframes) {
-        if (keyframe.at < minStart) minStart = keyframe.at;
-        if (keyframe.at > maxEnd) maxEnd = keyframe.at;
-      }
-      if (minStart != 0 || maxEnd != 1) {
-        timing = Timing(start: minStart, end: maxEnd);
-      }
-    }
-
-    return (tween: animatable, timing: timing);
-  }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ClipSizeAct &&
+          runtimeType == other.runtimeType &&
+          alignment == other.alignment &&
+          clipBehavior == other.clipBehavior &&
+          _fromSize == other._fromSize &&
+          _toSize == other._toSize &&
+          listEquals(_sizeKeyframes, other._sizeKeyframes);
 
   @override
-  Animation<double> buildAnimation(Animation<double> driver, ActContext context) {
-    /// The actual size tween will be built in the RenderObject
-    /// where we have access to the constraints so we can normalize sizes properly.
-    /// Here we just return the driver animation
-    ///
-    /// we only apply the curve and timing to the driver,
-    /// which will be used in the RenderObject to build the size animation.
+  int get hashCode =>
+      Object.hash(alignment, clipBehavior, _fromSize, _toSize, Object.hashAll(_sizeKeyframes ?? const []));
 
-    final tweenRes = _buildSizeTween(
-      keyframes: _sizeKeyframes,
-      timing: timing ?? context.timing,
-    );
-
-    final animatable = applyCurves(
-      tweenRes.tween,
-      curve: curve ?? context.curve,
-      timing: tweenRes.timing ?? timing ?? context.timing,
-      isBounded: context.isBounded,
-    );
-
-    Animatable<double>? reverseAnimtable;
-    final effectiveReverseTiming = reverseTiming ?? context.reverseTiming;
-    final effectiveReverseCurve = reverseCurve ?? context.reverseCurve;
-    if (effectiveReverseCurve != null || effectiveReverseTiming != null) {
-      reverseAnimtable = applyCurves(
-        tweenRes.tween,
-        curve: effectiveReverseCurve,
-        timing: tweenRes.timing ?? effectiveReverseTiming,
-        isBounded: context.isBounded,
-      );
+  @override
+  ({Animatable<double> tween, Timing? timing}) resolveTween(ActContext context) {
+    Timing? timing;
+    Animatable<double> animatable = Tween(begin: 0.0, end: 1.0);
+    if (_sizeKeyframes != null) {
+      double? minStart;
+      double? maxEnd;
+      for (final keyframe in _sizeKeyframes!) {
+        if (minStart == null || keyframe.at < minStart) minStart = keyframe.at;
+        if (maxEnd == null || keyframe.at > maxEnd) maxEnd = keyframe.at;
+      }
+      if ((minStart != null && minStart != 0) || (maxEnd != null && maxEnd != 1)) {
+        timing = Timing(start: minStart ?? 0, end: maxEnd ?? 1);
+      }
+    } else if (context.implicitFrom case final iFrom? when iFrom is double) {
+      animatable = Tween(begin: iFrom, end: to);
     }
-    return switch (context.role) {
-      ActorRole.both =>
-        reverseAnimtable != null
-            ? DualAnimation(
-                parent: driver,
-                forward: animatable,
-                reverse: reverseAnimtable,
-              )
-            : driver.drive(animatable),
-      ActorRole.forward => ForwardOrStoppedAnimation(driver).drive(animatable),
-      ActorRole.reverse => ReverseOrStoppedAnimation(driver).drive(animatable),
-    };
+    return (tween: animatable, timing: timing);
   }
 
   @override
@@ -110,7 +76,6 @@ class ResizeAct extends TweenAct<double> {
       sizeKeyframes: _sizeKeyframes,
       alignment: alignment ?? Alignment.center,
       clipBehavior: clipBehavior,
-      allowOverflow: allowOverflow,
       child: child,
     );
   }
@@ -124,17 +89,15 @@ class _AnimatedSize extends SingleChildRenderObjectWidget {
     required this.sizeKeyframes,
     this.alignment = Alignment.center,
     this.clipBehavior = Clip.hardEdge,
-    this.allowOverflow = true,
     required super.child,
   });
 
   final Animation<double> driver;
   final NSize? fromSize;
   final NSize? toSize;
-  final List<Keyframe<NSize?>>? sizeKeyframes;
+  final List<Keyframe<NSize>>? sizeKeyframes;
   final AlignmentGeometry alignment;
   final Clip clipBehavior;
-  final bool allowOverflow;
 
   @override
   _RenderAnimatedSize createRenderObject(BuildContext context) {
@@ -146,7 +109,6 @@ class _AnimatedSize extends SingleChildRenderObjectWidget {
       alignment: alignment,
       textDirection: Directionality.maybeOf(context),
       clipBehavior: clipBehavior,
-      allowOverflow: allowOverflow,
     );
   }
 
@@ -162,8 +124,7 @@ class _AnimatedSize extends SingleChildRenderObjectWidget {
       ..sizeKeyframes = sizeKeyframes
       ..alignment = alignment
       ..textDirection = Directionality.maybeOf(context)
-      ..clipBehavior = clipBehavior
-      ..allowOverflow = allowOverflow;
+      ..clipBehavior = clipBehavior;
   }
 }
 
@@ -172,17 +133,17 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     required Animation<double> driver,
     required NSize? fromSize,
     required NSize? toSize,
-    required List<Keyframe<NSize?>>? sizeKeyframes,
+    required List<Keyframe<NSize>>? sizeKeyframes,
     super.alignment,
     super.textDirection,
     Clip clipBehavior = Clip.hardEdge,
-    bool allowOverflow = true,
   }) : _driver = driver,
        _fromSize = fromSize,
        _toSize = toSize,
        _sizeKeyframes = sizeKeyframes,
-       _clipBehavior = clipBehavior,
-       _allowOverflow = allowOverflow;
+       _clipBehavior = clipBehavior {
+    _addintionalConstrains = _calculateAddintionalContrains();
+  }
 
   Animation<double> _driver;
 
@@ -216,11 +177,11 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     _invalidateAnimationCache();
   }
 
-  List<Keyframe<NSize?>>? _sizeKeyframes;
+  List<Keyframe<NSize>>? _sizeKeyframes;
 
-  List<Keyframe<NSize?>>? get sizeKeyframes => _sizeKeyframes;
+  List<Keyframe<NSize>>? get sizeKeyframes => _sizeKeyframes;
 
-  set sizeKeyframes(List<Keyframe<NSize?>>? value) {
+  set sizeKeyframes(List<Keyframe<NSize>>? value) {
     if (_sizeKeyframes == value) return;
     _sizeKeyframes = value;
     _invalidateAnimationCache();
@@ -258,29 +219,20 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     markNeedsPaint();
   }
 
-  bool _allowOverflow;
-
-  bool get allowOverflow => _allowOverflow;
-
-  set allowOverflow(bool value) {
-    if (_allowOverflow == value) return;
-    _allowOverflow = value;
-    markNeedsLayout();
-  }
-
   final LayerHandle<ClipRectLayer> _clipRectLayer = LayerHandle<ClipRectLayer>();
 
   // Cached animation and related state
   Animation<Size?>? _sizeAnimation;
   Size? _cachedMaxSize;
   Size? _lastConstraintSize;
+  BoxConstraints _addintionalConstrains = BoxConstraints();
   Size? _lastChildNaturalSize;
 
   void _invalidateAnimationCache() {
     _sizeAnimation?.removeListener(_onAnimationUpdate);
     _sizeAnimation = null;
     _cachedMaxSize = null;
-    _lastChildNaturalSize = null;
+    _addintionalConstrains = _calculateAddintionalContrains();
     markNeedsLayout();
   }
 
@@ -309,7 +261,7 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
   List<Phase<Size?>> _buildPhases(
     Size maxConstraint,
     Size childNaturalSize, {
-    List<Keyframe<NSize?>>? keyframes,
+    List<Keyframe<NSize>>? keyframes,
     NSize? from,
     NSize? to,
   }) {
@@ -328,7 +280,7 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     } else {
       return Phase.normalize(
         keyframes!,
-        (value) => value == null ? null : _resolveSize(value, maxConstraint, childNaturalSize),
+        (value) => _resolveSize(value, maxConstraint, childNaturalSize),
       ).phases;
     }
   }
@@ -358,7 +310,6 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     if (_sizeAnimation != null && _lastConstraintSize == constraintSize && _lastChildNaturalSize == childNaturalSize) {
       return; // Animation is already built and neither constraints nor child size changed
     }
-
     // Remove old animation listener if it exists
     _sizeAnimation?.removeListener(_onAnimationUpdate);
 
@@ -402,23 +353,7 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
     super.detach();
   }
 
-  /// Returns whether any axis in any [NSize] value (across from/to/keyframes)
-  /// is `null`, meaning the child's natural size is needed for that axis.
-  bool get _needsChildNaturalSize {
-    bool hasNull(NSize? ns) => ns != null && (ns.w == null || ns.h == null);
-    if (_sizeKeyframes != null) {
-      return _sizeKeyframes!.any((kf) => hasNull(kf.value));
-    }
-    return hasNull(_fromSize) || hasNull(_toSize);
-  }
-
-  /// Builds [BoxConstraints] for the measurement pass (Pass 1).
-  ///
-  /// Axes that have at least one `null` value across all [NSize] specs are
-  /// loosened (min = 0, max = parent max) so the child can report its natural
-  /// size. Axes that are always specified keep the parent's max constraint so
-  /// the child measures itself under the correct budget.
-  BoxConstraints _measurementNaturalConstrains(BoxConstraints parentConstraints) {
+  BoxConstraints _calculateAddintionalContrains() {
     double? maxWidth;
     double? maxHeight;
 
@@ -429,7 +364,6 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
           maxWidth = ns.w;
         }
       } else {
-        // If any value is null, we need the child's natural size for that axis, so loosen it completely
         maxWidth = null;
       }
       if (ns.h != null) {
@@ -437,7 +371,6 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
           maxHeight = ns.h;
         }
       } else {
-        // If any value is null, we need the child's natural size for that axis, so loosen it completely
         maxHeight = null;
       }
     }
@@ -450,12 +383,7 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
       checkNSize(_fromSize);
       checkNSize(_toSize);
     }
-    return BoxConstraints.loose(
-      Size(
-        maxWidth ?? (parentConstraints.hasBoundedWidth ? parentConstraints.maxWidth : double.infinity),
-        maxHeight ?? (parentConstraints.hasBoundedHeight ? parentConstraints.maxHeight : double.infinity),
-      ),
-    );
+    return BoxConstraints.tightFor(width: maxWidth, height: maxHeight);
   }
 
   @override
@@ -466,80 +394,30 @@ class _RenderAnimatedSize extends RenderAligningShiftedBox {
       size = constraints.smallest;
       return;
     }
-    // Pass 1 (conditional): Measure the child's natural size on axes that have
-    // null NSize values. Only loosen the axes that need child-size resolution;
-    // keep the parent constraint on axes that are always specified so the child
-    // measures itself under the correct width/height budget.
-    final bool needsMeasure = _needsChildNaturalSize;
-    Size childNaturalSize;
-    if (needsMeasure) {
-      child!.layout(_measurementNaturalConstrains(constraints), parentUsesSize: true);
-      childNaturalSize = child!.size;
-    } else {
-      childNaturalSize = Size.zero; // sentinel — not used when needsMeasure is false
-    }
+
+    child!.layout(_addintionalConstrains.enforce(constraints), parentUsesSize: true);
 
     // Build animation based on current constraints and child natural size
-    _buildAnimationIfNeeded(constraints.biggest, childNaturalSize);
-
+    _buildAnimationIfNeeded(constraints.biggest, child!.size);
+    assert(_sizeAnimation != null);
     final maxSize = _cachedMaxSize ?? Size.zero;
-    final sizeAnimation = _sizeAnimation;
+    final animatedSize = _sizeAnimation!.value!;
 
-    if (_allowOverflow) {
-      // Layout child at maxSize (allowing it to be at its biggest size)
+    size = constraints.constrain(animatedSize);
 
-      final constrainedMaxSize = constraints.constrain(maxSize);
-      // Get the animated size from the animation
-      final animatedSize = sizeAnimation?.value ?? constrainedMaxSize;
+    final constrainedMaxSize = constraints.constrain(maxSize);
 
-      // Only re-layout child if the constrained max size differs from the
-      // measurement layout (or if we skipped the measurement pass).
-      if (!needsMeasure || constrainedMaxSize != childNaturalSize || true) {
-        child!.layout(
-          BoxConstraints.tight(constrainedMaxSize),
-          parentUsesSize: true,
-        );
-      }
-
-      // Our size is the animated size, constrained by parent
-      size = constraints.constrain(animatedSize);
-
-      // Align the child within our bounds
-      alignChild();
-
-      // Check if child is larger than our animated size (causes overflow)
-      if (constrainedMaxSize.width > size.width || constrainedMaxSize.height > size.height) {
-        _hasVisualOverflow = true;
-      }
-    } else {
-      // Behave like a normal sizing widget
-      final animatedSize = sizeAnimation?.value;
-
-      if (animatedSize == null) {
-        // No animation value — lay out child loosely if we haven't already
-        if (!needsMeasure) {
-          child!.layout(constraints.loosen(), parentUsesSize: true);
-        }
-        size = constraints.constrain(child!.size);
-      } else {
-        // Our size is the animated size, constrained by parent
-        size = constraints.constrain(animatedSize);
-
-        // Only re-layout child if the animated size differs from the measurement
-        // layout (or if we skipped the measurement pass).
-        if (!needsMeasure || size != childNaturalSize) {
-          child!.layout(BoxConstraints.tight(size), parentUsesSize: true);
-        }
-      }
-
-      // Align the child within our bounds
-      alignChild();
+    // Align the child within our bounds
+    alignChild();
+    // Check if child is larger than our animated size (causes overflow)
+    if (constrainedMaxSize.width > size.width || constrainedMaxSize.height > size.height) {
+      _hasVisualOverflow = true;
     }
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (child != null && _allowOverflow && _hasVisualOverflow) {
+    if (child != null && _hasVisualOverflow && clipBehavior != Clip.none) {
       // When allowOverflow is true, always clip the overflow
       final Rect rect = Offset.zero & size;
       _clipRectLayer.layer = context.pushClipRect(

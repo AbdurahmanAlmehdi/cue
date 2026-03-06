@@ -50,13 +50,15 @@ class SlackStyleFab extends StatelessWidget {
             side: BorderSide(color: theme.primaryColor.withValues(alpha: .2), width: .4),
           ),
           child: Actor(
-            act: .resize(
+            act: .clipSize(
               from: .size(rect.size),
-              to: .width(300),
+              to: NSize(w: 300),
               alignment: .bottomRight,
             ),
             child: Actor(
-              act: .padding(to: .symmetric(horizontal: 16, vertical: 12)),
+              act: .padding(
+                to: .symmetric(horizontal: 16, vertical: 12),
+              ),
               child: Column(
                 mainAxisSize: .min,
                 crossAxisAlignment: .end,
@@ -96,7 +98,7 @@ class SlackStyleFab extends StatelessWidget {
                       minimumSize: .zero,
                     ),
                     child: Actor(
-                      act: .resize(
+                      act: .clipSize(
                         from: .size(rect.size),
                         to: NSize(w: .infinity, h: 44),
                       ),
@@ -207,6 +209,39 @@ class _LongPressContent extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+class OvershootActor extends StatelessWidget {
+  const OvershootActor({
+    super.key,
+    required this.child,
+    this.axis,
+    this.factor = 0.3,
+  });
+
+  final Widget child;
+  final Axis? axis;
+  final double factor;
+
+  @override
+  Widget build(BuildContext context) {
+    final animation = CueScope.of(context).animation;
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        final overshoot = animation.value - animation.value.clamp(0.0, 1.0);
+        final scale = 1.0 + (overshoot * factor);
+        final scaleX = axis == Axis.vertical ? 1.0 : scale;
+        final scaleY = axis == Axis.horizontal ? 1.0 : scale;
+        return Transform(
+          alignment: Alignment.centerRight,
+          transform: Matrix4.diagonal3Values(scaleX, scaleY, 1.0),
+          child: child,
+        );
+      },
+      child: child,
     );
   }
 }

@@ -57,7 +57,6 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animat
 
     final tween = tweenRes.tween;
     if (tween is ConstantTween<R>) {
-      // TODO: rethink what status should the animation be in
       return AlwaysStoppedAnimation(tween.begin as R);
     }
 
