@@ -6,36 +6,31 @@ abstract class SlideAct extends Act {
     Offset to,
     Curve? curve,
     Timing? timing,
-    Curve? reverseCurve,
-    Timing? reverseTiming,
+    ReverseBehavior<Offset> reverse,
   }) = _SlideEffect;
 
   const factory SlideAct.up({
     Curve? curve,
     Timing? timing,
-    Curve? reverseCurve,
-    Timing? reverseTiming,
+    ReverseBehavior<Offset> reverse,
   }) = _SlideEffect.fromBottom;
 
   const factory SlideAct.down({
     Curve? curve,
     Timing? timing,
-    Curve? reverseCurve,
-    Timing? reverseTiming,
+    ReverseBehavior<Offset> reverse,
   }) = _SlideEffect.fromTop;
 
   const factory SlideAct.fromLeading({
     Curve? curve,
     Timing? timing,
-    Curve? reverseCurve,
-    Timing? reverseTiming,
+    ReverseBehavior<Offset> reverse,
   }) = _SlideEffect.fromLeading;
 
   const factory SlideAct.fromTrailing({
     Curve? curve,
     Timing? timing,
-    Curve? reverseCurve,
-    Timing? reverseTiming,
+    ReverseBehavior<Offset> reverse,
   }) = _SlideEffect.fromTrailing;
 
   const factory SlideAct.keyframes(
@@ -48,14 +43,13 @@ abstract class SlideAct extends Act {
     double to,
     Curve? curve,
     Timing? timing,
-    Curve? reverseCurve,
-    Timing? reverseTiming,
+    ReverseBehavior<double> reverse,
   }) = _AxisSlideEffect.tweenY;
 
   const factory SlideAct.keyframesY(
     List<Keyframe<double>> keyframes, {
     Curve? curve,
-    Curve? reverseCurve,
+    ReverseBehavior<double> reverse,
   }) = _AxisSlideEffect.keyframesY;
 
   const factory SlideAct.fromX({
@@ -63,14 +57,13 @@ abstract class SlideAct extends Act {
     double to,
     Curve? curve,
     Timing? timing,
-    Curve? reverseCurve,
-    Timing? reverseTiming,
+    ReverseBehavior<double> reverse,
   }) = _AxisSlideEffect.tweenX;
 
   const factory SlideAct.keyframesX(
     List<Keyframe<double>> keyframes, {
     Curve? curve,
-    Curve? reverseCurve,
+    ReverseBehavior<double> reverse,
   }) = _AxisSlideEffect.keyframesX;
 }
 
@@ -80,15 +73,13 @@ class _SlideEffect extends TweenAct<Offset> implements SlideAct {
     super.to = Offset.zero,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   });
 
   const _SlideEffect.fromBottom({
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : super(
          from: const Offset(0, 1),
          to: Offset.zero,
@@ -97,8 +88,7 @@ class _SlideEffect extends TweenAct<Offset> implements SlideAct {
   const _SlideEffect.fromTop({
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : super(
          from: const Offset(0, -1),
          to: Offset.zero,
@@ -107,8 +97,7 @@ class _SlideEffect extends TweenAct<Offset> implements SlideAct {
   const _SlideEffect.fromLeading({
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : super(
          from: const Offset(-1, 0),
          to: Offset.zero,
@@ -117,8 +106,7 @@ class _SlideEffect extends TweenAct<Offset> implements SlideAct {
   const _SlideEffect.fromTrailing({
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : super(
          from: const Offset(1, 0),
          to: Offset.zero,
@@ -127,7 +115,7 @@ class _SlideEffect extends TweenAct<Offset> implements SlideAct {
   const _SlideEffect.keyframes(
     super.keyframes, {
     super.curve,
-    super.reverseCurve,
+    super.reverse,
   }) : super.keyframes();
 
   @override
@@ -144,8 +132,7 @@ class _AxisSlideEffect extends TweenActBase<double, Offset> implements SlideAct 
     super.to = 0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : _axis = Axis.horizontal;
 
   const _AxisSlideEffect.tweenY({
@@ -153,21 +140,20 @@ class _AxisSlideEffect extends TweenActBase<double, Offset> implements SlideAct 
     super.to = 0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : _axis = Axis.vertical;
 
   const _AxisSlideEffect.keyframesX(
     super.keyframes, {
     super.curve,
-    super.reverseCurve,
+    super.reverse,
   }) : _axis = Axis.horizontal,
        super.keyframes();
 
   const _AxisSlideEffect.keyframesY(
     super.keyframes, {
     super.curve,
-    super.reverseCurve,
+    super.reverse,
   }) : _axis = Axis.vertical,
        super.keyframes();
 

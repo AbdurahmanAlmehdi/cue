@@ -119,7 +119,6 @@ class DecoratedBoxActor extends StatelessWidget {
   final Timing? reverseTiming;
   final Curve? curve;
   final Curve? reverseCurve;
-  final ActorRole role;
   final DecorationPosition position;
 
   const DecoratedBoxActor({
@@ -135,14 +134,12 @@ class DecoratedBoxActor extends StatelessWidget {
     this.reverseTiming,
     this.curve,
     this.reverseCurve,
-    this.role = ActorRole.both,
     this.position = DecorationPosition.background,
   });
 
   @override
   Widget build(BuildContext context) {
     return Actor(
-      role: role,
       act: DecoratedBoxAct(
         color: color,
         borderRadius: borderRadius,

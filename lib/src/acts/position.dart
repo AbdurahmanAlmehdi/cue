@@ -8,8 +8,7 @@ class PositionAct extends TweenAct<Position> {
     required super.to,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : _relativeTo = null;
 
   const PositionAct.relative({
@@ -18,8 +17,7 @@ class PositionAct extends TweenAct<Position> {
     required Size size,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : _relativeTo = size;
 
   @internal
@@ -28,8 +26,7 @@ class PositionAct extends TweenAct<Position> {
     required super.to,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
     Size? relativeTo,
     super.keyframes,
   }) : _relativeTo = relativeTo,
@@ -38,7 +35,7 @@ class PositionAct extends TweenAct<Position> {
   const PositionAct.keyframes(
     super.keyframes, {
     super.curve,
-    super.reverseCurve,
+    super.reverse,
     Size? relativeTo,
   }) : _relativeTo = relativeTo,
        super.keyframes();
@@ -141,9 +138,7 @@ class PositionActor extends SingleActorBase<Position> {
     required super.child,
     super.curve,
     super.timing,
-    super.role,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : _relativeTo = null;
 
   const PositionActor.keyframes({
@@ -151,9 +146,7 @@ class PositionActor extends SingleActorBase<Position> {
     required super.frames,
     required super.child,
     super.curve,
-    super.role,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
     Size? relativeTo,
   }) : _relativeTo = relativeTo,
        super.keyframes();
@@ -166,9 +159,7 @@ class PositionActor extends SingleActorBase<Position> {
     required super.child,
     super.curve,
     super.timing,
-    super.role,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : _relativeTo = size;
 
   @override
@@ -179,7 +170,6 @@ class PositionActor extends SingleActorBase<Position> {
     relativeTo: _relativeTo,
     curve: curve,
     timing: timing,
-    reverseCurve: reverseCurve,
-    reverseTiming: reverseTiming,
+    reverse: reverse,
   );
 }

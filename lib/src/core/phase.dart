@@ -4,8 +4,8 @@ class Keyframe<T extends Object?> {
   final T value;
   final double at;
 
-  const Keyframe(this.value, {required this.at});
-  const Keyframe.key(this.value, {required this.at});
+  const Keyframe(this.value, {required this.at}): assert(at >= 0.0 && at <= 1.0, 'Keyframe time must be between 0 and 1');
+  const Keyframe.key(this.value, {required this.at}): assert(at >= 0.0 && at <= 1.0, 'Keyframe time must be between 0 and 1');
   const Keyframe.begin(this.value) : at = 0.0;
   const Keyframe.middle(this.value) : at = 0.5;
   const Keyframe.end(this.value) : at = 1.0;

@@ -60,7 +60,7 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
       // backgroundColor: theme.colorScheme.surfaceContainer,
       appBar: AppBar(),
       body: Padding(
-        padding: const EdgeInsets.only(top: 0, bottom: 0, left: 24, right: 24),
+        padding: const EdgeInsets.only(top: 0, bottom: 0),
         child: SingleChildScrollView(
           child: Column(
             // mainAxisAlignment: MainAxisAlignment.end,
@@ -69,16 +69,22 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
               for (var i = 0; i < 10; i++)
                 Cue.onScrollVisible(
                   key: ValueKey(i),
-                  act: .compose([
-                    .fadeIn(),
-                    .zoomIn(from: .5),
-                    .slideDown(),
-                  ]),
-                  child: Container(
-                    width: double.infinity,
-                    height: 200,
-                    color: Colors.red,
-                    margin: EdgeInsets.only(bottom: 8),
+                  child: Actor(
+                    act: .compose([
+                      .slideY(from: 1, to: 0, reverse: .to(-.2)),
+                      .scale(from: .5, to: 1, reverse: .to(1))
+                    ]),
+                    child: Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.red,
+                      ),
+                      margin: EdgeInsets.only(bottom: 8, left: 16, right: 16),
+                      alignment: .center,
+                      child: Text('item'),
+                    ),
                   ),
                 ),
               // Cue.onChange(

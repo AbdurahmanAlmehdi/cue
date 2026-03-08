@@ -12,8 +12,7 @@ abstract class AnimatablePropBase<T extends Object?, R extends Object?> {
     this.keyframes,
     this.timing,
     this.curve,
-    this.reverseTiming,
-    this.reverseCurve,
+    this.reverse = const ReverseBehavior.mirror(),
   });
 
   const AnimatablePropBase.tween({
@@ -21,8 +20,7 @@ abstract class AnimatablePropBase<T extends Object?, R extends Object?> {
     required T this.to,
     this.timing,
     this.curve,
-    this.reverseTiming,
-    this.reverseCurve,
+    this.reverse = const ReverseBehavior.mirror(),
   }) : keyframes = null;
 
   const AnimatablePropBase.fixed(T value)
@@ -31,22 +29,22 @@ abstract class AnimatablePropBase<T extends Object?, R extends Object?> {
       keyframes = null,
       timing = null,
       curve = null,
-      reverseTiming = null,
-      reverseCurve = null;
+      reverse = const ReverseBehavior.mirror();
 
-  const AnimatablePropBase.keyframes(List<Keyframe<T>> this.keyframes, {this.curve, this.reverseCurve})
-    : from = null,
-      to = null,
-      timing = null,
-      reverseTiming = null;
+  const AnimatablePropBase.keyframes(
+    List<Keyframe<T>> this.keyframes, {
+    this.curve,
+    this.reverse = const ReverseBehavior.mirror(),
+  }) : from = null,
+       to = null,
+       timing = null;
 
   final T? from;
   final T? to;
   final List<Keyframe<T>>? keyframes;
   final Timing? timing;
   final Curve? curve;
-  final Timing? reverseTiming;
-  final Curve? reverseCurve;
+  final ReverseBehavior<T> reverse;
 
   bool get isConstant => from != null && to != null && from == to;
 
@@ -57,56 +55,95 @@ abstract class AnimatablePropBase<T extends Object?, R extends Object?> {
   }
 
   ({Animatable<R> tween, Timing? timing}) resolveTween(
-    ActContext context,
-    ValueTransformer<R, T> transform,
-  ) {
+    ActContext context, {
+    T? from,
+    T? to,
+    R? implicitFrom,
+    List<Keyframe<T>>? keyframes,
+    required ValueTransformer<R, T> transform,
+  }) {
     final Animatable<R> tween;
     Timing? timing;
     if (keyframes != null) {
-      assert(keyframes!.isNotEmpty, 'Keyframes list cannot be empty');
-      final res = Phase.normalize<T, R>(keyframes!, (v) => transform(context, v));
-      tween = buildFromPhases<R>(res.phases, (from, to) {
-        return createSingleTween(transform(context, from as T), transform(context, to as T));
-      });
+      assert(keyframes.isNotEmpty, 'Keyframes list cannot be empty');
+      final res = Phase.normalize<T, R>(keyframes, (v) => transform(context, v));
+      tween = buildFromPhases<R>(res.phases, createSingleTween);
       if (res.timing != null) {
         timing = res.timing;
       }
     } else {
-      final effectiveFrom = context.implicitFrom ?? transform(context, from as T);
+      final effectiveFrom = implicitFrom ?? transform(context, from as T);
       assert(effectiveFrom != null && to != null, 'From and to values must be provided when not using keyframes');
       if (effectiveFrom == to) {
-        tween = ConstantTween<R>(effectiveFrom as R);
+        tween = ConstantTween<R>(effectiveFrom);
       } else {
-        tween = createSingleTween(effectiveFrom as R, transform(context, to as T));
+        tween = createSingleTween(effectiveFrom, transform(context, to as T));
       }
     }
     return (tween: tween, timing: timing);
   }
 
   CueAnimtable<R> buildAnimtable(ActContext context, {ValueTransformer<R, T>? transform}) {
-    final res = resolveTween(context, transform ?? this.transform);
-    final tween = res.tween;
+    final mainTweenRes = resolveTween(
+      context,
+      from: from,
+      to: to,
+      keyframes: keyframes,
+      implicitFrom: context.implicitFrom as R?,
+      transform: transform ?? this.transform,
+    );
+
+    final tween = mainTweenRes.tween;
     if (tween is ConstantTween<R>) {
       return AlwaysStoppedAnimatable<R>(tween.begin as R);
     }
+
     final animtable = applyCurves(
       tween,
       curve: curve ?? context.curve,
-      timing: res.timing ?? timing ?? context.timing,
+      timing: mainTweenRes.timing ?? timing ?? context.timing,
       isBounded: context.isBounded,
     );
-    Animatable<R>? reverseAnimatable;
-    final effectiveReverseCurve = reverseCurve ?? context.reverseCurve;
-    final effectiveReverseTiming = reverseTiming ?? context.reverseTiming;
-    if (effectiveReverseCurve != null || effectiveReverseTiming != null) {
-      reverseAnimatable = applyCurves(
-        tween,
-        curve: effectiveReverseCurve,
-        timing: res.timing ?? effectiveReverseTiming,
-        isBounded: context.isBounded,
-      );
+
+    switch (reverse.type) {
+      case ReverseBehaviorType.mirror:
+      case ReverseBehaviorType.to:
+      case ReverseBehaviorType.keyframes:
+        {
+          var reverseTweenRes = mainTweenRes;
+          bool hasReverse = false;
+          if (reverse.to != null || reverse.keyframes != null) {
+            hasReverse = true;
+            reverseTweenRes = resolveTween(
+              context,
+              from: to,
+              to: reverse.to,
+              keyframes: reverse.keyframes,
+              transform: transform ?? this.transform,
+            );
+          }
+          Animatable<R>? reverseAnimatable;
+          final effectiveReverseCurve = reverse.curve ?? context.reverseCurve;
+          final effectiveReverseTiming = reverse.timing ?? context.reverseTiming;
+          if (hasReverse || effectiveReverseCurve != null || effectiveReverseTiming != null) {
+            reverseAnimatable = applyCurves(
+              reverseTweenRes.tween,
+              curve: effectiveReverseCurve,
+              timing: reverseTweenRes.timing ?? effectiveReverseTiming,
+              isBounded: context.isBounded,
+            );
+          }
+          return DualAnimatable(
+            forward: animtable,
+            reverse: reverseAnimatable,
+            flipTimeOnReverse: hasReverse,
+          );
+        }
+      case ReverseBehaviorType.none:
+        return ForwardAnimatable(animtable);
+      case ReverseBehaviorType.exclusive:
+        return ReverseAnimatable(animtable);
     }
-    return CueAnimtable.resolve(context.role, animtable, reverseAnimatable);
   }
 
   @override
@@ -116,11 +153,60 @@ abstract class AnimatablePropBase<T extends Object?, R extends Object?> {
     return other is AnimatablePropBase<T, R> &&
         other.from == from &&
         other.to == to &&
+        other.reverse == reverse &&
         listEquals(keyframes, other.keyframes);
   }
 
   @override
   int get hashCode => Object.hash(from, to, Object.hashAll(keyframes ?? []));
+}
+
+enum ReverseBehaviorType { mirror, exclusive, none, to, keyframes }
+
+class ReverseBehavior<T> {
+  final ReverseBehaviorType type;
+  final T? to;
+  final List<Keyframe<T>>? keyframes;
+  final Curve? curve;
+  final Timing? timing;
+
+  const ReverseBehavior.mirror({this.curve, this.timing})
+    : type = ReverseBehaviorType.mirror,
+      to = null,
+      keyframes = null;
+  const ReverseBehavior.exclusive()
+    : type = ReverseBehaviorType.exclusive,
+      to = null,
+      keyframes = null,
+      curve = null,
+      timing = null;
+  const ReverseBehavior.none()
+    : type = ReverseBehaviorType.none,
+      to = null,
+      keyframes = null,
+      curve = null,
+      timing = null;
+
+  const ReverseBehavior.to(T this.to, {this.curve, this.timing}) : type = ReverseBehaviorType.to, keyframes = null;
+  const ReverseBehavior.keyframes(List<Keyframe<T>> this.keyframes, {this.curve})
+    : type = ReverseBehaviorType.keyframes,
+      to = null,
+      timing = null;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is ReverseBehavior<T> &&
+        other.type == type &&
+        other.to == to &&
+        listEquals(keyframes, other.keyframes) &&
+        other.curve == curve &&
+        other.timing == timing;
+  }
+
+  @override
+  int get hashCode => Object.hash(type, to, Object.hashAll(keyframes ?? []), curve, timing);
 }
 
 abstract class AnimatableProp<T> extends AnimatablePropBase<T, T> {
@@ -135,9 +221,15 @@ abstract class AnimatableProp<T> extends AnimatablePropBase<T, T> {
   @override
   T transform(_, T value) => value;
 
-  const AnimatableProp.tween({required super.from, required super.to, super.timing, super.curve}) : super.tween();
+  const AnimatableProp.tween({
+    required super.from,
+    required super.to,
+    super.timing,
+    super.curve,
+    super.reverse,
+  }) : super.tween();
   const AnimatableProp.fixed(super.value) : super.fixed();
-  const AnimatableProp.keyframes(super.keyframes, {super.curve}) : super.keyframes();
+  const AnimatableProp.keyframes(super.keyframes, {super.curve, super.reverse}) : super.keyframes();
 }
 
 class _LerpFnTween<T> extends Animatable<T> {
@@ -291,8 +383,6 @@ class AnimtableEdgeInsets extends AnimatablePropBase<EdgeInsetsGeometry?, EdgeIn
     required super.to,
     super.timing,
     super.curve,
-    super.reverseCurve,
-    super.reverseTiming,
   }) : super.tween();
 
   const AnimtableEdgeInsets.fixed(super.value) : super.fixed();

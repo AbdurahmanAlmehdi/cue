@@ -10,8 +10,7 @@ class RotateAct extends TweenAct<double> {
     super.to = 0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
     this.axis = RotateAxis.z,
     this.alignment = Alignment.center,
     this.unit = RotateUnit.degrees,
@@ -20,8 +19,7 @@ class RotateAct extends TweenAct<double> {
   const RotateAct.flipX({
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
     this.alignment = Alignment.center,
   }) : unit = RotateUnit.radians,
        axis = RotateAxis.x,
@@ -30,8 +28,7 @@ class RotateAct extends TweenAct<double> {
   const RotateAct.flipY({
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
     this.alignment = Alignment.center,
   }) : unit = RotateUnit.radians,
        axis = RotateAxis.y,
@@ -40,7 +37,7 @@ class RotateAct extends TweenAct<double> {
   const RotateAct.keyframes(
     super.keyframes, {
     super.curve,
-    super.reverseCurve,
+    super.reverse,
     this.alignment = Alignment.center,
     this.axis = RotateAxis.z,
     this.unit = RotateUnit.radians,
@@ -51,8 +48,7 @@ class RotateAct extends TweenAct<double> {
     super.to = 0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
     this.axis = RotateAxis.z,
     this.alignment = Alignment.center,
   }) : unit = RotateUnit.radians;
@@ -62,8 +58,7 @@ class RotateAct extends TweenAct<double> {
     super.to = 0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
     this.alignment = Alignment.center,
     this.axis = RotateAxis.z,
   }) : unit = RotateUnit.degrees;
@@ -73,8 +68,7 @@ class RotateAct extends TweenAct<double> {
     super.to = 0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
     this.axis = RotateAxis.z,
     this.alignment = Alignment.center,
   }) : unit = RotateUnit.quarterTurns;

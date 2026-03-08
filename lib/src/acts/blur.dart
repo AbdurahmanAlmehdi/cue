@@ -6,19 +6,17 @@ class BlurAct extends TweenAct<double> {
     super.to = 0.0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   });
 
-  const BlurAct.keyframes(super.keyframes, {super.curve, super.reverseCurve}) : super.keyframes();
+  const BlurAct.keyframes(super.keyframes, {super.curve, super.reverse}) : super.keyframes();
 
   const BlurAct.focus({
     super.from = 10.0,
     super.to = 0.0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   });
 
   const BlurAct.unfocus({
@@ -26,8 +24,7 @@ class BlurAct extends TweenAct<double> {
     super.to = 10.0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   });
 
   @override
@@ -55,8 +52,7 @@ class BackdropBlurAct extends TweenAct<double> {
     super.to = 0.0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
     this.blendMode = BlendMode.srcOver,
   });
 
@@ -65,7 +61,7 @@ class BackdropBlurAct extends TweenAct<double> {
   const BackdropBlurAct.keyframes(
     super.keyframes, {
     super.curve,
-    super.reverseCurve,
+    super.reverse,
     this.blendMode = BlendMode.srcOver,
   }) : super.keyframes();
 

@@ -4,14 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 class Actor extends StatefulWidget {
-  final ActorRole role;
   final Act act;
   final Widget child;
 
   const Actor({
     super.key,
     required this.act,
-    this.role = ActorRole.both,
     required this.child,
   });
 
@@ -56,7 +54,6 @@ class ActorState extends State<Actor> {
           actContext.copyWith(
             textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
             isBounded: scope.isBounded,
-            role: widget.role,
             implicitFrom: implicitFrom,
           ),
         );
@@ -69,17 +66,14 @@ class ActorState extends State<Actor> {
   @override
   void didUpdateWidget(covariant Actor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.act != widget.act || oldWidget.role != widget.role) {
-      if (oldWidget.role != widget.role) {
-        // If the role has changed, we need to clear all cached animations
-        //to ensure they are rebuilt with the correct role.
-        _clearCache();
-      }
-      if (oldWidget.act != widget.act) {
-        _acts = widget.act.resolve(const ActContext());
-      }
+    if (oldWidget.act != widget.act) {
+      _acts = widget.act.resolve(const ActContext());
       _setupAnimations(CueScope.of(context));
     }
+    if (oldWidget.act != widget.act) {
+      _acts = widget.act.resolve(const ActContext());
+    }
+    _setupAnimations(CueScope.of(context));
   }
 
   void _clearCache() {
@@ -131,10 +125,8 @@ class ActorState extends State<Actor> {
 abstract class SingleActorBase<T> extends StatelessWidget {
   final Widget child;
   final Curve? curve;
-  final Curve? reverseCurve;
+  final ReverseBehavior<T> reverse;
   final Timing? timing;
-  final Timing? reverseTiming;
-  final ActorRole role;
   final List<Keyframe<T>>? frames;
   final T? _from;
   final T? _to;
@@ -149,9 +141,7 @@ abstract class SingleActorBase<T> extends StatelessWidget {
     required T to,
     this.curve,
     this.timing,
-    this.role = ActorRole.both,
-    this.reverseCurve,
-    this.reverseTiming,
+    this.reverse = const ReverseBehavior.mirror(),
   }) : frames = null,
        _from = from,
        _to = to;
@@ -160,9 +150,7 @@ abstract class SingleActorBase<T> extends StatelessWidget {
     required List<Keyframe<T>> this.frames,
     super.key,
     required this.child,
-    this.role = ActorRole.both,
-    this.reverseCurve,
-    this.reverseTiming,
+    this.reverse = const ReverseBehavior.mirror(),
     this.curve,
   }) : timing = null,
        _from = null,
@@ -172,7 +160,7 @@ abstract class SingleActorBase<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Actor(role: role, act: effect, child: child);
+    return Actor(act: effect, child: child);
   }
 }
 

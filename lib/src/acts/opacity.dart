@@ -6,8 +6,7 @@ class OpacityAct extends TweenAct<double> {
     super.to = 1.0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   });
 
   const OpacityAct.fadeIn({
@@ -15,22 +14,20 @@ class OpacityAct extends TweenAct<double> {
     super.to = 1.0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   });
   const OpacityAct.fadeOut({
     super.from = 1.0,
     super.to = 0.0,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   });
 
   const OpacityAct.keyframes(
     super.keyframes, {
     super.curve,
-    super.reverseCurve,
+    super.reverse,
   }) : super.keyframes();
 
   @override

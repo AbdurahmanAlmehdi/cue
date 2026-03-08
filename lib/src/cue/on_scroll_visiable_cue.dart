@@ -24,7 +24,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
     return _progressAnimation;
   }
 
-  late final _progressAnimation = CueProgressAnimation(value: 1.0);
+  late final _progressAnimation = CueProgressAnimation(value: 1.0, status: AnimationStatus.completed);
 
   @override
   bool get isBounded => true;
@@ -45,12 +45,12 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
     if (position == null) {
       throw FlutterError('Cue.onScrollVisible must be used inside a scrollable widget');
     }
+    _trackViiblity();
     if (_scrollPosition != position) {
       _scrollPosition?.removeListener(_trackViiblity);
       _scrollPosition = position;
       _scrollPosition!.addListener(_trackViiblity);
     }
-    _trackViiblity();
   }
 
   @override
@@ -72,6 +72,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
     super.dispose();
   }
 
+  AnimationStatus? _committedStatus;
   void _trackViiblity() {
     final renderObject = context.findRenderObject();
     if (renderObject is! RenderBox) return;
@@ -95,13 +96,37 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
 
     // Widget is considered visible when the visible fraction meets or exceeds the threshold.
     // A threshold of 0.0 means any overlap counts as visible.
-    final visibleFraction = itemExtent > 0 ? (visibleExtent / itemExtent).clamp(0.0, 1.0) : 0.0;
-    final status = switch (visibleFraction) {
-      final v when v <= 0.0 => AnimationStatus.dismissed,
-      final v when v >= 1.0 => AnimationStatus.completed,
-      final v when v >= _progressAnimation.value => AnimationStatus.forward,
-      _ => AnimationStatus.reverse,
-    };
-    _progressAnimation.update(visibleFraction, status: status);
+
+    final visibleFraction = itemExtent > 0 ? (visibleExtent / itemExtent) : 0.0;
+
+    final scrollDirection = _scrollPosition!.userScrollDirection;
+    final isScrollingForward = scrollDirection == ScrollDirection.forward || scrollDirection == ScrollDirection.idle;
+
+    AnimationStatus status = _progressAnimation.status;
+
+    if (visibleFraction == 0.0 || visibleFraction == 1.0) {
+      _committedStatus = null;
+      status = AnimationStatus.completed;
+    } else if (_committedStatus == null) {
+      // First frame mid-transition — commit direction now
+      if (visibleFraction > _progressAnimation.value) {
+        _committedStatus = isScrollingForward ? AnimationStatus.reverse : AnimationStatus.forward;
+      } else if (visibleFraction < _progressAnimation.value) {
+        _committedStatus = isScrollingForward ? AnimationStatus.forward : AnimationStatus.reverse;
+      }
+      status = _committedStatus ?? _progressAnimation.status;
+    } else {
+      status = _committedStatus!;
+    }
+    _progressAnimation.update(visibleFraction.clamp(0.0, 1.0), status: status);
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return AnimatedOpacity(
+  //     opacity: _fristFrame ? 1.0 : 0.0,
+  //     duration: const Duration(milliseconds: 100),
+  //     child: super.build(context),
+  //   );
+  // }
 }

@@ -8,14 +8,13 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animat
     required T super.to,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : super(keyframes: null);
 
   const TweenActBase.keyframes(
     List<Keyframe<T>> keyframes, {
     super.curve,
-    super.reverseCurve,
+    super.reverse,
   }) : super(
          from: null,
          to: null,
@@ -29,8 +28,7 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animat
     super.keyframes,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   });
 
   @override
@@ -62,8 +60,7 @@ abstract class TweenAct<T extends Object?> extends TweenActBase<T, T> {
     required super.to,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   });
 
   @override
@@ -72,7 +69,7 @@ abstract class TweenAct<T extends Object?> extends TweenActBase<T, T> {
   const TweenAct.keyframes(
     super.keyframes, {
     super.curve,
-    super.reverseCurve,
+    super.reverse,
   }) : super.keyframes();
 
   @internal
@@ -82,7 +79,6 @@ abstract class TweenAct<T extends Object?> extends TweenActBase<T, T> {
     super.keyframes,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   }) : super.internal();
 }

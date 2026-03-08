@@ -50,6 +50,7 @@ abstract class Act {
     required double to,
     Curve? curve,
     Timing? timing,
+    ReverseBehavior<double> reverse,
   }) = ScaleAct;
 
   const factory Act.zoomIn({
@@ -130,6 +131,7 @@ abstract class Act {
     double to,
     Curve? curve,
     Timing? timing,
+    ReverseBehavior<double> reverse,
   }) = SlideAct.fromX;
 
   const factory Act.slideY({
@@ -137,6 +139,7 @@ abstract class Act {
     double to,
     Curve? curve,
     Timing? timing,
+    ReverseBehavior<double> reverse,
   }) = SlideAct.fromY;
 
   const factory Act.slideUp({
@@ -404,7 +407,6 @@ class ActContext {
   final Curve? curve;
   final Curve? reverseCurve;
   final bool isBounded;
-  final ActorRole role;
   final TextDirection textDirection;
   final Object? implicitFrom;
 
@@ -415,7 +417,6 @@ class ActContext {
     this.reverseTiming,
     this.reverseCurve,
     this.textDirection = TextDirection.ltr,
-    this.role = ActorRole.both,
     this.implicitFrom,
   });
 
@@ -425,7 +426,6 @@ class ActContext {
     Curve? curve,
     Curve? reverseCurve,
     bool? isBounded,
-    ActorRole? role,
     TextDirection? textDirection,
     Object? implicitFrom,
   }) {
@@ -435,11 +435,8 @@ class ActContext {
       curve: curve ?? this.curve,
       reverseCurve: reverseCurve ?? this.reverseCurve,
       isBounded: isBounded ?? this.isBounded,
-      role: role ?? this.role,
       textDirection: textDirection ?? this.textDirection,
       implicitFrom: implicitFrom ?? this.implicitFrom,
     );
   }
 }
-
-enum ActorRole { forward, reverse, both }

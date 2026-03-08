@@ -254,7 +254,6 @@ class CardActor extends StatelessWidget {
   final Timing? reverseTiming;
   final Curve? curve;
   final Curve? reverseCurve;
-  final ActorRole role;
 
   const CardActor({
     super.key,
@@ -272,7 +271,6 @@ class CardActor extends StatelessWidget {
     this.reverseTiming,
     this.curve,
     this.reverseCurve,
-    this.role = ActorRole.both,
   }) : assert(
          shape == null || borderRadius == null,
          'Cannot specify both shape and borderRadius. '
@@ -282,7 +280,6 @@ class CardActor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Actor(
-      role: role,
       act: CardAct(
         color: color,
         shadowColor: shadowColor ?? const AnimtableColor.fixed(Color(0xFF000000)),

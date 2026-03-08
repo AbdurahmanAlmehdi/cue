@@ -6,11 +6,10 @@ class AlignAct extends TweenActBase<AlignmentGeometry?, Alignment?> {
     super.to,
     super.curve,
     super.timing,
-    super.reverseCurve,
-    super.reverseTiming,
+    super.reverse,
   });
 
-  const AlignAct.keyframes(super.keyframes, {super.curve, super.reverseCurve}) : super.keyframes();
+  const AlignAct.keyframes(super.keyframes, {super.curve, super.reverse}) : super.keyframes();
 
   @override
   Alignment? transform(ActContext ctx, AlignmentGeometry? value) {
