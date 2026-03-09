@@ -5,12 +5,16 @@ class _ProgressCue extends Cue {
     super.key,
     super.debugLabel,
     required super.child,
-    required this.notifier,
+    required this.listenable,
     required this.progress,
+     this.min = 0.0,
+     this.max = 1.0,
     super.act,
   }) : super._();
 
-  final Listenable notifier;
+  final double min;
+  final double max;
+  final Listenable listenable;
   final ValueGetter<double> progress;
 
   @override
@@ -29,23 +33,30 @@ class _ProgressCueState extends _CueState<_ProgressCue> {
   @override
   void initState() {
     super.initState();
-    widget.notifier.addListener(_updateAnimation);
+    widget.listenable.addListener(_updateAnimation);
     _updateAnimation();
   }
 
   @override
   void dispose() {
-    widget.notifier.removeListener(_updateAnimation);
+    widget.listenable.removeListener(_updateAnimation);
     super.dispose();
   }
 
   void _updateAnimation() {
-    final value = widget.progress().clamp(0.0, 1.0);
+
+     final progress = widget.progress();
+     final value = ((progress - widget.min) / (widget.max - widget.min)).clamp(0.0, 1.0);
+
+ 
+
+
     final status = switch (value) {
       1.0 => AnimationStatus.completed,
       0.0 => AnimationStatus.dismissed,
       _ => value > _animation.value ? AnimationStatus.forward : AnimationStatus.reverse,
     };
+    print(value);
 
     _animation.update(value, status: status);
   }
@@ -53,9 +64,9 @@ class _ProgressCueState extends _CueState<_ProgressCue> {
   @override
   void didUpdateWidget(covariant _ProgressCue oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.notifier != oldWidget.notifier) {
-      oldWidget.notifier.removeListener(_updateAnimation);
-      widget.notifier.addListener(_updateAnimation);
+    if (widget.listenable != oldWidget.listenable) {
+      oldWidget.listenable.removeListener(_updateAnimation);
+      widget.listenable.addListener(_updateAnimation);
       _updateAnimation();
     }
   }

@@ -2,8 +2,8 @@ part of 'base/act.dart';
 
 class AlignAct extends TweenActBase<AlignmentGeometry?, Alignment?> {
   const AlignAct({
-    super.from,
-    super.to,
+    super.from = Alignment.center,
+    super.to = Alignment.center,
     super.curve,
     super.timing,
     super.reverse,

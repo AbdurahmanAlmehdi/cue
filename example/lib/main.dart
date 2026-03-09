@@ -1,9 +1,5 @@
 import 'package:cue/cue.dart';
-import 'package:example/examples/bottom_bar.dart';
-import 'package:example/examples/horizinally_expanding_cards.dart';
-import 'package:example/examples/options_button.dart';
-import 'package:example/examples/slack_style_fab.dart';
-import 'package:example/examples/smooth_toggle.dart';
+import 'package:example/examples/indicator_to_button_2.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +46,8 @@ class _OnChangeDemo extends StatefulWidget {
 class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProviderStateMixin {
   double size = 100.0;
   bool checked = false;
+  final _sheetController = DraggableScrollableController();
+  final _pageController = CuePageController(viewportFraction: .85);
 
   @override
   Widget build(BuildContext context) {
@@ -57,90 +55,53 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
 
     BoxDecoration;
     return Scaffold(
-      // backgroundColor: theme.colorScheme.surfaceContainer,
+      // backgroundColor: Colors.blue,
       appBar: AppBar(),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 0, bottom: 0),
-        child: SingleChildScrollView(
-          child: Column(
-            // mainAxisAlignment: MainAxisAlignment.end,
-            // crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (var i = 0; i < 10; i++)
-                Cue.onScrollVisible(
-                  key: ValueKey(i),
-                  child: Actor(
-                    act: .compose([
-                      .slideY(from: 1, to: 0, reverse: .to(-.2)),
-                      .scale(from: .5, to: 1, reverse: .to(1))
+      bottomSheet: DraggableScrollableSheet(
+        controller: _sheetController,
+        expand: false,
+        initialChildSize: 0.2,
+        minChildSize: 0.2,
+        maxChildSize: .6,
+        snapAnimationDuration: const Duration(milliseconds: 300),
+        builder: (context, scrollController) {
+        
+          return Cue.onProgress(
+            listenable: _sheetController,
+            progress: () => _sheetController.isAttached ? _sheetController.size : 0.0,
+            min: 0.2,
+            max: 0.8,
+            child: SingleChildScrollView(
+              controller: scrollController,
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  for (var i = 6; i > 0; i--)
+                    Actor(
+                      act: .compose([
+                        .slideY(from: -.8 * i,),
+                        .scale(to: .5 + i * (.5/5), from: 0)
                     ]),
-                    child: Container(
-                      width: double.infinity,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.red,
+                    child: Card(
+                      elevation: i * .5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        side: BorderSide(color: theme.colorScheme.primary, width: 1.0),
                       ),
-                      margin: EdgeInsets.only(bottom: 8, left: 16, right: 16),
-                      alignment: .center,
-                      child: Text('item'),
+                      child: ListTile(
+                        leading: const Icon(Iconsax.box),
+                        title: Text('Item $i'),
+                        subtitle: const Text('Subtitle'),
+                      ),
                     ),
                   ),
-                ),
-              // Cue.onChange(
-              //   fromCurrentValue: true,
-              //   value: size,
-              //   act: .clipSize(
-              //     from: .square(20),
-              //     to: .square(size),
-              //   ),
-              //   child: Container(width: 50, height: 50, color: Colors.red),
-              // ),
-
-              // ElevatedButton(
-              //   onPressed: () {
-              //     setState(() {
-              //       size = size + 50;
-              //     });
-              //   },
-              //   child: Text('resize'),
-              // ),
-              // Center(
-              //   child: SizedBox(
-              //     width: 200,
-              //     child: Cue.onToggle(
-              //       toggled: checked,
-              //       motion: .simulation(Spring.wobbly()),
-              //       child: Column(
-              //         children: [
-              //           Actor(
-              //             act: .size(width: .tween(from: 100, to: 200)),
-              //             child: Container(
-              //               width: size,
-              //               height: size,
-              //               color: Colors.blue,
-              //             ),
-              //           ),
-              //           SizedBox(height: 24),
-              //           ElevatedButton(
-              //             onPressed: () {
-              //               setState(() {
-              //                 checked = !checked;
-              //               });
-              //             },
-              //             child: Text('Toggle'),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // SlackStyleFab(),
-              // HorizontallyExpandingCards(),
-            ],
-          ),
-        ),
+              ]
+            ),
+            ),
+          );
+        },
       ),
+      body: IndicatorToButton2(),
     );
   }
 }

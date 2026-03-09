@@ -98,9 +98,12 @@ abstract class Cue extends StatefulWidget {
     Key? key,
     String? debugLabel,
     Act? act,
-    required Listenable notifier,
+    
+    required Listenable listenable,
     required ValueGetter<double> progress,
     required Widget child,
+      double min,
+      double max,
   }) = _ProgressCue;
 
   // This only works within the nearest scrollable ancestor and is not meant to be used as a general purpose visibility detector.

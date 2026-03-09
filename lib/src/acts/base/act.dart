@@ -135,7 +135,7 @@ abstract class Act {
   }) = SlideAct.fromX;
 
   const factory Act.slideY({
-    required double from,
+     double from,
     double to,
     Curve? curve,
     Timing? timing,
