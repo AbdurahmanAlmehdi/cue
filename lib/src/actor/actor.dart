@@ -49,7 +49,7 @@ class ActorState extends State<Actor> {
       if (!_cachedAnimations.containsKey(act)) {
         final implicitFrom = scope.reanimateFromCurrent ? _animationSnapshots[act.runtimeType] : null;
         final animation = act.buildAnimation(
-          scope.animations,
+          scope.timeline,
           actContext.copyWith(
             textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
             isBounded: scope.isBounded,
@@ -90,7 +90,7 @@ class ActorState extends State<Actor> {
       scope.willReanimateNotifier?.addEventListener(_onWillReAnimate);
     }
     if (_cachedScope == null || scope.updateShouldNotify(_cachedScope!)) {
-      if (_cachedScope?.animations != scope.animations) {
+      if (_cachedScope?.timeline != scope.timeline) {
         _clearCache();
       }
       _setupAnimations(scope);

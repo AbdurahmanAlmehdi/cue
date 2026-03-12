@@ -75,9 +75,8 @@ class _CueModalTransitionState extends State<CueModalTransition> {
           });
         }
       },
-      pageBuilder: (context, animation, _) {
+      pageBuilder: (context,anim, _) {
         return _ModelContent(
-          animation: animation,
           backdrop: widget.backdrop,
           alignment: widget.alignment,
           builder: widget.builder,
@@ -100,14 +99,12 @@ class _ModelContent extends StatelessWidget {
   const _ModelContent({
     this.backdrop,
     this.alignment,
-    required this.animation,
     required this.builder,
     required this.barrierDismissible,
     required this.triggerRect,
     required this.link,
   });
 
-  final Animation<double> animation;
   final Widget? backdrop;
   final AlignmentGeometry? alignment;
   final ModalContentBuilder builder;
@@ -207,20 +204,14 @@ class _ModalRoute<T extends Object> extends RawDialogRoute<T> {
       reverseMotion: reverseMotion,
       vsync: navigator!,
     );
-
     ctrl.addStatusListener(onAnimationStatusChanged);
     return ctrl;
   }
-
-  @override
-  Animation<double> createAnimation() {
-    return controller!.view;
-  }
-
+ 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
     return Cue(
-      animations: (controller as CueAnimationController).animations,
+      timeline: (controller as CueAnimationController).timline,
       child: super.buildPage(context, animation, secondaryAnimation),
     );
   }

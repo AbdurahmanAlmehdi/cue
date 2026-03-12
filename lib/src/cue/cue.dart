@@ -34,7 +34,7 @@ abstract class Cue extends StatefulWidget {
     String? debugLabel,
     bool isBounded,
     Act? act,
-    required Timeline animations,
+    required Timeline timeline,
     required Widget child,
   }) = _ControlledCue;
 
@@ -168,7 +168,7 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
       child = Actor(act: widget.act!, child: child);
     }
 
-    final animation = getAnimations(context);
+ 
     // if (kDebugMode) {
     //   final debugToolsScope = CueDebugTools.maybeOf(context);
     //   if (debugToolsScope != null) {
@@ -186,7 +186,7 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
     //           : const BoxDecoration(),
     //       child: CueScope(
     //         reanimateFromCurrent: reanimateFromCurrent,
-    //         animation: useDebugAnimation ? debugToolsScope.animation : animation,
+    //         timeline: useDebugAnimation ? debugToolsScope.timeline : timeline,
     //         willReanimateNotifier: willReanimateNotifier,
     //         isBounded: isBounded,
     //         child: child,
@@ -195,7 +195,7 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
     //   }
     // }
     return CueScope(
-      animations: animation,
+      timeline: timeline,
       isBounded: isBounded,
       willReanimateNotifier: willReanimateNotifier,
       reanimateFromCurrent: reanimateFromCurrent,
@@ -203,5 +203,5 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
     );
   }
 
-  Timeline getAnimations(BuildContext context);
+  Timeline get timeline;
 }

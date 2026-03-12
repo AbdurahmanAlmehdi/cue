@@ -89,7 +89,6 @@ class DeleteConfirmationDialog extends StatelessWidget {
                               to: IconThemeData(size: 20),
                             ),
                           ]),
-
                           child: Icon(
                             Iconsax.trash,
                             color: theme.colorScheme.error,

@@ -22,7 +22,7 @@ class _ProgressCue extends Cue {
 }
 
 class _ProgressCueState extends _CueState<_ProgressCue> {
-  final _animation = ProgressAnimationsSet(0.0);
+  final _progresstimeline = ProgressAnimations(0.0);
 
   @override
   String get debugName => 'ProgressCue';
@@ -50,10 +50,10 @@ class _ProgressCueState extends _CueState<_ProgressCue> {
     final status = switch (value) {
       1.0 => AnimationStatus.completed,
       0.0 => AnimationStatus.dismissed,
-      _ => value > _animation.value ? AnimationStatus.forward : AnimationStatus.reverse,
+      _ => value > _progresstimeline.value ? AnimationStatus.forward : AnimationStatus.reverse,
     };
 
-    _animation.advance(value, status: status);
+    _progresstimeline.advance(value, status: status);
   }
 
   @override
@@ -67,5 +67,5 @@ class _ProgressCueState extends _CueState<_ProgressCue> {
   }
 
   @override
-  Timeline getAnimations(BuildContext context) => _animation;
+  Timeline get timeline => _progresstimeline;
 }

@@ -57,7 +57,7 @@ abstract class SelfAnimatedState<T extends SelfAnimatedCue> extends _CueState<T>
   bool get isBounded => !controller.usesSimulation;
 
   @override
-Timeline getAnimations(BuildContext context) => controller.animations;
+  Timeline get timeline => controller.timline;
 
   @override
   void initState() {

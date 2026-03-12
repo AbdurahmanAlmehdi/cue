@@ -275,7 +275,6 @@ class _RenderAnimatedSizeClip extends RenderAligningShiftedBox {
             ]
           : null,
     );
-
     // Build and cache the animation
     _driver.setAnimatable(animtable.buildAnimtable(_driver.context));
     _cachedMaxSize = _calculateMaxSize(animtable);

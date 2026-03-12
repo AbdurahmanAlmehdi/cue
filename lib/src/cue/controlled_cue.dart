@@ -6,11 +6,11 @@ class _ControlledCue extends Cue {
     required super.child,
     this.isBounded = true,
     super.debugLabel,
-    required this.animations,
+    required this.timeline,
     super.act,
   }) : super._();
 
-  final Timeline animations;
+  final Timeline timeline;
   final bool isBounded;
 
   @override
@@ -25,5 +25,5 @@ class _ControlledCueState extends _CueState<_ControlledCue> {
   String get debugName => 'ControlledCue';
 
   @override
-  Timeline getAnimations(_) => widget.animations;
+  Timeline get timeline => widget.timeline;
 }

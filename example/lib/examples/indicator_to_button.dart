@@ -26,7 +26,6 @@ class _IndicatorToButtonState extends State<IndicatorToButton> {
           child: PageView.builder(
             controller: _cuePageController,
             itemCount: 5,
-            physics: BouncingScrollPhysics(),
             itemBuilder: (context, index) {
               return Cue.indexed(
                 index: index,
@@ -52,64 +51,68 @@ class _IndicatorToButtonState extends State<IndicatorToButton> {
             },
           ),
         ),
-        SizedBox(
-          height: 88,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              for (var i = 0; i < 5; i++)
-                Builder(
-                  builder: (context) {
-                    final isLast = i == 4;
-                    return Cue.indexed(
-                      index: i,
-                      controller: _cuePageController,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          child: Actor(
-                            act: .compose([
-                              .sizedClip(
-                                from: .square(10),
-                                to: isLast ? .height(44) : NSize(w: 38, h: 10),
+        for (final spring in [true, false])
+          SizedBox(
+            height: 44,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var i = 0; i < 5; i++)
+                  Builder(
+                    builder: (context) {
+                      final isLast = i == 4;
+                      return Cue.indexed(
+                        index: i,
+                        controller: _cuePageController,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                            child: Actor(
+                              act: .compose(
+                                [
+                                  .sizedClip(
+                                    from: .square(10),
+                                    to: isLast ? .height(44) : NSize(w: 38, h: 10),
+                                  ),
+                                  if (isLast) .zoomIn(),
+                                  if (isLast) .slideX(from: -1),
+                                ],
+                                 motion: spring ? Spring.gentle() : null,
                               ),
-                              if (isLast) .zoomIn(motion: Spring.wobbly(damping: 8)),
-                              if (isLast) .slideX(from: -1),
-                            ]),
-                            child: isLast
-                                ? Padding(
-                                    padding: const .symmetric(horizontal: 16),
-                                    child: Row(
-                                      mainAxisAlignment: .center,
-                                      children: [
-                                        Text(
-                                          'Let’s Go',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(color: Colors.white, fontSize: 15),
-                                        ),
-                                        SizedBox(width: 6),
-                                        Icon(
-                                          Icons.arrow_forward_ios_rounded,
-                                          color: Colors.white,
-                                          size: 14,
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : SizedBox(),
+                              child: isLast
+                                  ? Padding(
+                                      padding: const .symmetric(horizontal: 16),
+                                      child: Row(
+                                        mainAxisAlignment: .center,
+                                        children: [
+                                          Text(
+                                            'Let’s Go',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(color: Colors.white, fontSize: 15),
+                                          ),
+                                          SizedBox(width: 6),
+                                          Icon(
+                                            Icons.arrow_forward_ios_rounded,
+                                            color: Colors.white,
+                                            size: 14,
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : SizedBox(),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-            ],
+                      );
+                    },
+                  ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

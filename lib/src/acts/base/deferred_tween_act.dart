@@ -4,12 +4,17 @@ import 'package:cue/src/motion/simulations.dart';
 import 'package:flutter/widgets.dart';
 
 abstract class DeferredTweenAct<T extends Object?> extends Act {
-  final CueMotion ? motion;
-  final CueMotion ? reverseMotion;
+  final CueMotion? motion;
+  final CueMotion? reverseMotion;
+  final Duration? delay;
+  final Duration? reverseDelay;
+
 
   const DeferredTweenAct({
     this.motion,
     this.reverseMotion,
+    this.delay,
+    this.reverseDelay,
   });
 
   @override
@@ -20,6 +25,8 @@ abstract class DeferredTweenAct<T extends Object?> extends Act {
         context.copyWith(
           motion: motion,
           reverseMotion: reverseMotion,
+          delay: delay,
+          reverseDelay: reverseDelay,
         ),
       ),
     ];
@@ -27,8 +34,15 @@ abstract class DeferredTweenAct<T extends Object?> extends Act {
 
   @override
   DeferredCueAnimation<T> buildAnimation(Timeline timline, ActContext context) {
-    final driver = timline.animationFor(AnimationConfig(motion: motion, reverseMotion: reverseMotion));
-    return DeferredCueAnimation(parent: driver, context: context);  
+    final driver = timline.animationFor(
+      AnimationConfig(
+        motion: motion ?? context.motion,
+        reverseMotion: reverseMotion ?? context.reverseMotion,
+        delay: delay ?? context.delay,
+        reverseDelay: reverseDelay ?? context.reverseDelay,
+        ),
+    );
+    return DeferredCueAnimation(parent: driver, context: context);
   }
 
   @override
@@ -48,9 +62,11 @@ abstract class DeferredTweenAct<T extends Object?> extends Act {
     if (other.runtimeType != runtimeType) return false;
     return other is DeferredTweenAct<T> &&
         other.motion == motion &&
-        other.reverseMotion == reverseMotion;
+        other.reverseMotion == reverseMotion &&
+        other.delay == delay &&
+        other.reverseDelay == reverseDelay;
   }
 
   @override
-  int get hashCode => Object.hash(motion, reverseMotion);
+  int get hashCode => Object.hash(motion, reverseMotion, delay, reverseDelay);
 }

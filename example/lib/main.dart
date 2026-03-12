@@ -1,4 +1,6 @@
 import 'package:cue/cue.dart';
+import 'package:example/examples/delete_confirmation.dart';
+import 'package:example/examples/expanding_cards.dart';
 import 'package:example/examples/indicator_to_button.dart';
 import 'package:example/examples/slack_style_fab.dart';
 
@@ -55,11 +57,11 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
       appBar: AppBar(),
       body: SizedBox.expand(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // SlackStyleFab(),
-                  IndicatorToButton(),
+            DeleteConfirmationDialog(),
 
             SizedBox(
               height: 100,
@@ -69,7 +71,7 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                   // Expanded(child: ColoredBox(color: Colors.red)),
                   Cue.onToggle(
                     toggled: checked,
-                    // motion: Spring.wobbly(damping: 8),
+                    motion: Spring.bouncy(),
                     // reverseMotion: Spring.smooth(),
                     
                     child: Row(
@@ -78,14 +80,12 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                         Actor(
                           act: .sizedBox(
                             width: .tween(from: 50, to: 100),
-                            motion: Spring.wobbly(damping: 8),
                           ),
                           child: ColoredBox(color: Colors.blue),
                         ),
                          Actor(
                           act: .sizedBox(
                             width: .tween(from: 50, to: 100),
-                            motion: Spring.smooth(),
                           ),
                           child: ColoredBox(color: Colors.yellow),
                         ),
@@ -96,9 +96,7 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                 ],
               ),
             ),
-            // Align(
-            //    alignment: .bottomEnd,
-            //   child: SlackStyleFab()),
+     
             SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {

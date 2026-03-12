@@ -18,7 +18,7 @@ class _IndexedCue extends Cue {
 }
 
 class _IndexedCueState extends _CueState<_IndexedCue> {
-  final _animation = ProgressAnimationsSet(0.0);
+  final _progressTimeline = ProgressAnimations(0.0);
 
   @override
   String get debugName => 'IndexedCue';
@@ -45,10 +45,10 @@ class _IndexedCueState extends _CueState<_IndexedCue> {
     final status = switch (value) {
       1.0 => AnimationStatus.completed,
       0.0 => AnimationStatus.dismissed,
-      _ => value > _animation.value ? AnimationStatus.forward : AnimationStatus.reverse,
+      _ => value > _progressTimeline.value ? AnimationStatus.forward : AnimationStatus.reverse,
     };
 
-    _animation.advance(value, status: status);
+    _progressTimeline.advance(value, status: status);
   }
 
   @override
@@ -62,7 +62,7 @@ class _IndexedCueState extends _CueState<_IndexedCue> {
   }
 
   @override
-  Timeline getAnimations(BuildContext context) => _animation;
+  Timeline get timeline => _progressTimeline;
 }
 
 mixin IndexedCueController implements Listenable {

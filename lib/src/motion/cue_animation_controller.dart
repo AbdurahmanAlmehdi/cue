@@ -7,9 +7,9 @@ class CueAnimationController extends AnimationController {
   CueMotion? _reverseMotion;
   final double _lowerBound;
   final double _upperBound;
-  final AnimationsSetImpl _animationsSet;
-  
-  Timeline get animations => _animationsSet;
+  final TimlineImpl _timline;
+
+  Timeline get timline => _timline;
 
   @override
   double get lowerBound {
@@ -44,7 +44,7 @@ class CueAnimationController extends AnimationController {
        _reverseMotion = reverseMotion,
        _lowerBound = lowerBound,
        _upperBound = upperBound,
-       _animationsSet = AnimationsSetImpl(
+       _timline = TimlineImpl(
          SimulationAnimationImpl(
            motion,
            reverseMotion: reverseMotion,
@@ -64,12 +64,25 @@ class CueAnimationController extends AnimationController {
   }
 
   @override
+  Animation<double> get view => _timline.mainAnimation;
+
+  @override
   TickerFuture forward({double? from}) {
     if (from != null) {
       value = from;
     }
-    _animationsSet.prepare(forward: true, velocity: velocity);
-    return animateWith(_animationsSet);
+    _timline.prepare(forward: true, velocity: velocity);
+    return super.animateWith(_timline);
+  }
+
+  @override
+  TickerFuture animateWith(Simulation simulation) {
+    throw UnsupportedError('animateWith is not supported by CueAnimationController. Use forward instead.');
+  }
+
+  @override
+  TickerFuture animateBackWith(Simulation simulation) {
+    throw UnsupportedError('animateBackWith is not supported by CueAnimationController. Use reverse instead.');
   }
 
   @override
@@ -77,8 +90,8 @@ class CueAnimationController extends AnimationController {
     if (from != null) {
       value = from;
     }
-    _animationsSet.prepare(forward: false, velocity: velocity);
-    return animateBackWith(_animationsSet);
+    _timline.prepare(forward: false, velocity: velocity);
+    return super.animateBackWith(_timline);
   }
 
   @override
@@ -96,39 +109,27 @@ class CueAnimationController extends AnimationController {
 
   @override
   TickerFuture repeat({double? min, double? max, bool reverse = false, int? count, Duration? period}) {
-    if (_motion.isTimed) {
-      assert(min == null || (min >= _lowerBound && min <= _upperBound));
-      assert(max == null || (max >= _lowerBound && max <= _upperBound));
-      return super.repeat(
-        reverse: reverse,
-        count: count,
-        min: min ?? _lowerBound,
-        max: max ?? _upperBound,
-        period: period,
-      );
-    } else {
-      if (_statusListener != null) {
-        removeStatusListener(_statusListener!);
-      }
-      int loopCount = 0;
-      _statusListener = (status) {
-        if (status == AnimationStatus.completed) {
-          loopCount++;
-          if (count != null && loopCount >= count) {
-            return;
-          }
-          if (reverse) {
-            this.reverse();
-          } else {
-            forward();
-          }
-        } else if (status == AnimationStatus.dismissed && reverse) {
+    if (_statusListener != null) {
+      removeStatusListener(_statusListener!);
+    }
+    int loopCount = 0;
+    _statusListener = (status) {
+      if (status == AnimationStatus.completed) {
+        loopCount++;
+        if (count != null && loopCount >= count) {
+          return;
+        }
+        if (reverse) {
+          this.reverse();
+        } else {
           forward();
         }
-      };
-      addStatusListener(_statusListener!);
-      forward();
-      return TickerFuture.complete();
-    }
+      } else if (status == AnimationStatus.dismissed && reverse) {
+        forward();
+      }
+    };
+    addStatusListener(_statusListener!);
+    forward();
+    return TickerFuture.complete();
   }
 }

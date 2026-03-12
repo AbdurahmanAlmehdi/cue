@@ -53,10 +53,10 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animat
   @override
   CueAnimation<R> buildAnimation(Timeline timline, ActContext context) {
     final driver = timline.animationFor(AnimationConfig(
-      motion: motion,
-      delay: delay,
-      reverseMotion: reverse.motion,
-      reverseDelay: reverse.delay,
+      motion: motion ?? context.motion,
+      delay: delay ?? context.delay,
+      reverseMotion: reverse.motion ?? context.reverseMotion,
+      reverseDelay: reverse.delay ?? context.reverseDelay,
     ));
     return CueAnimationImpl<R>(parent: driver, animtable: buildAnimtable(context));
   }

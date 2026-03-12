@@ -41,7 +41,9 @@ abstract class Act {
   const factory Act.compose(
     List<Act> acts, {
     CueMotion? motion,
+    Duration? delay,
     CueMotion? reverseMotion,
+    Duration? reverseDelay,
   }) = ComposeAct;
 
   const factory Act.scale({
@@ -310,11 +312,14 @@ class ComposeAct extends Act {
   final List<Act> acts;
   final CueMotion? motion;
   final CueMotion? reverseMotion;
+  final Duration? delay;
+  final Duration? reverseDelay;
   const ComposeAct(
     this.acts, {
     this.motion,
     this.reverseMotion,
- 
+    this.delay,
+    this.reverseDelay,
   });
 
   @override
@@ -334,6 +339,8 @@ class ComposeAct extends Act {
     final context = base.copyWith(
       motion: motion,
       reverseMotion: reverseMotion,
+      delay: delay,
+      reverseDelay: reverseDelay,
     );
     for (final act in acts) {
       result.addAll(act.resolve(context));
@@ -348,7 +355,9 @@ class ComposeAct extends Act {
           runtimeType == other.runtimeType &&
           listEquals(acts, other.acts) &&
           motion == other.motion &&
-          reverseMotion == other.reverseMotion;
+          reverseMotion == other.reverseMotion &&
+          delay == other.delay &&
+          reverseDelay == other.reverseDelay;
 
   @override
   int get hashCode => Object.hashAll(acts);

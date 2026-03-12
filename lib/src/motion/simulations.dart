@@ -9,17 +9,17 @@ abstract class Timeline {
   void release(SimulationAnimation anim);
 }
 
-class AnimationsSetImpl extends Simulation implements Timeline {
+class TimlineImpl extends Simulation implements Timeline {
   final Map<AnimationConfig, SimulationAnimation> _animations;
 
-  AnimationsSetImpl(SimulationAnimationImpl main)
+  TimlineImpl(SimulationAnimationImpl main)
     : _animations = {
         AnimationConfig(motion: main.motion, reverseMotion: main.reverseMotion): main,
       };
 
   double _lastT = 0.0;
 
-  SimulationAnimation get _mainAnim => _animations.values.first;
+  SimulationAnimation get mainAnimation => _animations.values.first;
 
   @override
   SimulationAnimation animationFor(AnimationConfig config) {
@@ -60,11 +60,11 @@ class AnimationsSetImpl extends Simulation implements Timeline {
         anim.advance(dt);
       }
     }
-    return _mainAnim.value;
+    return mainAnimation.value;
   }
 
   @override
-  double dx(double time) => _mainAnim.velocity;
+  double dx(double time) => mainAnimation.velocity;
 
   @override
   bool isDone(double time) => _animations.values.every((anim) => anim.isDone);
@@ -129,7 +129,7 @@ class SimulationAnimationImpl extends SimulationAnimation with AnimationLocalLis
     _forward = forward;
     final active = forward ? motion : (reverseMotion ?? motion);
     _sim = active.build(forward, _value, velocity);
-    _delaySeconds = (forward ? delay : (reverseDelay ?? delay)).inMicroseconds / Duration.microsecondsPerSecond;
+    _delaySeconds = (forward ? delay : (reverseDelay)).inMicroseconds / Duration.microsecondsPerSecond;
     _localT = 0.0;
     _done = false;
   }
@@ -142,7 +142,6 @@ class SimulationAnimationImpl extends SimulationAnimation with AnimationLocalLis
 
     _localT += progress;
     final t = _localT - _delaySeconds;
-
     if (t < 0) return; // still in delay
 
     if (_sim!.isDone(t)) {
@@ -152,7 +151,6 @@ class SimulationAnimationImpl extends SimulationAnimation with AnimationLocalLis
       notifyStatusListeners(_forward ? AnimationStatus.completed : AnimationStatus.dismissed);
       return;
     }
-
     _value = _sim!.x(t);
     notifyListeners();
   }
@@ -168,13 +166,13 @@ class SimulationAnimationImpl extends SimulationAnimation with AnimationLocalLis
   }
 }
 
-class ProgressAnimationsSet extends SimulationAnimation with AnimationLocalListenersMixin implements Timeline {
+class ProgressAnimations extends SimulationAnimation with AnimationLocalListenersMixin implements Timeline {
   double _value;
   AnimationStatus _status;
 
-  ProgressAnimationsSet(this._value, {AnimationStatus status = AnimationStatus.completed}) : _status = status;
+  ProgressAnimations(this._value, {AnimationStatus status = AnimationStatus.completed}) : _status = status;
 
-  final Map<AnimationConfig, SimulationAnimation> _animations = {};
+  final Map<AnimationConfig, BakedSimulationAnimation> _animations = {};
 
   final _linearMotion = const LinearSimulationMotion();
 
@@ -187,7 +185,7 @@ class ProgressAnimationsSet extends SimulationAnimation with AnimationLocalListe
       motion: config.motion ?? _linearMotion,
       reverseMotion: config.reverseMotion ?? _linearMotion,
       // ignore delay for progress-based animations since the progress itself determines the timing
-      delay: .zero, 
+      delay: .zero,
       reverseDelay: .zero,
     );
     return _animations.putIfAbsent(
@@ -222,7 +220,12 @@ class ProgressAnimationsSet extends SimulationAnimation with AnimationLocalListe
     _status = status;
 
     if (statusChanged) notifyStatusListeners(status);
-    if (valueChanged) notifyListeners();
+    if (valueChanged) {
+      for (final anim in _animations.values) {
+        anim.advance(value, status: status);
+      }
+      notifyListeners();
+    }
   }
 
   @override
