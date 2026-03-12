@@ -73,7 +73,7 @@ abstract class Act {
   }) = FractionalSizeAct;
 
   const factory Act.translate({
-    required Offset from,
+     Offset from,
     Offset to,
     CueMotion? motion,
   }) = TranslateAct;
@@ -212,6 +212,7 @@ abstract class Act {
     AnimatableValue<double>? height,
     AlignmentGeometry alignment,
       CueMotion? motion,
+      Duration? delay,
     
   }) = SizeAct;
 

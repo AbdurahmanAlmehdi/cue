@@ -12,7 +12,7 @@ class SlackStyleFab extends StatelessWidget {
       barrierColor: Colors.transparent,
       alignment: .bottomRight,
       barrierDismissible: true,
-      motion: Spring.smooth(damping: 17),
+      motion: Spring.smooth(damping: 18),
       reverseMotion: Spring.iosDefault(),
       hideTriggerOnTransition: true,
       triggerBuilder: (_, showModal) {
@@ -44,6 +44,7 @@ class SlackStyleFab extends StatelessWidget {
       builder: (context, rect) {
         return Card(
           margin: .zero,
+          clipBehavior: .hardEdge,
           color: theme.colorScheme.surfaceContainer,
           elevation: 0,
           shape: RoundedSuperellipseBorder(
@@ -90,30 +91,26 @@ class SlackStyleFab extends StatelessWidget {
                       subtitle: Text('Start an audio or video chat', style: theme.textTheme.bodySmall),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: theme.colorScheme.onPrimary,
-                      minimumSize: .zero,
+                  Actor(
+                    act: .sizedBox(
+                      width: .tween(from: rect.width, to: .infinity),
+                      height: .tween(from: rect.height, to: 44),
+                      alignment: .bottomEnd,
                     ),
-                    child: Actor(
-                      act: .sizedBox(
-                        width: .tween(from: rect.width, to: .infinity),
-                        height: .tween(from: rect.height, to: 44),
-                        alignment: .bottomEnd,
+                    child: TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        backgroundColor: theme.colorScheme.primary,
+                        foregroundColor: theme.colorScheme.onPrimary,
+                        minimumSize: .zero,
                       ),
                       child: Row(
                         mainAxisSize: .min,
                         mainAxisAlignment: .center,
                         children: [
                           Actor(
-                            act: .compose([
-                              .focus(),
-                              .fadeIn(),
-                              .clipWidth(),
-                            ]),
+                            act: .compose([.focus(), .fadeIn(), .clipWidth()]),
                             child: Row(
                               mainAxisSize: .min,
                               mainAxisAlignment: .center,
@@ -132,6 +129,7 @@ class SlackStyleFab extends StatelessWidget {
                                 .slideX(to: -2, from: 0),
                                 .rotate(to: 90),
                               ],
+                              delay: 100.ms,
                             ),
                             child: Icon(Icons.add, size: 24),
                           ),
@@ -213,5 +211,3 @@ class _LongPressContent extends StatelessWidget {
     );
   }
 }
-
- 

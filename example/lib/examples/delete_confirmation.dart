@@ -12,7 +12,7 @@ class DeleteConfirmationDialog extends StatelessWidget {
       alignment: Alignment.bottomRight,
       barrierColor: Colors.transparent,
       hideTriggerOnTransition: true,
-      motion: Spring.bouncy(damping: 19),
+      motion: Spring.wobbly(damping: 19),
       triggerBuilder: (context, open) => FloatingActionButton(
         onPressed: open,
         backgroundColor: theme.colorScheme.surface,
@@ -23,16 +23,16 @@ class DeleteConfirmationDialog extends StatelessWidget {
       ),
       builder: (context, rect) {
         return Actor(
-          act: .translate(from: Offset(-28, -28)),
+          act: .translate(to: Offset(-28, -28)),
           child: Material(
             clipBehavior: .hardEdge,
             borderRadius: BorderRadius.circular(32),
             color: theme.colorScheme.surface,
-            elevation: 1,
+            elevation: 2,
             shadowColor: Colors.black.withValues(alpha: .3),
             child: Actor(
               act: .compose([
-                .sizedClip(from: .size(rect.size), to: .width(220)),
+                .sizedClip(from: .size(rect.size), to: .width(220), alignment: .bottomRight),
                 .slideY(from: 0.4),
               ]),
               child: Column(
@@ -46,6 +46,7 @@ class DeleteConfirmationDialog extends StatelessWidget {
                       Actor(
                         act: .compose([
                           .fadeIn(),
+                          .zoomIn(from: .5),
                           .blur(from: 10),
                         ]),
                         child: Padding(

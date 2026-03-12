@@ -2,7 +2,7 @@ part of 'base/act.dart';
 
 abstract class TranslateAct extends Act {
   const factory TranslateAct({
-    required Offset from,
+     Offset from,
     Offset to,
     CueMotion? motion,
     ReverseBehavior<Offset> reverse,
@@ -63,7 +63,7 @@ abstract class TranslateAct extends Act {
 
 class _TranslateOffset extends TweenAct<Offset> implements TranslateAct {
   const _TranslateOffset({
-    required super.from,
+     super.from = Offset.zero,
     super.to = Offset.zero,
     super.motion,
     super.reverse,

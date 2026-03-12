@@ -62,8 +62,8 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // SlackStyleFab(),
-              DeleteConfirmationDialog(),
+              SlackStyleFab(),
+              // DeleteConfirmationDialog(),
           
               SizedBox(
                 height: 100,

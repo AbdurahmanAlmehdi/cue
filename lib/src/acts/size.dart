@@ -7,6 +7,7 @@ class SizeAct extends DeferredTweenAct<Size> {
 
   const SizeAct({
     super.motion,
+    super.delay,
     this.width,
     this.height,
     this.alignment = Alignment.center,
