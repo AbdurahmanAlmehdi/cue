@@ -18,6 +18,7 @@ class CueAnimationController extends AnimationController {
 
   @override
   double get upperBound {
+  
     return _motion.isSimulation ? double.infinity : _upperBound;
   }
 

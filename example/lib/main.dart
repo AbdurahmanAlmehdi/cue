@@ -66,35 +66,27 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                 toggled: checked,
                 motion: .curved(500.ms, curve: Curves.elasticOut),
 
-                // reverseMotion: Spring.smooth(),
+                // reverseMotion: Spring.linear(300.ms),
                 child: Column(
                   children: [
                     Actor(
-                      // act: SizedBoxAct.keyframes([
-                      //   .key(Size(100, .infinity), motion: .smooth()),
-                      //   .key(Size(50, .infinity), motion: .linear(300.ms)),
-                      //   .key(Size(150, .infinity), motion: .bouncy()),
+                      act: SizedBoxAct.keyframes([
+                        .key(Size(100, 100), motion: .linear(300.ms)),
+                        .key(Size(50, 50), motion: .linear(300.ms)),
+                        .key(Size(150, 150), motion: .linear(300.ms)),
+                      ]),
+                      // act: SlideAct.fractionalKeyframes([
+                      //   .key(Offset(0, 0), at: 0.0),
+                      //   .key(Offset(1, .2), at: 0.5, curve: Curves.elasticOut),
+                      //   .key(Offset(2, 0), at: 1.0),
                       // ]),
-                      act: SlideAct.fractionalKeyframes([
-                        .key(Offset(0, 0), at: 0.0),
-                        .key(Offset(1, .2), at: 0.5, curve: Curves.elasticOut),
-                        .key(Offset(2, 0), at: 1.0),
-                      ],reverse: .keyframes([
-                        .key(Offset(2, 0), motion: .bouncy()),
-                        .key(Offset(1, .2), motion: .bouncy()),
-                        .key(Offset(0, 0), motion: .bouncy()),
-                      ])),
                       // act: SlideAct.keyframes([
                       //   .key(Offset(-1, 0), motion: .wobbly()),
                       //   .key(Offset(0, 0), motion: .wobbly()),
                       //   .key(Offset(1, 0), motion: .wobbly()),
                       // .key(Offset(2, 0), motion: .wobbly()),
                       // ]),
-                      child: SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: ColoredBox(color: Colors.blue),
-                      ),
+                      child: ColoredBox(color: Colors.blue),
                     ),
                     // Actor(
                     //   act: .slide(

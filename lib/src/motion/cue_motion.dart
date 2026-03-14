@@ -147,7 +147,10 @@ class CurvedSimulation extends Simulation with CueSimulation {
   }
 
   @override
-  double dx(double t) => 0.0;
+  double dx(double t) {
+    final double epsilon = tolerance.time;
+    return (x(t + epsilon) - x(t - epsilon)) / (2 * epsilon);
+  }
 
   @override
   bool isDone(double t) => t >= _durationSeconds;
@@ -174,7 +177,7 @@ final class LinearSimulationMotion extends SimulationMotion<LinearSimulation> {
   LinearSimulation build(bool forward, int phase, double progress, double? velocity) {
     return LinearSimulation();
   }
-  
+
   @override
   Duration get duration => Duration.zero;
 }
@@ -188,7 +191,7 @@ class LinearSimulation extends Simulation with CueSimulation {
   double get progress => _progress;
 
   @override
-  double dx(double time) => time;
+  double dx(double time) => 0.0;
 
   @override
   bool isDone(double time) => false;
@@ -228,9 +231,9 @@ class SegmentedMotion extends CueMotion {
       initialVelocity: velocity ?? 0.0,
     );
   }
-  
+
   @override
-  Duration get duration => motions.fold(Duration.zero, (acc,a)=> acc + a.duration);
+  Duration get duration => motions.fold(Duration.zero, (acc, a) => acc + a.duration);
 }
 
 class SegmentedSimulation extends Simulation with CueSimulation {
@@ -290,7 +293,7 @@ class SegmentedSimulation extends Simulation with CueSimulation {
     final localTime = time - _phaseStartTime;
     final canAdvance = _forward ? _phase < _motions.length - 1 : _phase > 0;
     if (canAdvance && _current.isDone(localTime)) {
-       double exitVelocity = _current.dx((localTime - 0.016).clamp(0.0, double.infinity));
+      double exitVelocity = _current.dx((localTime - 0.016).clamp(0.0, double.infinity));
       // Negate velocity when reversing
       if (!_forward) {
         exitVelocity = -exitVelocity;
