@@ -211,7 +211,7 @@ class _ModalRoute<T extends Object> extends RawDialogRoute<T> {
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
     return Cue(
-      timeline: (controller as CueAnimationController).timline,
+      timeline: (controller as CueAnimationController).timeline,
       child: super.buildPage(context, animation, secondaryAnimation),
     );
   }

@@ -386,7 +386,6 @@ class ActContext {
   ActContext copyWith({
     CueMotion? motion,
     CueMotion? reverseMotion,
-    bool? isBounded,
     TextDirection? textDirection,
     Object? implicitFrom,
     Duration? delay,

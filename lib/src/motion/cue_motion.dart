@@ -162,11 +162,11 @@ class CurvedSimulation extends Simulation with CueSimulation {
   bool isDone(double t) => t >= _durationSeconds;
 }
 
-abstract  class SimulationMotion<S extends CueSimulation> extends CueMotion {
+abstract class SimulationMotion<S extends CueSimulation> extends CueMotion {
   const SimulationMotion();
 }
 
- class LinearSimulationMotion extends SimulationMotion<LinearSimulation> {
+class LinearSimulationMotion extends SimulationMotion<LinearSimulation> {
   const LinearSimulationMotion();
 
   @override
@@ -181,7 +181,7 @@ abstract  class SimulationMotion<S extends CueSimulation> extends CueMotion {
 
   @override
   LinearSimulation build(bool forward, int phase, double progress, double? velocity) {
-    return LinearSimulation();
+    return LinearSimulation(progress, forward: forward);
   }
 
   @override
@@ -189,21 +189,30 @@ abstract  class SimulationMotion<S extends CueSimulation> extends CueMotion {
 }
 
 class LinearSimulation extends Simulation with CueSimulation {
-  LinearSimulation();
-
+  LinearSimulation(this.initialProgress, {required this.forward}) : _progress = initialProgress;
+  final bool forward;
+  final double initialProgress;
   double _progress = 0.0;
 
   @override
   double get progress => _progress;
 
   @override
-  double dx(double time) => 0.0;
+  double dx(double time) => forward ? 1.0 : -1.0;
 
   @override
-  bool isDone(double time) => false;
+  bool isDone(double time) {
+    final remaining = forward ? 1.0 - initialProgress : initialProgress;
+    return time >= remaining;
+  }
 
   @override
-  double x(double time) => _progress = time;
+  double x(double time) {
+    final next = forward ? initialProgress + time : initialProgress - time;
+    return _progress = next;
+  }
+
+  
 }
 
 extension DurationExtension on int {
@@ -315,7 +324,6 @@ class SegmentedSimulation extends Simulation with CueSimulation {
   }
 }
 
-
 class BakedMotion extends CueMotion {
   final List<double> samples;
   final double durationSeconds;
@@ -330,6 +338,8 @@ class BakedMotion extends CueMotion {
   });
 
   static double _defaultValueGetter(double progress, List<double> samples) {
+
+  
     final scaled = progress * (samples.length - 1);
     final lo = samples[scaled.floor()];
     final hi = samples[scaled.ceil()];

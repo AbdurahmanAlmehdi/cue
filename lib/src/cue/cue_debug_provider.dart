@@ -1,3 +1,4 @@
+import 'package:cue/src/motion/cue_animation_controller.dart';
 import 'package:cue/src/motion/timeline.dart';
 import 'package:flutter/material.dart';
 
@@ -13,9 +14,9 @@ class CueDebugTools extends StatefulWidget {
     return context.findAncestorWidgetOfExactType<CueDebugTools>() != null;
   }
 
-  static VoidCallback? attachDebugTarget(BuildContext context, {required String id}) {
+  static VoidCallback? attachDebugTarget(BuildContext context, {required String id, required CueAnimationDriver driver}) {
     final provider = context.findAncestorStateOfType<_CueDebugToolsState>();
-    return provider?.attachDebugTarget(context, id: id);
+    return provider?.attachDebugTarget(context, id: id, driver: driver);
   }
 
   static DebugDataProvider of(BuildContext context) {
@@ -32,9 +33,8 @@ class CueDebugTools extends StatefulWidget {
 }
 
 class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+  late final CueSeekableAnimationController _controller;
 
-  late final _timeline = CueProgressTimeline(0.0);
   final _overlayData = ValueNotifier<_OverlayData>(
     _OverlayData(
       speedMultiplier: 1,
@@ -50,15 +50,7 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      lowerBound: 0.0,
-      upperBound: 1.0,
-      duration: const Duration(milliseconds: 500),
-    );
-    _controller.addListener(() {
-      _timeline.seek(_controller.value, status: AnimationStatus.forward);
-    });
+    _controller = CueSeekableAnimationController(vsync: this);
   }
 
   void _startAutoPlay() {
@@ -76,15 +68,17 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
   VoidCallback attachDebugTarget(
     BuildContext context, {
     required String id,
+    required CueAnimationDriver driver,
   }) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _overlayData.value = _overlayData.value.copyWith(activeTargetId: id);
+      _controller.timeline.updateMainDriver(driver);
     });
 
     void deattachCallback() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _controller.value = 0;
-        _overlayData.value = _overlayData.value.copyWith(activeTargetId: '');
+        _controller.seek(0);
+        _overlayData.value = _overlayData.value.copyWith(activeTargetId: '', isMinimized: true);
       });
     }
 
@@ -122,7 +116,7 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
       builder: (context, _) {
         return DebugDataProvider(
           activeTargetId: _overlayData.value.activeTargetId,
-          timeline: _timeline,
+          timeline: _controller.timeline,
           isMinimized: _overlayData.value.isMinimized,
           child: widget.child,
         );
@@ -141,7 +135,7 @@ class _DebugOverlay extends StatefulWidget {
 
   final ValueNotifier<_OverlayData> overlayData;
 
-  final AnimationController controller;
+  final CueSeekableAnimationController controller;
   final VoidCallback onPlay;
   final Duration baseDuration;
 
@@ -150,8 +144,7 @@ class _DebugOverlay extends StatefulWidget {
 }
 
 class _DebugOverlayState extends State<_DebugOverlay> {
-  AnimationController get _controller => widget.controller;
-
+  CueSeekableAnimationController get _controller => widget.controller;
   ValueNotifier<_OverlayData> get _dataNotifier => widget.overlayData;
 
   _OverlayData get _data => widget.overlayData.value;
@@ -168,7 +161,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
     if (_controller.isAnimating) {
       _controller.stop();
     }
-    _controller.value = value;
+    _controller.seek(value);
   }
 
   void _toggleLoop() {
@@ -246,7 +239,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                             duration: const Duration(milliseconds: 200),
                             alignment: .topLeft,
                             child: ListenableBuilder(
-                              listenable: widget.controller,
+                              listenable: _controller ,
                               builder: (context, _) {
                                 if (_data.isMinimized) {
                                   return IconButton(
@@ -256,9 +249,11 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                       minimumSize: .square(40),
                                     ),
                                     icon: Icon(Icons.play_circle),
-                                    onPressed: () {
-                                      _dataNotifier.value = _data.copyWith(isMinimized: false);
-                                    },
+                                    onPressed: _data.activeTargetId != null && _data.activeTargetId!.isNotEmpty
+                                        ? () {
+                                            _dataNotifier.value = _data.copyWith(isMinimized: false);
+                                          }
+                                        : null,
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                   );
@@ -397,12 +392,12 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                           ),
                                           child: Slider(
                                             padding: EdgeInsets.zero,
-                                            value: widget.controller.value,
+                                            value: widget.controller.value.clamp(0.0, 1.0),
                                             activeColor: Colors.transparent,
                                             thumbColor: theme.colorScheme.primary,
                                             overlayColor: WidgetStatePropertyAll(Colors.transparent),
                                             onChanged: _onSliderChanged,
-                                          ),
+                                          )
                                         ),
                                       ),
                                     ],
@@ -634,7 +629,7 @@ class DebugDataProvider extends InheritedWidget {
     required super.child,
   });
 
-  final CueProgressTimeline timeline;
+  final CueSeekableTimeline timeline;
   final bool isMinimized;
   final String? activeTargetId;
 

@@ -54,10 +54,7 @@ abstract class SelfAnimatedState<T extends SelfAnimatedCue> extends _CueState<T>
   CueMotion get motion => widget.motion;
 
   @override
-  bool get isBounded => !controller.usesSimulation;
-
-  @override
-  CueTimeline get timeline => controller.timline;
+  CueTimeline get timeline => controller.timeline;
 
   @override
   void initState() {

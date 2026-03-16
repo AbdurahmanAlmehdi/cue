@@ -22,7 +22,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
   @override
   CueTimeline get timeline => _progressAnimation;
 
-  late final _progressAnimation = CueProgressTimeline(1.0, status: AnimationStatus.completed);
+  late final _progressAnimation = CueSeekableTimeline(1.0, status: AnimationStatus.completed);
 
   @override
   bool get isBounded => true;

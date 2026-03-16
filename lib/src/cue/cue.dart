@@ -127,8 +127,6 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
 
   VoidCallback? _deattachDebugOverlay;
 
-  bool get isBounded;
-
   EventNotifier<bool>? get willReanimateNotifier => null;
 
   bool get reanimateFromCurrent => false;
@@ -146,7 +144,8 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
         timeline.addOnPrepareListener((forward) {
           if (forward) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _deattachDebugOverlay = CueDebugTools.attachDebugTarget(context, id: _debugId);
+             
+              _deattachDebugOverlay = CueDebugTools.attachDebugTarget(context, id: _debugId, driver: timeline.mainDriver);
             });
           }
         });
@@ -175,14 +174,12 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
           reanimateFromCurrent: reanimateFromCurrent,
           timeline: useDebugAnimation ? debugToolsScope.timeline : timeline,
           willReanimateNotifier: willReanimateNotifier,
-          isBounded: isBounded,
           child: child,
         );
       }
     }
     return CueScope(
       timeline: timeline,
-      isBounded: isBounded,
       willReanimateNotifier: willReanimateNotifier,
       reanimateFromCurrent: reanimateFromCurrent,
       child: child,

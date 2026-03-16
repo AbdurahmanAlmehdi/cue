@@ -18,7 +18,7 @@ class _IndexedCue extends Cue {
 }
 
 class _IndexedCueState extends _CueState<_IndexedCue> {
-  final _progressTimeline = CueProgressTimeline(0.0);
+  final _progressTimeline = CueSeekableTimeline(0.0);
 
   @override
   String get debugName => 'IndexedCue';

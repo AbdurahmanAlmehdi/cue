@@ -2,59 +2,69 @@ import 'package:cue/src/motion/cue_motion.dart';
 import 'package:cue/src/motion/timeline.dart';
 import 'package:flutter/material.dart';
 
-
-
-
-class CueAnimationController extends AnimationController {
-  CueMotion _motion;
-  CueMotion? _reverseMotion;
-  final double _lowerBound;
-  final double _upperBound;
-  final CuePlaybackTimeline _timline;
-
-  CueTimeline get timline => _timline;
-
-  @override
-  double get lowerBound {
-    return _motion.isSimulation ? double.negativeInfinity : _lowerBound;
-  }
-
-  @override
-  double get upperBound {
-    return _motion.isSimulation ? double.infinity : _upperBound;
-  }
-
-  set motion(CueMotion newValue) {
-    if (_motion != newValue) {
-      _motion = newValue;
-      if (newValue is TimedMotion) {
-        // duration = newValue.duration;
-        // reverseDuration = newValue.reverseDuration;
-      }
-    }
-  }
-
+class CueAnimationController extends CueAnimationControllerBase<CuePlaybackTimeline> {
   CueAnimationController({
     required CueMotion motion,
     CueMotion? reverseMotion,
-    super.debugLabel,
-    super.value = 0.0,
-    double lowerBound = 0.0,
-    double upperBound = 1.0,
-    super.animationBehavior,
     required super.vsync,
-  }) : _motion = motion,
-       _reverseMotion = reverseMotion,
-       _lowerBound = lowerBound,
-       _upperBound = upperBound,
-       _timline = CuePlaybackTimeline(
-         CuePlaypackDriver(
-           motion,
-           reverseMotion: reverseMotion,
+    super.debugLabel,
+  }) : super(
+         timeline: CuePlaybackTimeline(
+           CuePlaypackDriver(
+             motion,
+             reverseMotion: reverseMotion,
+           ),
          ),
        );
 
-  bool get usesSimulation => _motion.isSimulation;
+  CueMotion get motion => timeline.mainDriver.motion;
+
+  set motion(CueMotion newMotion) {
+    // (timeline.mainDriver).motion = newMotion;
+  }
+}
+
+class CueSeekableAnimationController extends CueAnimationControllerBase<CueSeekableTimeline> {
+  CueSeekableAnimationController({
+    super.debugLabel,
+    required super.vsync,
+    double initialProgress = 0.0,
+    AnimationStatus status = AnimationStatus.forward,
+  }) : super(timeline: CueSeekableTimeline(initialProgress, status: status));
+  
+
+
+  void seek(double progress, {AnimationStatus status = AnimationStatus.forward}) {
+    timeline.seek(progress, status: status);
+    value = progress;
+  }
+
+  @override
+  TickerFuture forward({double? from}) {
+    final progress = from ?? timeline.progress;
+    return super.forward(from: progress);
+  }
+
+  @override
+  TickerFuture reverse({double? from}) {
+    final progress = from ?? timeline.progress;
+    return super.reverse(from: progress);
+  }
+}
+
+abstract class CueAnimationControllerBase<Timeline extends CueTimeline> extends AnimationController {
+  final Timeline _timeline;
+
+  Timeline get timeline => _timeline;
+
+  CueAnimationControllerBase({
+    super.debugLabel,
+    super.value = 0.0,
+    super.animationBehavior,
+    required super.vsync,
+    required Timeline timeline,
+  }) : _timeline = timeline,
+       super.unbounded();
 
   AnimationStatusListener? _statusListener;
 
@@ -67,22 +77,30 @@ class CueAnimationController extends AnimationController {
   }
 
   @override
-  Animation<double> get view => _timline.mainDriver;
+  Animation<double> get view => _timeline.mainDriver;
 
   @override
   TickerFuture forward({double? from}) {
     if (from != null) {
+      assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0.');
       value = from;
     }
-    _timline.prepare(forward: true);
-    return super.animateWith(_timline);
+    _timeline.prepare(forward: true, from: from);
+    return super.animateWith(_timeline);
+  }
+
+  @override
+  TickerFuture reverse({double? from}) {
+    if (from != null) {
+      assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0.');
+      value = from;
+    }
+    _timeline.prepare(forward: false, from: from);
+    return super.animateBackWith(_timeline);
   }
 
   @override
   TickerFuture animateWith(Simulation simulation) {
-    // assert(simulation is ProgressTimeline, 'Only ProgressTimeline is supported by CueAnimationController.animateWith');
-    // (simulation as ProgressTimeline).prepare(forward: true);
-    // super.animateWith(simulation);
     throw UnsupportedError('animateWith is not supported by CueAnimationController. Use forward instead.');
   }
 
@@ -92,17 +110,8 @@ class CueAnimationController extends AnimationController {
   }
 
   @override
-  TickerFuture reverse({double? from}) {
-    if (from != null) {
-      value = from;
-    }
-    _timline.prepare(forward: false);
-    return super.animateBackWith(_timline);
-  }
-
-  @override
   void reset() {
-    value = _lowerBound;
+    value = 0.0;
   }
 
   @override

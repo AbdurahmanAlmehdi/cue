@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 abstract class CueTimeline<Driver extends CueAnimationDriver> extends Simulation {
   CueAnimationDriver driverFor(DriverConfig config);
-  void prepare({required bool forward});
+  void prepare({required bool forward, double? from});
   void release(Driver anim);
 
   final Map<DriverConfig, Driver> drivers;
@@ -36,6 +36,8 @@ abstract class CuePlaybackTimelineBase<Driver extends CueAnimationDriver> extend
 
   double _lastT = 0.0;
 
+  double get elapsedSeconds => _lastT;
+
   @override
   Driver get mainDriver => drivers.values.first;
 
@@ -47,7 +49,8 @@ abstract class CuePlaybackTimelineBase<Driver extends CueAnimationDriver> extend
     if (mainDriver.isAnimating) {
       animation.prepare(
         forward: mainDriver.isForwardOrCompleted,
-        velocity: mainDriver.velocity,
+        from: mainDriver.value.clamp(0, 1),
+        exteranlVelocity: mainDriver.velocity,
       );
       _onPrapaerNotifier.fireEvent(mainDriver.isForwardOrCompleted);
     }
@@ -58,11 +61,11 @@ abstract class CuePlaybackTimelineBase<Driver extends CueAnimationDriver> extend
   void release(Driver anim) {}
 
   @override
-  void prepare({required bool forward}) {
+  void prepare({required bool forward, double? from}) {
     _onPrapaerNotifier.fireEvent(forward);
     _lastT = 0.0;
     for (final anim in drivers.values) {
-      anim.prepare(forward: forward);
+      anim.prepare(forward: forward, from: from);
     }
   }
 
@@ -72,7 +75,7 @@ abstract class CuePlaybackTimelineBase<Driver extends CueAnimationDriver> extend
     _lastT = time;
     if (dt > 0) {
       for (final anim in drivers.values) {
-        anim.advance(dt);
+        anim.tick(dt);
       }
     }
     return mainDriver.value;
@@ -89,14 +92,14 @@ abstract class CuePlaybackTimelineBase<Driver extends CueAnimationDriver> extend
 }
 
 abstract class CueAnimationDriver extends Animation<double> with AnimationLocalStatusListenersMixin {
-  void prepare({required bool forward, double? velocity});
+  void prepare({required bool forward, double? from, double? exteranlVelocity});
 
   CueMotion get motion;
   CueMotion? get reverseMotion;
   Duration get delay;
   Duration get reverseDelay;
 
-  void advance(double progress);
+  void tick(double progress);
 
   bool get isDone;
 
@@ -128,15 +131,28 @@ class CuePlaybackTimeline extends CuePlaybackTimelineBase<CuePlaypackDriver> {
   }
 }
 
-class CueProgressTimeline extends CuePlaybackTimelineBase<CueSeekableAnimationsDriver> {
-  CueProgressTimeline(double initialProgress, {AnimationStatus status = AnimationStatus.forward})
+class CueSeekableTimeline extends CuePlaybackTimelineBase<CueSeekableAnimationsDriver> {
+  CueSeekableTimeline(double initialProgress, {AnimationStatus status = AnimationStatus.forward})
     : super(
         CueSeekableAnimationsDriver(
-          LinearSimulationMotion(),
+          .linear(.zero),
           delay: Duration.zero,
           reverseDelay: Duration.zero,
         )..seek(initialProgress, status: status),
       );
+
+  Duration get totalDuration {
+    Duration maxDuration = Duration.zero;
+    for (final animation in drivers.values) {
+      final duration = Duration(
+        microseconds: (animation.motion.durationSeconds * Duration.microsecondsPerSecond).round(),
+      );
+      if (duration > maxDuration) {
+        maxDuration = duration;
+      }
+    }
+    return maxDuration;
+  }
 
   @override
   CueSeekableAnimationsDriver buildDriver(DriverConfig config) {
@@ -145,7 +161,7 @@ class CueProgressTimeline extends CuePlaybackTimelineBase<CueSeekableAnimationsD
       reverseMotion: config.reverseMotion,
       delay: config.delay ?? Duration.zero,
       reverseDelay: config.reverseDelay ?? Duration.zero,
-    )..seek(mainDriver.value, status: mainDriver.status);
+    );
   }
 
   double get progress => _progress;
@@ -158,115 +174,19 @@ class CueProgressTimeline extends CuePlaybackTimelineBase<CueSeekableAnimationsD
       driver.seek(progress, status: status);
     }
   }
+
+  void updateMainDriver(CueAnimationDriver driver) {
+    print('updating main driver with motion: ${driver.motion}');
+    final config = DriverConfig(
+      motion: driver.motion,
+      reverseMotion: driver.reverseMotion,
+      delay: driver.delay,
+      reverseDelay: driver.reverseDelay,
+    );
+    drivers.clear();
+    drivers[config] =  buildDriver(config);
+  }
 }
-
-// class ProgressTimeline extends CueAnimationDriver with AnimationLocalListenersMixin implements CueTimeline {
-//   double _value;
-//   AnimationStatus _status;
-
-//   final ValueChanged<ProgressTimeline>? onUpdate;
-
-//   @override
-//   void addOnPrepareListener(ValueChanged<bool> listener) {
-//     _willAnimateNotifer.addEventListener(listener);
-//   }
-
-//   final _willAnimateNotifer = EventNotifier<bool>();
-
-//   ProgressTimeline(
-//     this._value, {
-//     AnimationStatus status = AnimationStatus.completed,
-//     this.onUpdate,
-//   }) : _status = status;
-
-//   final Map<DriverConfig, CueSeekableAnimationsDriver> _animations = {};
-
-//   final _mainConfig = const DriverConfig(motion: LinearSimulationMotion());
-
-//   Duration get totalDuration {
-//     Duration maxDuration = _mainConfig.motion.duration;
-//     for (final animation in _animations.values) {
-//       final duration = Duration(
-//         microseconds: (animation.motion.durationSeconds * Duration.microsecondsPerSecond).round(),
-//       );
-//       if (duration > maxDuration) {
-//         maxDuration = duration;
-//       }
-//     }
-//     return maxDuration;
-//   }
-
-//   @override
-//   CueAnimationDriver driverFor(DriverConfig config) {
-//     final key = config.copyWith(
-//       reverseMotion: config.reverseMotion ?? _mainConfig.motion,
-//       // ignore delay for progress-based animations since the progress itself determines the timing
-//       // delay: .zero,
-//       // reverseDelay: .zero,
-//     );
-//     if (key == _mainConfig) {
-//       return this;
-//     }
-//     final animation = _animations.putIfAbsent(
-//       key,
-//       () => CueSeekableAnimationsDriver(
-//         key.motion,
-//         reverseMotion: key.reverseMotion,
-//         delay: key.delay ?? Duration.zero,
-//         reverseDelay: key.reverseDelay ?? Duration.zero,
-//       ),
-//     );
-//     onUpdate?.call(this);
-//     return animation;
-//   }
-
-//   @override
-//   double get value => _value;
-
-//   @override
-//   void prepare({required bool forward, double? velocity}) {
-//     _willAnimateNotifer.fireEvent(forward);
-//     // no-op
-//   }
-
-//   @override
-//   void release(CueAnimationDriver anim) {
-//     // TODO: implement release
-//   }
-
-//   @override
-//   AnimationStatus get status => _status;
-
-//   @override
-//   void advance(double value, {AnimationStatus status = AnimationStatus.forward}) {
-//     final valueChanged = _value != value;
-//     final statusChanged = _status != status;
-
-//     if (!valueChanged && !statusChanged) return;
-//     _value = value;
-//     _status = status;
-
-//     if (statusChanged) notifyStatusListeners(status);
-//     if (valueChanged) {
-//       for (final anim in _animations.values) {
-//         anim.advance(value, status: status);
-//       }
-//       notifyListeners();
-//     }
-//   }
-
-//   @override
-//   bool get isDone => _status.isCompleted || _status.isDismissed;
-
-//   @override
-//   double get velocity => 0.0;
-
-//   @override
-//   int get phase => 0;
-
-//   @override
-//   CueMotion get mainMotion => _mainConfig.motion;
-// }
 
 class CuePlaypackDriver<Motion extends CueMotion> extends CueAnimationDriver with AnimationLocalListenersMixin {
   @override
@@ -309,7 +229,7 @@ class CuePlaypackDriver<Motion extends CueMotion> extends CueAnimationDriver wit
   bool _forward = true;
 
   @override
-  void prepare({required bool forward, double? velocity}) {
+  void prepare({required bool forward, double? from, double? exteranlVelocity}) {
     if (forward && reverseType.isExclusive) {
       // this drive should only drive reverse animation
       _done = true;
@@ -325,7 +245,7 @@ class CuePlaypackDriver<Motion extends CueMotion> extends CueAnimationDriver wit
     final active = forward ? motion : (reverseMotion ?? motion);
 
     int phase = _sim?.phase ?? 0;
-    double progress = _sim?.progress ?? _value;
+    double progress = from ?? _sim?.progress ?? _value;
 
     if (reverseType.isExclusive) {
       _value = 1.0;
@@ -336,7 +256,7 @@ class CuePlaypackDriver<Motion extends CueMotion> extends CueAnimationDriver wit
       progress = 0.0;
       phase = 0;
     }
-    _sim = active.build(forward, phase, progress, velocity ?? this.velocity);
+    _sim = active.build(forward, phase, progress, exteranlVelocity ?? this.velocity);
     _delaySeconds = (forward ? delay : (reverseDelay)).inMicroseconds / Duration.microsecondsPerSecond;
     _localT = 0.0;
     _done = false;
@@ -344,7 +264,7 @@ class CuePlaypackDriver<Motion extends CueMotion> extends CueAnimationDriver wit
   }
 
   @override
-  void advance(double progress) {
+  void tick(double progress) {
     if (_done || _sim == null) return;
     _localT += progress;
     final t = _localT - _delaySeconds;
@@ -401,58 +321,6 @@ class CueSeekableAnimationsDriver extends CuePlaypackDriver<BakedMotion> {
     notifyListeners();
   }
 }
-
-// class CueSeekableAnimationsDriverx extends CueAnimationDriver with AnimationLocalListenersMixin {
-//   final BakedMotion motion;
-//   final BakedMotion? reverseMotion;
-//   final Duration delay;
-//   final Duration reverseDelay;
-
-//   double _value = 0.0;
-
-//   CueSeekableAnimationsDriver(
-//     CueMotion motion, {
-//     CueMotion? reverseMotion,
-//     this.delay = Duration.zero,
-//     this.reverseDelay = Duration.zero,
-//   }) : motion = motion.bake(),
-//        reverseMotion = reverseMotion?.bake();
-
-//   @override
-//   double get value => _value;
-
-//   AnimationStatus _status = AnimationStatus.completed;
-
-//   @override
-//   AnimationStatus get status => _status;
-
-//   @override
-//   void prepare({required bool forward, double? velocity}) {
-//     // no-op we're using pre-baked values
-//   }
-
-//   @override
-//   void advance(double progress, {AnimationStatus status = AnimationStatus.forward}) {
-//     final activeMotion = _status.isForwardOrCompleted ? motion : (reverseMotion ?? motion);
-//     final value = activeMotion.valueAt(progress);
-//     final valueChanged = _value != value;
-//     final statusChanged = _status != status;
-//     if (!valueChanged && !statusChanged) return;
-//     _value = value;
-//     _status = status;
-//     if (statusChanged) notifyStatusListeners(status);
-//     notifyListeners();
-//   }
-
-//   @override
-//   bool get isDone => false;
-
-//   @override
-//   double get velocity => 0.0;
-
-//   @override
-//   int get phase => 0;
-// }
 
 class DriverConfig {
   final CueMotion motion;

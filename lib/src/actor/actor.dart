@@ -62,7 +62,6 @@ class ActorState extends State<Actor> {
           scope.timeline,
           actContext.copyWith(
             textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
-            isBounded: scope.isBounded,
             implicitFrom: implicitFrom,
           ),
         );

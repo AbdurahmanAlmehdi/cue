@@ -58,49 +58,43 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
+            // crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               // ExpandingCards(),
               SlackStyleFab(),
-              DeleteConfirmationDialog(),
-              HorizontallyExpandingCards(),
-              if(false)
-              Cue.onMount(
-                // toggled: checked,
+              // DeleteConfirmationDialog(),
+              // HorizontallyExpandingCards(),
+              Cue.onToggle(
+                toggled: checked,
                 motion: .wobbly(),
                 child: Column(
                   children: [
                     Actor(
                       act: .compose([
-                        .slideX(to: 0, from: -1, delay: 100.ms),
+                        .slideX(to: 1, from: 0),
                       ]),
-                      child: Actor(
-                        act: .compose([
-                          // .slideX(to: 2, from: 1, reverse: .exclusive()),
-                        ]),
-                        // act: SlideAct.fractionalKeyframes([
-                        //   .key(Offset(0, 0), at: 0.0),
-                        //   .key(Offset(1, .2), at: 0.5, curve: Curves.elasticOut),
-                        //   .key(Offset(2, 0), at: 1.0),
-                        // ]),
-                        // act: SlideAct.keyframes([
-                        //   .key(Offset(-1, 0), motion: .wobbly()),
-                        //   .key(Offset(0, 0), motion: .wobbly()),
-                        //   .key(Offset(1, 0), motion: .wobbly()),
-                        // .key(Offset(2, 0), motion: .wobbly()),
-                        // ]),
-                        child: SizedBox(width: 100, height: 100, child: ColoredBox(color: Colors.blue)),
-                      ),
+                      // act: SlideAct.fractionalKeyframes([
+                      //   .key(Offset(0, 0), at: 0.0),
+                      //   .key(Offset(1, .2), at: 0.5, curve: Curves.elasticOut),
+                      //   .key(Offset(2, 0), at: 1.0),
+                      // ]),
+                      // act: SlideAct.keyframes([
+                      //   .key(Offset(-1, 0), motion: .wobbly()),
+                      //   .key(Offset(0, 0), motion: .wobbly()),
+                      //   .key(Offset(1, 0), motion: .wobbly()),
+                      // .key(Offset(2, 0), motion: .wobbly()),
+                      // ]),
+                      child: SizedBox(width: 100, height: 100, child: ColoredBox(color: Colors.blue)),
                     ),
-                    Actor(
-                      act: .slide(to: const Offset(2, 0)),
-                      child: SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: ColoredBox(color: Colors.yellow),
-                      ),
-                    ),
+                    // Actor(
+                    //   act: .slide(to: const Offset(2, 0)),
+                    //   child: SizedBox(
+                    //     width: 50,
+                    //     height: 50,
+                    //     child: ColoredBox(color: Colors.yellow),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
