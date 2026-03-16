@@ -51,9 +51,8 @@ class _IndicatorToButtonState extends State<IndicatorToButton> {
             },
           ),
         ),
-        for (final spring in [true, false])
           SizedBox(
-            height: 44,
+            height: 80,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -81,7 +80,6 @@ class _IndicatorToButtonState extends State<IndicatorToButton> {
                                   if (isLast) .zoomIn(),
                                   if (isLast) .slideX(from: -1),
                                 ],
-                                 motion: spring ? Spring.gentle() : null,
                               ),
                               child: isLast
                                   ? Padding(

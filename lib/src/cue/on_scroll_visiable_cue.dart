@@ -15,17 +15,18 @@ class _OnScrollVisibleCue extends Cue {
   State<StatefulWidget> createState() => _OnVisibleCueState();
 }
 
-class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
+class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTickerProviderStateMixin {
   @override
   String get debugName => 'OnScrollVisibleCue';
 
   @override
-  CueTimeline get timeline => _progressAnimation;
+  CueTimeline get timeline => _seekableController.timeline;
 
-  late final _progressAnimation = CueSeekableTimeline(1.0, status: AnimationStatus.completed);
-
-  @override
-  bool get isBounded => true;
+  late final _seekableController = CueSeekableAnimationController(
+    vsync: this,
+    initialProgress: 1.0,
+    status: AnimationStatus.completed,
+  );
 
   ScrollPosition? _scrollPosition;
   double? _cachedRevealedOffset;
@@ -35,6 +36,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
     super.didChangeDependencies();
     _cachedRevealedOffset = null;
     if (!widget.enabled) return;
+
     _subscribeToScrollPosition();
   }
 
@@ -43,7 +45,9 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
     if (position == null) {
       throw FlutterError('Cue.onScrollVisible must be used inside a scrollable widget');
     }
-    _trackViiblity();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _trackViiblity();
+    });
     if (_scrollPosition != position) {
       _scrollPosition?.removeListener(_trackViiblity);
       _scrollPosition = position;
@@ -56,7 +60,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
     super.didUpdateWidget(oldWidget);
     if (widget.enabled != oldWidget.enabled) {
       if (!widget.enabled) {
-        _progressAnimation.seek(1.0, status: AnimationStatus.completed);
+        _seekableController.seek(1.0, status: AnimationStatus.completed);
         _scrollPosition?.removeListener(_trackViiblity);
       } else {
         _subscribeToScrollPosition();
@@ -70,11 +74,12 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
     super.dispose();
   }
 
+  bool _fristFrame = true;
+
   AnimationStatus? _committedStatus;
-  void _trackViiblity() {
+  void _trackViiblity() async {
     final renderObject = context.findRenderObject();
     if (renderObject is! RenderBox) return;
-
     if (!renderObject.attached || _scrollPosition == null) return;
 
     final revealedOffset = _cachedRevealedOffset ??= RenderAbstractViewport.of(
@@ -98,33 +103,33 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
     final visibleFraction = itemExtent > 0 ? (visibleExtent / itemExtent) : 0.0;
 
     final scrollDirection = _scrollPosition!.userScrollDirection;
-    final isScrollingForward = scrollDirection == ScrollDirection.forward || scrollDirection == ScrollDirection.idle;
+    final isScrollingForward = scrollDirection == ScrollDirection.forward || (scrollDirection == ScrollDirection.idle) ;
 
-    AnimationStatus status = _progressAnimation.mainDriver.status;
+    AnimationStatus status = _seekableController.status;
 
     if (visibleFraction == 0.0 || visibleFraction == 1.0) {
       _committedStatus = null;
       status = AnimationStatus.completed;
     } else if (_committedStatus == null) {
       // First frame mid-transition — commit direction now
-      if (visibleFraction > _progressAnimation.progress) {
+      if (visibleFraction > _seekableController.value) {
         _committedStatus = isScrollingForward ? AnimationStatus.reverse : AnimationStatus.forward;
-      } else if (visibleFraction < _progressAnimation.progress) {
+      } else if (visibleFraction < _seekableController.value) {
         _committedStatus = isScrollingForward ? AnimationStatus.forward : AnimationStatus.reverse;
       }
-      status = _committedStatus ?? _progressAnimation.mainDriver.status;
+      status = _committedStatus ?? _seekableController.status;
     } else {
       status = _committedStatus!;
     }
-    _progressAnimation.seek(visibleFraction.clamp(0.0, 1.0), status: status);
-  }
+    final target = visibleFraction.clamp(0.0, 1.0);
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return AnimatedOpacity(
-  //     opacity: _fristFrame ? 1.0 : 0.0,
-  //     duration: const Duration(milliseconds: 100),
-  //     child: super.build(context),
-  //   );
-  // }
+    if(_fristFrame){
+       _fristFrame =false;
+       if(target != 0.0 && target != 1.0){
+        await _seekableController.forward(from: target);
+       }
+    }else{
+     _seekableController.seek(target, status: status);
+    }
+  }
 }

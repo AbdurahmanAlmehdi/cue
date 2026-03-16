@@ -6,7 +6,7 @@ import 'spring_motion.dart';
 abstract class CueMotion {
   const CueMotion();
 
-  BakedMotion bake({int samples = 60});
+  BakedMotion bake({int samples = 60, Duration delay = Duration.zero});
 
   Duration get duration;
 
@@ -92,11 +92,29 @@ class TimedMotion extends CueMotion {
   const TimedMotion.curved(this.duration, {required Curve this.curve});
 
   @override
-  BakedMotion bake({int samples = 60}) {
+  BakedMotion bake({int samples = 60, Duration delay = Duration.zero}) {
+    assert(samples >= 2, 'samples must be at least 2');
+    final motionSeconds = duration.inMicroseconds / Duration.microsecondsPerSecond;
+    final activeCurve = curve ?? Curves.linear;
+
+    final delaySamples = BakedMotion.backDelay(
+      totalSamples: samples,
+      motionSeconds: motionSeconds,
+      delay: delay,
+    );
+    final animCount = samples - delaySamples.length;
+
+    final animated = List<double>.generate(animCount, (i) {
+      final t = animCount == 1 ? 1.0 : i / (animCount - 1);
+      return activeCurve.transform(t);
+    });
+
+    final delaySeconds = delay.inMicroseconds / Duration.microsecondsPerSecond;
+
     return BakedMotion(
       motion: this,
-      samples: List.generate(samples, (i) => i / (samples - 1)),
-      durationSeconds: duration.inMicroseconds / Duration.microsecondsPerSecond,
+      samples: [...delaySamples, ...animated],
+      durationSeconds: motionSeconds + delaySeconds,
     );
   }
 
@@ -166,55 +184,6 @@ abstract class SimulationMotion<S extends CueSimulation> extends CueMotion {
   const SimulationMotion();
 }
 
-class LinearSimulationMotion extends SimulationMotion<LinearSimulation> {
-  const LinearSimulationMotion();
-
-  @override
-  BakedMotion bake({int samples = 60}) {
-    return BakedMotion(
-      motion: this,
-      samples: const [],
-      durationSeconds: 0.0,
-      valueGetter: (progress, _) => progress,
-    );
-  }
-
-  @override
-  LinearSimulation build(bool forward, int phase, double progress, double? velocity) {
-    return LinearSimulation(progress, forward: forward);
-  }
-
-  @override
-  Duration get duration => Duration.zero;
-}
-
-class LinearSimulation extends Simulation with CueSimulation {
-  LinearSimulation(this.initialProgress, {required this.forward}) : _progress = initialProgress;
-  final bool forward;
-  final double initialProgress;
-  double _progress = 0.0;
-
-  @override
-  double get progress => _progress;
-
-  @override
-  double dx(double time) => forward ? 1.0 : -1.0;
-
-  @override
-  bool isDone(double time) {
-    final remaining = forward ? 1.0 - initialProgress : initialProgress;
-    return time >= remaining;
-  }
-
-  @override
-  double x(double time) {
-    final next = forward ? initialProgress + time : initialProgress - time;
-    return _progress = next;
-  }
-
-  
-}
-
 extension DurationExtension on int {
   Duration get ms => Duration(milliseconds: this);
   Duration get sec => Duration(seconds: this);
@@ -229,13 +198,31 @@ class SegmentedMotion extends CueMotion {
   int get totalPhases => motions.length;
 
   @override
-  BakedMotion bake({int samples = 60}) {
+  BakedMotion bake({int samples = 60, Duration delay = Duration.zero}) {
+    assert(samples >= 2, 'samples must be at least 2');
     final segmentCount = motions.length;
     final samplesPerSegment = (samples / segmentCount).ceil();
+
+    final bakedSegments = motions.map((m) => m.bake(samples: samplesPerSegment)).toList();
+
+    final motionSamples = bakedSegments.expand((b) => b.samples).toList();
+    final motionSeconds = bakedSegments.fold<double>(
+      0.0,
+      (sum, b) => sum + b.durationSeconds,
+    );
+
+    final delaySamples = BakedMotion.backDelay(
+      totalSamples: motionSamples.length,
+      motionSeconds: motionSeconds,
+      delay: delay,
+    );
+
+    final delaySeconds = delay.inMicroseconds / Duration.microsecondsPerSecond;
+
     return BakedMotion(
       motion: this,
-      samples: motions.expand((s) => s.bake(samples: samplesPerSegment).samples).toList(),
-      durationSeconds: motions.fold(0.0, (sum, s) => sum + s.bake(samples: samplesPerSegment).durationSeconds),
+      samples: [...delaySamples, ...motionSamples],
+      durationSeconds: motionSeconds + delaySeconds,
     );
   }
 
@@ -337,9 +324,21 @@ class BakedMotion extends CueMotion {
     this.valueGetter = _defaultValueGetter,
   });
 
-  static double _defaultValueGetter(double progress, List<double> samples) {
+  static List<double> backDelay({
+    required int totalSamples,
+    required double motionSeconds,
+    required Duration delay,
+    double holdValue = 0.0,
+  }) {
+    final delaySeconds = delay.inMicroseconds / Duration.microsecondsPerSecond;
+    if (totalSamples < 2 || delaySeconds <= 0) return const [];
+    final totalSeconds = motionSeconds + delaySeconds;
+    if (totalSeconds <= 0) return const [];
+    final count = (((totalSamples - 1) * (delaySeconds / totalSeconds)).round()).clamp(0, totalSamples - 2);
+    return List<double>.filled(count, holdValue);
+  }
 
-  
+  static double _defaultValueGetter(double progress, List<double> samples) {
     final scaled = progress * (samples.length - 1);
     final lo = samples[scaled.floor()];
     final hi = samples[scaled.ceil()];
@@ -349,7 +348,7 @@ class BakedMotion extends CueMotion {
   double valueAt(double progress) => valueGetter(progress, samples);
 
   @override
-  BakedMotion bake({int samples = 60}) => this;
+  BakedMotion bake({int samples = 60, Duration delay = Duration.zero}) => this;
 
   @override
   CueSimulation build(bool forward, int phase, double progress, double? velocity) {

@@ -25,7 +25,6 @@ class CueAnimationController extends CueAnimationControllerBase<CuePlaybackTimel
       timeline.reset(DriverConfig(motion: newMotion, reverseMotion: newReverseMotion));
     }
   }
- 
 }
 
 class CueSeekableAnimationController extends CueAnimationControllerBase<CueSeekableTimeline> {
@@ -34,11 +33,14 @@ class CueSeekableAnimationController extends CueAnimationControllerBase<CueSeeka
     required super.vsync,
     double initialProgress = 0.0,
     AnimationStatus status = AnimationStatus.forward,
-  }) : super(timeline: CueSeekableTimeline(initialProgress, status: status));
+  }) : super(
+         timeline: CueSeekableTimeline(initialProgress, status: status),
+         value: initialProgress,
+       );
 
   void seek(double progress, {AnimationStatus status = AnimationStatus.forward}) {
     timeline.seek(progress, status: status);
-    value = progress;
+    updateValueOnly(progress);
   }
 
   @override
@@ -84,13 +86,18 @@ abstract class CueAnimationControllerBase<Timeline extends CueTimeline> extends 
     timeline.setValue(newValue);
   }
 
+  @protected
+  void updateValueOnly(double newValue) {
+    super.value = newValue;
+  }
+
   @override
   Animation<double> get view => _timeline.mainDriver;
 
   @override
   TickerFuture forward({double? from}) {
     if (from != null) {
-      assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0.');
+      assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0. Received: $from');
       value = from;
     }
     _timeline.prepare(forward: true, from: from);
@@ -100,7 +107,7 @@ abstract class CueAnimationControllerBase<Timeline extends CueTimeline> extends 
   @override
   TickerFuture reverse({double? from}) {
     if (from != null) {
-      assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0.');
+      assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0. Received: $from');
       value = from;
     }
     _timeline.prepare(forward: false, from: value);

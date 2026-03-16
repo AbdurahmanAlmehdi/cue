@@ -61,7 +61,7 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
     if (_overlayData.value.isLooping) {
       _controller.repeat();
     } else {
-      double startValue = _controller.value;
+      double startValue = _controller.value.clamp(0, 1);
       if (startValue == 1.0) {
         startValue = 0.0;
       }

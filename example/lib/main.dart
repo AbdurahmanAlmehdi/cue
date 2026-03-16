@@ -1,6 +1,8 @@
 import 'package:cue/cue.dart';
 import 'package:example/examples/delete_confirmation.dart';
+import 'package:example/examples/expanding_cards.dart';
 import 'package:example/examples/horizinally_expanding_cards.dart';
+import 'package:example/examples/indicator_to_button.dart';
 import 'package:example/examples/slack_style_fab.dart';
 
 import 'package:flutter/foundation.dart';
@@ -46,6 +48,14 @@ class _OnChangeDemo extends StatefulWidget {
 class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProviderStateMixin {
   double size = 100.0;
   bool checked = true;
+  late final _controller = CueAnimationController(vsync: this, motion: .wobbly());
+
+  late final _animation = DeferredCueAnimation<Offset>(
+    parent: _controller.timeline.mainDriver,
+    context: ActContext(motion: _controller.timeline.mainDriver.motion),
+  );
+
+  Offset offset = Offset.zero;
 
   @override
   Widget build(BuildContext context) {
@@ -59,55 +69,63 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            // crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // ExpandingCards(),
-              // SlackStyleFab(),
-              // DeleteConfirmationDialog(),
-              // HorizontallyExpandingCards(),
-              Cue.onToggle(
-                toggled: checked,
-                motion: .wobbly(),
-                child: Column(
-                  children: [
-                    Actor(
-                      act: .compose([
-                        .slideX(to: 1),
-                      ]),
-                      // act: SlideAct.fractionalKeyframes([
-                      //   .key(Offset(0, 0), at: 0.0),
-                      //   .key(Offset(1, .2), at: 0.5, curve: Curves.elasticOut),
-                      //   .key(Offset(2, 0), at: 1.0),
-                      // ]),
-                      // act: SlideAct.keyframes([
-                      //   .key(Offset(-1, 0), motion: .wobbly()),
-                      //   .key(Offset(0, 0), motion: .wobbly()),
-                      //   .key(Offset(1, 0), motion: .wobbly()),
-                      // .key(Offset(2, 0), motion: .wobbly()),
-                      // ]),
-                      child: SizedBox(width: 100, height: 100, child: ColoredBox(color: Colors.blue)),
-                    ),
-                    // Actor(
-                    //   act: .slide(to: const Offset(2, 0)),
-                    //   child: SizedBox(
-                    //     width: 50,
-                    //     height: 50,
-                    //     child: ColoredBox(color: Colors.yellow),
-                    //   ),
-                    // ),
-                  ],
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onVerticalDragUpdate: (details) {
+                  setState(() {
+                    offset += details.delta;
+                  });
+                   _animation.setAnimatable(null);
+                },
+                onVerticalDragEnd: (details) async{
+                  final animtable = TweenAnimtable(Tween(begin: offset, end: Offset.zero));
+                  _animation.setAnimatable(animtable);
+                    _controller.value = 0;
+                   await _controller.forward();
+                  offset = Offset.zero;
+                },
+                child: ListenableBuilder(
+                  listenable: _animation,
+                  builder: (context, _) {
+                    print('build with offset ${_animation.hasAnimatable ? _animation.value : offset}');
+                    return Transform.translate(
+                      offset: _animation.hasAnimatable ? _animation.value : offset,
+                      child: FloatingActionButton(
+                        onPressed: null,
+                        child: Icon(Icons.abc),
+                      ),
+                    );
+                  },
                 ),
               ),
 
-              SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    checked = !checked;
-                  });
-                },
-                child: Text('Toggle'),
-              ),
+              // for (var i = 0; i < 20; i++)
+              //   Cue.onScrollVisible(
+              //     key: ValueKey(i),
+              //     act: .compose([
+              //       .zoomIn(from: .75),
+              //       .slideY(from: 0, reverse: .to(1.1)),
+              //       .fadeOut(reverse: .exclusive()),
+              //     ],motion: .curved(.zero,curve:  Curves.easeInOut)),
+              //     child: Container(
+              //       height: 220,
+              //       width: double.infinity,
+              //       margin: const EdgeInsets.only(bottom: 8.0),
+
+              //       decoration: BoxDecoration(
+              //         color: Colors.green,
+              //         borderRadius: BorderRadius.circular(12.0),
+              //         boxShadow: [
+              //           BoxShadow(
+              //             color: Colors.black.withOpacity(0.3),
+              //             blurRadius: 8.0,
+              //             offset: const Offset(0, 4),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
             ],
           ),
         ),

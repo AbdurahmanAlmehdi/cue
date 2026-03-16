@@ -59,6 +59,8 @@ abstract class CuePlaybackTimelineBase<Driver extends CueAnimationDriver> extend
         exteranlVelocity: mainDriver.velocity,
       );
       _onPrapaerNotifier.fireEvent(mainDriver.isForwardOrCompleted);
+    }else{
+      animation.setValue(mainDriver.value.clamp(0, 1));
     }
     return animation;
   }
@@ -147,26 +149,15 @@ class CuePlaybackTimeline extends CuePlaybackTimelineBase<CuePlaypackDriver> {
 
 class CueSeekableTimeline extends CuePlaybackTimelineBase<CueSeekableAnimationsDriver> {
   CueSeekableTimeline(double initialProgress, {AnimationStatus status = AnimationStatus.forward})
-    : super(
+    : _progress = initialProgress,
+      super(
         CueSeekableAnimationsDriver(
-          .linear(.zero),
+          .linear(Duration(seconds: 300)),
           delay: Duration.zero,
           reverseDelay: Duration.zero,
         )..seek(initialProgress, status: status),
       );
 
-  Duration get totalDuration {
-    Duration maxDuration = Duration.zero;
-    for (final animation in drivers.values) {
-      final duration = Duration(
-        microseconds: (animation.motion.durationSeconds * Duration.microsecondsPerSecond).round(),
-      );
-      if (duration > maxDuration) {
-        maxDuration = duration;
-      }
-    }
-    return maxDuration;
-  }
 
   @override
   CueSeekableAnimationsDriver buildDriver(DriverConfig config) {
@@ -251,7 +242,7 @@ class CuePlaypackDriver<Motion extends CueMotion> extends CueAnimationDriver wit
       _done = true;
       return;
     }
-
+    
     final active = forward ? motion : (reverseMotion ?? motion);
 
     int phase = _sim?.phase ?? 0;
@@ -268,6 +259,7 @@ class CuePlaypackDriver<Motion extends CueMotion> extends CueAnimationDriver wit
     }
     _sim = active.build(forward, phase, progress, exteranlVelocity ?? velocity);
     _value = progress;
+
     _delaySeconds = (forward ? delay : (reverseDelay)).inMicroseconds / Duration.microsecondsPerSecond;
     _localT = 0.0;
     _done = false;
@@ -289,7 +281,6 @@ class CuePlaypackDriver<Motion extends CueMotion> extends CueAnimationDriver wit
       return;
     }
     _value = _sim!.x(t);
-    // print('Ticking ${status} animation at progress ${_value.toStringAsFixed(4)}');
     notifyListeners();
   }
 
@@ -314,8 +305,8 @@ class CueSeekableAnimationsDriver extends CuePlaypackDriver<BakedMotion> {
     Duration delay = Duration.zero,
     Duration reverseDelay = Duration.zero,
   }) : super(
-         motion.bake(),
-         reverseMotion: reverseMotion?.bake(),
+         motion.bake(delay: delay),
+         reverseMotion: reverseMotion?.bake(delay: reverseDelay),
          delay: delay,
          reverseDelay: reverseDelay,
        );

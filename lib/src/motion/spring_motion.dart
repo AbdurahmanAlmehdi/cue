@@ -177,18 +177,30 @@ final class Spring extends SimulationMotion<CueSpringSimulation> {
   }
 
   @override
-  BakedMotion bake({int samples = 60}) {
+  BakedMotion bake({int samples = 60, Duration delay = Duration.zero}) {
+    assert(samples >= 2, 'samples must be at least 2');
+
     final sim = build(true, 0, 0.0, 0.0);
     final settlingDuration = _calculateSettleDuration(sim);
 
-    final values = List.generate(samples, (i) {
-      final t = (i / (samples - 1)) * settlingDuration;
+    final delaySamples = BakedMotion.backDelay(
+      totalSamples: samples,
+      motionSeconds: settlingDuration,
+      delay: delay,
+    );
+    final animCount = samples - delaySamples.length;
+
+    final animated = List<double>.generate(animCount, (i) {
+      final t = animCount == 1 ? settlingDuration : (i / (animCount - 1)) * settlingDuration;
       return sim.x(t);
     });
+
+    final delaySeconds = delay.inMicroseconds / Duration.microsecondsPerSecond;
+
     return BakedMotion(
-      samples: values,
-      durationSeconds: settlingDuration,
       motion: this,
+      samples: [...delaySamples, ...animated],
+      durationSeconds: settlingDuration + delaySeconds,
     );
   }
 

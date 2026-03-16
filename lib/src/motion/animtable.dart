@@ -13,7 +13,7 @@ class TweenAnimtable<T> extends CueAnimtable<T> {
   @override
   final CueMotion? motion;
 
-  const TweenAnimtable(this.tween, {required this.motion});
+  const TweenAnimtable(this.tween, { this.motion});
 
   @override
   T evaluate(CueAnimationDriver driver) {
