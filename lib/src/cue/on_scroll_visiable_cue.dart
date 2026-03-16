@@ -22,7 +22,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
   @override
   CueTimeline get timeline => _progressAnimation;
 
-  late final _progressAnimation = ProgressTimeline(1.0, status: AnimationStatus.completed);
+  late final _progressAnimation = CueProgressTimeline(1.0, status: AnimationStatus.completed);
 
   @override
   bool get isBounded => true;
@@ -56,7 +56,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
     super.didUpdateWidget(oldWidget);
     if (widget.enabled != oldWidget.enabled) {
       if (!widget.enabled) {
-        _progressAnimation.advance(1.0, status: AnimationStatus.completed);
+        _progressAnimation.seek(1.0, status: AnimationStatus.completed);
         _scrollPosition?.removeListener(_trackViiblity);
       } else {
         _subscribeToScrollPosition();
@@ -100,23 +100,23 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> {
     final scrollDirection = _scrollPosition!.userScrollDirection;
     final isScrollingForward = scrollDirection == ScrollDirection.forward || scrollDirection == ScrollDirection.idle;
 
-    AnimationStatus status = _progressAnimation.status;
+    AnimationStatus status = _progressAnimation.mainDriver.status;
 
     if (visibleFraction == 0.0 || visibleFraction == 1.0) {
       _committedStatus = null;
       status = AnimationStatus.completed;
     } else if (_committedStatus == null) {
       // First frame mid-transition — commit direction now
-      if (visibleFraction > _progressAnimation.value) {
+      if (visibleFraction > _progressAnimation.progress) {
         _committedStatus = isScrollingForward ? AnimationStatus.reverse : AnimationStatus.forward;
-      } else if (visibleFraction < _progressAnimation.value) {
+      } else if (visibleFraction < _progressAnimation.progress) {
         _committedStatus = isScrollingForward ? AnimationStatus.forward : AnimationStatus.reverse;
       }
-      status = _committedStatus ?? _progressAnimation.status;
+      status = _committedStatus ?? _progressAnimation.mainDriver.status;
     } else {
       status = _committedStatus!;
     }
-    _progressAnimation.advance(visibleFraction.clamp(0.0, 1.0), status: status);
+    _progressAnimation.seek(visibleFraction.clamp(0.0, 1.0), status: status);
   }
 
   // @override

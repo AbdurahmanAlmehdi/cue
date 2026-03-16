@@ -34,12 +34,7 @@ class CueDebugTools extends StatefulWidget {
 class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
-  late final _timeline = ProgressTimeline(
-    0.0,
-    onUpdate: (timeline) {
-      _controller.duration = timeline.totalDuration;
-    },
-  );
+  late final _timeline = CueProgressTimeline(0.0);
   final _overlayData = ValueNotifier<_OverlayData>(
     _OverlayData(
       speedMultiplier: 1,
@@ -62,7 +57,7 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
       duration: const Duration(milliseconds: 500),
     );
     _controller.addListener(() {
-      _timeline.advance(_controller.value);
+      _timeline.seek(_controller.value, status: AnimationStatus.forward);
     });
   }
 
@@ -82,9 +77,9 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
     BuildContext context, {
     required String id,
   }) {
-     WidgetsBinding.instance.addPostFrameCallback((_) {
-       _overlayData.value = _overlayData.value.copyWith(activeTargetId: id);
-     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _overlayData.value = _overlayData.value.copyWith(activeTargetId: id);
+    });
 
     void deattachCallback() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -639,7 +634,7 @@ class DebugDataProvider extends InheritedWidget {
     required super.child,
   });
 
-  final ProgressTimeline timeline;
+  final CueProgressTimeline timeline;
   final bool isMinimized;
   final String? activeTargetId;
 

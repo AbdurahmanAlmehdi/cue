@@ -1,8 +1,9 @@
-import 'package:cue/src/motion/timeline.dart';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'spring_motion.dart';
 
-sealed class CueMotion {
+abstract class CueMotion {
   const CueMotion();
 
   BakedMotion bake({int samples = 60});
@@ -161,11 +162,11 @@ class CurvedSimulation extends Simulation with CueSimulation {
   bool isDone(double t) => t >= _durationSeconds;
 }
 
-abstract base class SimulationMotion<S extends CueSimulation> extends CueMotion {
+abstract  class SimulationMotion<S extends CueSimulation> extends CueMotion {
   const SimulationMotion();
 }
 
-final class LinearSimulationMotion extends SimulationMotion<LinearSimulation> {
+ class LinearSimulationMotion extends SimulationMotion<LinearSimulation> {
   const LinearSimulationMotion();
 
   @override
@@ -312,4 +313,39 @@ class SegmentedSimulation extends Simulation with CueSimulation {
       _current = _motions[_phase].build(_forward, 0, initialProgress, exitVelocity);
     }
   }
+}
+
+
+class BakedMotion extends CueMotion {
+  final List<double> samples;
+  final double durationSeconds;
+  final CueMotion motion;
+  final double Function(double progress, List<double> samples) valueGetter;
+
+  const BakedMotion({
+    required this.motion,
+    required this.samples,
+    required this.durationSeconds,
+    this.valueGetter = _defaultValueGetter,
+  });
+
+  static double _defaultValueGetter(double progress, List<double> samples) {
+    final scaled = progress * (samples.length - 1);
+    final lo = samples[scaled.floor()];
+    final hi = samples[scaled.ceil()];
+    return lerpDouble(lo, hi, scaled - scaled.floor())!;
+  }
+
+  double valueAt(double progress) => valueGetter(progress, samples);
+
+  @override
+  BakedMotion bake({int samples = 60}) => this;
+
+  @override
+  CueSimulation build(bool forward, int phase, double progress, double? velocity) {
+    return motion.build(forward, phase, progress, velocity);
+  }
+
+  @override
+  Duration get duration => motion.duration;
 }

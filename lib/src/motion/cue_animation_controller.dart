@@ -2,12 +2,15 @@ import 'package:cue/src/motion/cue_motion.dart';
 import 'package:cue/src/motion/timeline.dart';
 import 'package:flutter/material.dart';
 
+
+
+
 class CueAnimationController extends AnimationController {
   CueMotion _motion;
   CueMotion? _reverseMotion;
   final double _lowerBound;
   final double _upperBound;
-  final CueTimelineImpl _timline;
+  final CuePlaybackTimeline _timline;
 
   CueTimeline get timline => _timline;
 
@@ -18,7 +21,6 @@ class CueAnimationController extends AnimationController {
 
   @override
   double get upperBound {
-  
     return _motion.isSimulation ? double.infinity : _upperBound;
   }
 
@@ -45,8 +47,8 @@ class CueAnimationController extends AnimationController {
        _reverseMotion = reverseMotion,
        _lowerBound = lowerBound,
        _upperBound = upperBound,
-       _timline = CueTimelineImpl(
-         CueAnimationDriverImpl(
+       _timline = CuePlaybackTimeline(
+         CuePlaypackDriver(
            motion,
            reverseMotion: reverseMotion,
          ),
@@ -65,7 +67,7 @@ class CueAnimationController extends AnimationController {
   }
 
   @override
-  Animation<double> get view => _timline.mainAnimation;
+  Animation<double> get view => _timline.mainDriver;
 
   @override
   TickerFuture forward({double? from}) {
