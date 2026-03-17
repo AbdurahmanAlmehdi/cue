@@ -4,6 +4,7 @@ import 'package:example/examples/expanding_cards.dart';
 import 'package:example/examples/horizinally_expanding_cards.dart';
 import 'package:example/examples/indicator_to_button.dart';
 import 'package:example/examples/slack_style_fab.dart';
+import 'package:example/examples/three_dots_action.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -70,6 +71,8 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              //  SlackStyleFab(),
+              //  DeleteConfirmationDialog(),
               // IndicatorToButton(),
               Cue.onToggle(
                 toggled: checked,

@@ -160,7 +160,6 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
   @override
   bool isDone(double time) => tracks.values.every((anim) => anim.isDone);
 
- 
   @override
   CueTrack buildTrack(TrackConfig config) {
     return CueTrackImpl(
@@ -233,13 +232,13 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
 
   @override
   double get duration {
-    return _duration ??= (motion.duration + delay).inMicroseconds / Duration.microsecondsPerSecond;
+    return _duration ??= motion.duration.inMicroseconds / Duration.microsecondsPerSecond;
   }
 
   @override
   double get reverseDuration {
     return _reverseDuration ??=
-        (reverseMotion?.duration ?? motion.duration + reverseDelay).inMicroseconds / Duration.microsecondsPerSecond;
+        (reverseMotion?.duration ?? motion.duration).inMicroseconds / Duration.microsecondsPerSecond;
   }
 
   double _progress = 0.0;
@@ -287,14 +286,37 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
     double newValue = _value;
     if (forward && !reverseType.isExclusive) {
       final sim = _seekableForwardSim ??= motion.build(true, 0, 0, 0);
-      final targetT = duration * t;
-      newValue = sim.x(targetT);
-      _done = sim.isDone(targetT);
+      final delaySeconds = delay.inMicroseconds / Duration.microsecondsPerSecond;
+      final simDuration = sim.duration;
+      final totalDuration = delaySeconds + simDuration;
+
+      final elapsed = totalDuration * t;
+      final simT = elapsed - delaySeconds;
+      if (simT <= 0.0) {
+        newValue = sim.x(0.0); // hold during delay
+        _done = false;
+      } else {
+        final clampedT = simT.clamp(0.0, simDuration);
+        newValue = sim.x(clampedT);
+        _done = elapsed >= totalDuration; // or sim.isDone(clampedT)
+      }
     } else if (!forward && !reverseType.isNone) {
       final sim = _seekableReverseSim ??= (reverseMotion ?? motion).build(false, 0, 0, 0);
-      final targetT = reverseDuration * t;
-      newValue = sim.x(targetT);
-      _done = sim.isDone(targetT);
+      final delaySeconds = reverseDelay.inMicroseconds / Duration.microsecondsPerSecond;
+      final simDuration = sim.duration;
+      final totalDuration = delaySeconds + simDuration;
+
+      final elapsed = totalDuration * t;
+      final simT = elapsed - delaySeconds;
+
+      if (simT <= 0.0) {
+        newValue = sim.x(0.0); // hold during reverse delay
+        _done = false;
+      } else {
+        final clampedT = simT.clamp(0.0, simDuration);
+        newValue = sim.x(clampedT);
+        _done = elapsed >= totalDuration;
+      }
     }
     _sim = null; // invalidate current simulation since we're jumping to a new progress
     _localT = 0.0;
@@ -360,12 +382,16 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
   void tick(double td) {
     if (_done || _sim == null) return;
     _localT += td;
+
+    final t = (_localT - _delaySeconds);
     final target = _forward ? 1.0 : 0.0;
-    final fraction = (_localT / _sim!.duration).clamp(0.0, 1.0);
+
+    final simT = (_localT - _delaySeconds).clamp(0.0, double.infinity);
+    final simDuration = _sim!.duration;
+    final fraction = simDuration <= 0 ? 1.0 : (simT / simDuration).clamp(0.0, 1.0);
     _progress = _startProgress + (target - _startProgress) * fraction;
 
-    final t = _localT - _delaySeconds;
-    if (t < 0) return; // still in delay
+     if (_localT < _delaySeconds) return;
 
     if (_sim!.isDone(t)) {
       _value = _sim!.x(t);
