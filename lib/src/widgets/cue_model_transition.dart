@@ -199,7 +199,7 @@ class _ModalRoute<T extends Object> extends RawDialogRoute<T> {
 
   @override
   AnimationController createAnimationController() {
-    final ctrl = CueAnimationController(
+    final ctrl = CueController(
       motion: motion,
       reverseMotion: reverseMotion,
       vsync: navigator!,
@@ -211,7 +211,7 @@ class _ModalRoute<T extends Object> extends RawDialogRoute<T> {
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
     return Cue(
-      timeline: (controller as CueAnimationController).timeline,
+      timeline: (controller as CueController).timeline,
       child: super.buildPage(context, animation, secondaryAnimation),
     );
   }

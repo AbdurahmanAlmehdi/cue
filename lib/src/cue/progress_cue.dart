@@ -22,14 +22,12 @@ class _ProgressCue extends Cue {
 }
 
 class _ProgressCueState extends _CueState<_ProgressCue> {
-  final _progresstimeline = CueSeekableTimeline(0.0);
+  final _progresstimeline = CueTimelineImpl(CueTrackImpl(.defaultDuration));
 
   @override
   String get debugName => 'ProgressCue';
 
-  @override
-  bool get isBounded => true;
-
+ 
   @override
   void initState() {
     super.initState();
@@ -47,13 +45,13 @@ class _ProgressCueState extends _CueState<_ProgressCue> {
 
      final progress = widget.progress();
      final value = ((progress - widget.min) / (widget.max - widget.min)).clamp(0.0, 1.0);
-    final status = switch (value) {
-      1.0 => AnimationStatus.completed,
-      0.0 => AnimationStatus.dismissed,
-      _ => value > _progresstimeline.progress ? AnimationStatus.forward : AnimationStatus.reverse,
+    final forward = switch (value) {
+      1.0 => true,
+      0.0 => false,
+      _ => value > _progresstimeline.progress ? true : false,
     };
 
-    _progresstimeline.seek(value, status: status);
+    _progresstimeline.setProgress(value, forward: forward);
   }
 
   @override

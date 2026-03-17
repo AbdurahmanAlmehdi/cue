@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 
 abstract class CueAnimation<T> extends Animation<T> with AnimationWithParentMixin<double> {
   @override
-  final CueAnimationDriver parent;
+  final CueTrack parent;
 
   CueAnimation({required this.parent});
 

@@ -1,5 +1,4 @@
-import 'package:cue/src/motion/cue_animation_controller.dart';
-import 'package:cue/src/motion/timeline.dart';
+import 'package:cue/cue.dart';
 import 'package:flutter/material.dart';
 
 class CueDebugTools extends StatefulWidget {
@@ -17,7 +16,7 @@ class CueDebugTools extends StatefulWidget {
   static VoidCallback? attachDebugTarget(
     BuildContext context, {
     required String id,
-    required CueAnimationDriver driver,
+    required CueTrack driver,
   }) {
     final provider = context.findAncestorStateOfType<_CueDebugToolsState>();
     return provider?.attachDebugTarget(context, id: id, driver: driver);
@@ -37,7 +36,7 @@ class CueDebugTools extends StatefulWidget {
 }
 
 class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProviderStateMixin {
-  late final CueSeekableAnimationController _controller;
+  late final CueController _controller;
 
   final _overlayData = ValueNotifier<_OverlayData>(
     _OverlayData(
@@ -54,7 +53,7 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _controller = CueSeekableAnimationController(vsync: this);
+    _controller = CueController(vsync: this, motion: .linear(300.ms));
   }
 
   void _startAutoPlay() {
@@ -69,24 +68,24 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
     }
   }
     
-  VoidCallback attachDebugTarget(BuildContext context, {required String id, required CueAnimationDriver driver}) {
+  VoidCallback attachDebugTarget(BuildContext context, {required String id, required CueTrack driver}) {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _overlayData.value = _overlayData.value.copyWith(activeTargetId: id);
       _controller.timeline.reset(
-        DriverConfig(
+        TrackConfig(
           motion: driver.motion,
           reverseMotion: driver.reverseMotion,
           delay: driver.delay,
           reverseDelay: driver.reverseDelay,
         ),
       );
-      _controller.seek(1.0);
+      _controller.setProgress(1.0);
     });
 
     void deattachCallback() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _controller.seek(0);
+        _controller.setProgress(0);
         _overlayData.value = _overlayData.value.copyWith(activeTargetId: '', isMinimized: true);
       });
     }
@@ -144,7 +143,7 @@ class _DebugOverlay extends StatefulWidget {
 
   final ValueNotifier<_OverlayData> overlayData;
 
-  final CueSeekableAnimationController controller;
+  final CueController controller;
   final VoidCallback onPlay;
   final Duration baseDuration;
 
@@ -153,7 +152,7 @@ class _DebugOverlay extends StatefulWidget {
 }
 
 class _DebugOverlayState extends State<_DebugOverlay> {
-  CueSeekableAnimationController get _controller => widget.controller;
+  CueController get _controller => widget.controller;
   ValueNotifier<_OverlayData> get _dataNotifier => widget.overlayData;
 
   _OverlayData get _data => widget.overlayData.value;
@@ -170,7 +169,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
     if (_controller.isAnimating) {
       _controller.stop();
     }
-    _controller.seek(value);
+    _controller.setProgress(value);
   }
 
   void _toggleLoop() {
@@ -638,7 +637,7 @@ class DebugDataProvider extends InheritedWidget {
     required super.child,
   });
 
-  final CueSeekableTimeline timeline;
+  final CueTimeline timeline;
   final bool isMinimized;
   final String? activeTargetId;
 

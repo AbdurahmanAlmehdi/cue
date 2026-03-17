@@ -22,7 +22,7 @@ class CueScope extends InheritedWidget {
   @override
   bool updateShouldNotify(covariant CueScope oldWidget) {
     return timeline != oldWidget.timeline ||
-        timeline.mainDriver != oldWidget.timeline.mainDriver ||
+        timeline.mainTrack != oldWidget.timeline.mainTrack ||
         willReanimateNotifier != oldWidget.willReanimateNotifier ||
         reanimateFromCurrent != oldWidget.reanimateFromCurrent;
   }

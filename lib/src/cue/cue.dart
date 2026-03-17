@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cue/cue.dart';
 import 'package:cue/src/motion/cue_animation_controller.dart';
 import 'package:cue/src/motion/timeline.dart';
@@ -145,7 +147,7 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
           if (forward) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
              
-              _deattachDebugOverlay = CueDebugTools.attachDebugTarget(context, id: _debugId, driver: timeline.mainDriver);
+              _deattachDebugOverlay = CueDebugTools.attachDebugTarget(context, id: _debugId, driver: timeline.mainTrack);
             });
           }
         });

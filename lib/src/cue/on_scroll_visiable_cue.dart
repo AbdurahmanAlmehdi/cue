@@ -22,11 +22,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
   @override
   CueTimeline get timeline => _seekableController.timeline;
 
-  late final _seekableController = CueSeekableAnimationController(
-    vsync: this,
-    initialProgress: 1.0,
-    status: AnimationStatus.completed,
-  );
+  late final _seekableController = CueController(vsync: this, value: 1.0, motion: .defaultDuration);
 
   ScrollPosition? _scrollPosition;
   double? _cachedRevealedOffset;
@@ -60,7 +56,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
     super.didUpdateWidget(oldWidget);
     if (widget.enabled != oldWidget.enabled) {
       if (!widget.enabled) {
-        _seekableController.seek(1.0, status: AnimationStatus.completed);
+        _seekableController.setProgress(1.0, forward: true);
         _scrollPosition?.removeListener(_trackViiblity);
       } else {
         _subscribeToScrollPosition();
@@ -103,7 +99,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
     final visibleFraction = itemExtent > 0 ? (visibleExtent / itemExtent) : 0.0;
 
     final scrollDirection = _scrollPosition!.userScrollDirection;
-    final isScrollingForward = scrollDirection == ScrollDirection.forward || (scrollDirection == ScrollDirection.idle) ;
+    final isScrollingForward = scrollDirection == ScrollDirection.forward || (scrollDirection == ScrollDirection.idle);
 
     AnimationStatus status = _seekableController.status;
 
@@ -123,13 +119,13 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
     }
     final target = visibleFraction.clamp(0.0, 1.0);
 
-    if(_fristFrame){
-       _fristFrame =false;
-       if(target != 0.0 && target != 1.0){
+    if (_fristFrame) {
+      _fristFrame = false;
+      if (target != 0.0 && target != 1.0) {
         await _seekableController.forward(from: target);
-       }
-    }else{
-     _seekableController.seek(target, status: status);
+      }
+    } else {
+      _seekableController.setProgress(target, forward: status.isForwardOrCompleted);
     }
   }
 }

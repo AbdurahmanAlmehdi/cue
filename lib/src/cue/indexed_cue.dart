@@ -18,13 +18,11 @@ class _IndexedCue extends Cue {
 }
 
 class _IndexedCueState extends _CueState<_IndexedCue> {
-  final _progressTimeline = CueSeekableTimeline(0.0);
+  final _progressTimeline = CueTimelineImpl(CueTrackImpl(.defaultDuration));
 
   @override
   String get debugName => 'IndexedCue';
 
-  @override
-  bool get isBounded => true;
 
   Listenable get listenable => widget.controller.tickListenable;
   @override
@@ -42,13 +40,13 @@ class _IndexedCueState extends _CueState<_IndexedCue> {
 
   void _updateAnimation() {
     final value = widget.controller.valueFor(widget.index);
-    final status = switch (value) {
-      1.0 => AnimationStatus.completed,
-      0.0 => AnimationStatus.dismissed,
-      _ => value > _progressTimeline.progress ? AnimationStatus.forward : AnimationStatus.reverse,
+    final forward = switch (value) {
+      1.0 => true,
+      0.0 => false,
+      _ => value > _progressTimeline.progress ? true : false,
     };
 
-    _progressTimeline.seek(value, status: status);
+    _progressTimeline.setProgress(value, forward: forward);
   }
 
   @override

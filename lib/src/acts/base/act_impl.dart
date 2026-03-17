@@ -20,12 +20,12 @@ abstract class ActImpl<R extends Object?, T extends Object?> extends Act {
   @override
   CueAnimation<R> buildAnimation(CueTimeline timline, ActContext context) {
     final (animtable, reverseAnimtable) = buildTweens(context);
-    final driver = timline.driverFor(
-      DriverConfig(
+    final driver = timline.trackFor(
+      TrackConfig(
         motion: animtable.motion ?? context.motion,
         reverseMotion: reverseAnimtable?.motion ?? context.reverseMotion,
-        delay: delay ?? context.delay,
-        reverseDelay: reverse.delay ?? context.reverseDelay,
+        delay: delay ?? context.delay ?? Duration.zero,
+        reverseDelay: reverse.delay ?? context.reverseDelay ?? Duration.zero,
         reverseType: reverse.type,
       ),
     );

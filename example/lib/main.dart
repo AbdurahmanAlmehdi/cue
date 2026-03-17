@@ -48,11 +48,11 @@ class _OnChangeDemo extends StatefulWidget {
 class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProviderStateMixin {
   double size = 100.0;
   bool checked = true;
-  late final _controller = CueAnimationController(vsync: this, motion: .wobbly());
+  late final _controller = CueController(vsync: this, motion: .wobbly());
 
   late final _animation = DeferredCueAnimation<Offset>(
-    parent: _controller.timeline.mainDriver,
-    context: ActContext(motion: _controller.timeline.mainDriver.motion),
+    parent: _controller.timeline.mainTrack,
+    context: ActContext(motion: _controller.timeline.mainTrack.motion),
   );
 
   Offset offset = Offset.zero;
@@ -70,35 +70,72 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onVerticalDragUpdate: (details) {
-                  setState(() {
-                    offset += details.delta;
-                  });
-                   _animation.setAnimatable(null);
-                },
-                onVerticalDragEnd: (details) async{
-                  final animtable = TweenAnimtable(Tween(begin: offset, end: Offset.zero));
-                  _animation.setAnimatable(animtable);
-                    _controller.value = 0;
-                   await _controller.forward();
-                  offset = Offset.zero;
-                },
-                child: ListenableBuilder(
-                  listenable: _animation,
-                  builder: (context, _) {
-                    print('build with offset ${_animation.hasAnimatable ? _animation.value : offset}');
-                    return Transform.translate(
-                      offset: _animation.hasAnimatable ? _animation.value : offset,
-                      child: FloatingActionButton(
-                        onPressed: null,
-                        child: Icon(Icons.abc),
+              Cue.onToggle(
+                toggled: checked,
+                motion: .wobbly(),
+                child: Column(
+                  children: [
+                    Actor(
+                      act: .compose([
+                        .slideX(to: 1),
+                      ]),
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        color: Colors.blue,
                       ),
-                    );
-                  },
+                    ),
+                    Actor(
+                      act: .compose([
+                        .slideX(to: 1),
+                      ]),
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        color: Colors.red,
+                      ),
+                    ),
+
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () => setState(() => checked = !checked),
+                      child: Text('Toggle'),
+                    ),
+                  ],
                 ),
               ),
+
+              //  SlackStyleFab(),
+              //  DeleteConfirmationDialog(),
+              //   GestureDetector(
+              //     behavior: HitTestBehavior.translucent,
+              //     onVerticalDragUpdate: (details) {
+              //       setState(() {
+              //         offset += details.delta;
+              //       });
+              //        _animation.setAnimatable(null);
+              //     },
+              //     onVerticalDragEnd: (details) async{
+              //       final animtable = TweenAnimtable(Tween(begin: offset, end: Offset.zero));
+              //       _animation.setAnimatable(animtable);
+              //         _controller.value = 0;
+              //        await _controller.forward();
+              //       offset = Offset.zero;
+              //     },
+              //     child: ListenableBuilder(
+              //       listenable: _animation,
+              //       builder: (context, _) {
+              //         print('build with offset ${_animation.hasAnimatable ? _animation.value : offset}');
+              //         return Transform.translate(
+              //           offset: _animation.hasAnimatable ? _animation.value : offset,
+              //           child: FloatingActionButton(
+              //             onPressed: null,
+              //             child: Icon(Icons.abc),
+              //           ),
+              //         );
+              //       },
+              //     ),
+              //   ),
 
               // for (var i = 0; i < 20; i++)
               //   Cue.onScrollVisible(

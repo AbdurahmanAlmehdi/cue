@@ -49,7 +49,7 @@ class SelfAnimatedCueState extends SelfAnimatedState<SelfAnimatedCue> {
 }
 
 abstract class SelfAnimatedState<T extends SelfAnimatedCue> extends _CueState<T> with SingleTickerProviderStateMixin {
-  late final CueAnimationController controller;
+  late final CueController controller;
 
   CueMotion get motion => widget.motion;
 
@@ -66,7 +66,7 @@ abstract class SelfAnimatedState<T extends SelfAnimatedCue> extends _CueState<T>
   }
 
   void _createController() {
-    controller = CueAnimationController(
+    controller = CueController(
       motion: motion,
       reverseMotion: widget.reverseMotion,
       vsync: this,
