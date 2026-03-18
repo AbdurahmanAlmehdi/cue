@@ -221,6 +221,7 @@ class Phase<T extends Object?> {
 
   static List<Phase<R>> resolveFractionalFrames<T extends Object?, R extends Object?>(
     List<FractionalKeyframe<T>> frames, {
+    T? from,
     required Duration duration,
     required R Function(T value) transform,
   }) {
@@ -232,13 +233,13 @@ class Phase<T extends Object?> {
     final Map<double, T> uniqueFrames = {};
     final Map<double, Curve?> frameCurves = {};
 
-    // First frame is the starting point at t=0
-    if (frames.isNotEmpty) {
+    // Without an explicit starting value, the first frame is the starting point at t=0.
+    if (from == null) {
       uniqueFrames[0.0] = frames[0].value;
       frameCurves[0.0] = null;
     }
 
-    for (int i = 1; i < frames.length; i++) {
+    for (int i = from == null ? 1 : 0; i < frames.length; i++) {
       final frame = frames[i];
       final clampedTime = frame.at.clamp(0.0, 1.0);
       uniqueFrames[clampedTime] = frame.value;
@@ -248,8 +249,8 @@ class Phase<T extends Object?> {
     // Sort by time
     final sortedTimes = uniqueFrames.keys.toList()..sort();
 
-    // Handle single keyframe case - return constant phase (100% weight)
-    if (sortedTimes.length < 2) {
+    // Handle single keyframe case without an explicit starting value.
+    if (from == null && sortedTimes.length < 2) {
       final time = sortedTimes.first;
       final value = transform(uniqueFrames[time] as T);
       final phaseDuration = duration * time;
@@ -264,10 +265,22 @@ class Phase<T extends Object?> {
       ];
     }
 
-    // Calculate phases with weights based on time differences.
     // Each frame's curve describes how to arrive at that frame (target curve).
-    // The first frame is the starting point; its curve is ignored.
+    // If a starting value is provided, prepend a phase into the first resolved keyframe.
     final List<Phase<R>> phases = [];
+    if (from != null) {
+      final firstTime = sortedTimes.first;
+      final firstCurve = frameCurves[firstTime] ?? Curves.linear;
+
+      phases.add(
+        Phase(
+          begin: transform(from),
+          end: transform(uniqueFrames[firstTime] as T),
+          motion: CueMotion.curved(duration * firstTime, curve: firstCurve),
+        ),
+      );
+    }
+
     for (int i = 0; i < sortedTimes.length - 1; i++) {
       final currentTime = sortedTimes[i];
       final nextTime = sortedTimes[i + 1];
@@ -288,6 +301,7 @@ class Phase<T extends Object?> {
 
   static List<Phase<R>> resolveMotionFrames<T extends Object?, R extends Object?>(
     List<Keyframe<T>> frames, {
+    T? from,
     required R Function(T value) transform,
   }) {
     if (frames.isEmpty) {
@@ -297,16 +311,25 @@ class Phase<T extends Object?> {
     final List<Phase<R>> phases = [];
 
     // Each frame's motion describes how to arrive at that frame (target motion).
-    // The first frame is the starting point; its motion is ignored.
-    for (int i = 0; i < frames.length - 1; i++) {
+    // If a starting value is provided, prepend a phase into the first keyframe.
+    if (from != null) {
+      phases.add(
+        Phase(
+          begin: transform(from),
+          end: transform(frames.first.value),
+          motion: frames.first.motion,
+        ),
+      );
+    }
+
+    for (int i = 1; i < frames.length; i++) {
       final currentFrame = frames[i];
-      final nextFrame = frames[i + 1];
 
       phases.add(
         Phase(
-          begin: transform(currentFrame.value),
-          end: transform(nextFrame.value),
-          motion: nextFrame.motion,
+          begin: transform(frames[i - 1].value),
+          end: transform(currentFrame.value),
+          motion: currentFrame.motion,
         ),
       );
     }

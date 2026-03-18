@@ -73,7 +73,7 @@ class _TranslateOffset extends TweenAct<Offset> implements TranslateAct {
     required super.frames,
     super.reverse,
     super.delay,
-  }) : super.keyframed();
+  }) : super.keyframed(from: Offset.zero);
 
   @override
   Widget apply(BuildContext context, CueAnimation<Offset> animation, Widget child) {
@@ -105,14 +105,14 @@ class _AxisTranslate extends TweenActBase<double, Offset> implements TranslateAc
     super.delay,
     super.reverse,
   }) : _axis = Axis.vertical,
-       super.keyframed();
+       super.keyframed(from: 0);
 
   const _AxisTranslate.keyframedX({
     required super.frames,
     super.delay,
     super.reverse,
   }) : _axis = Axis.horizontal,
-       super.keyframed();
+       super.keyframed(from: 0);
 
   @override
   Offset transform(_, double value) {

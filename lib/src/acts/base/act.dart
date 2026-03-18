@@ -4,8 +4,6 @@ import 'dart:ui';
 import 'package:cue/cue.dart';
 import 'package:cue/src/acts/base/deferred_tween_act.dart';
 import 'package:cue/src/acts/base/act_impl.dart';
-import 'package:cue/src/motion/animtable.dart';
-import 'package:cue/src/motion/timeline.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -288,8 +286,8 @@ abstract class Act {
     CueMotion? motion,
   }) = IconThemeAct;
 
-  const factory Act.transform({
-    required Matrix4 from,
+  factory Act.transform({
+    Matrix4? from,
     required Matrix4 to,
     CueMotion? motion,
   }) = TransformAct;

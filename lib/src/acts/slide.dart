@@ -110,7 +110,7 @@ class _SlideEffect extends TweenAct<Offset> implements SlideAct {
     required super.frames,
     super.reverse,
     super.delay,
-  }) : super.keyframed();
+  }) : super.keyframed(from: Offset.zero);
 
   @override
   Widget apply(BuildContext context, Animation<Offset> animation, Widget child) {
@@ -144,14 +144,14 @@ class _AxisSlideEffect extends TweenActBase<double, Offset> implements SlideAct 
     super.reverse,
     super.delay,
   }) : _axis = Axis.horizontal,
-       super.keyframed();
+       super.keyframed(from: 0);
 
   const _AxisSlideEffect.keyframedY({
     required super.frames,
     super.reverse,
     super.delay,
   }) : _axis = Axis.vertical,
-       super.keyframed();
+       super.keyframed(from: 0);
 
   @override
   Offset transform(_, double value) {

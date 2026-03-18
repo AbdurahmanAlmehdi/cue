@@ -38,7 +38,7 @@ class RotateAct extends TweenAct<double> {
     this.alignment = Alignment.center,
     this.axis = RotateAxis.z,
     this.unit = RotateUnit.radians,
-  }) : super.keyframed();
+  }) : super.keyframed(from: 0);
 
   const RotateAct.radians({
     super.from = 0,

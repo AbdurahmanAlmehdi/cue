@@ -16,7 +16,7 @@ class RotateLayoutAct extends TweenAct<double> {
     super.reverse,
     super.delay,
     this.unit = RotateUnit.radians,
-  }) : super.keyframed();
+  }) : super.keyframed(from: 0);
 
   const RotateLayoutAct.degrees({
     super.from = 0,

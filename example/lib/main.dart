@@ -91,8 +91,8 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                         ),
                       ]),
                       child: Container(
-                        height: 20,
-                        width: 20,
+                        height: 50,
+                        width: 50,
                         color: Colors.blue,
                       ),
                     ),

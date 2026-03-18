@@ -25,7 +25,7 @@ class OpacityAct extends TweenAct<double> {
     required super.frames,
     super.delay,
     super.reverse,
-  }) : super.keyframed();
+  }) : super.keyframed(from: 0.0);
 
   @override
   Widget apply(BuildContext context, Animation<double> animation, Widget child) {

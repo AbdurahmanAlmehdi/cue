@@ -32,7 +32,7 @@ class ScaleAct extends TweenAct<double> {
     super.reverse,
     super.delay,
     this.alignment,
-  }) : super.keyframed();
+  }) : super.keyframed(from: 1.0);
 
   @override
   Widget apply(BuildContext context, Animation<double> animation, Widget child) {

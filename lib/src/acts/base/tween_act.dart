@@ -24,9 +24,9 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends ActImp
   const TweenActBase.keyframed({
     required Keyframes<T> this.frames,
     super.delay,
+    this.from,
     KFReverseBehavior<T> reverse = const KFReverseBehavior.mirror(),
   }) : to = null,
-       from = null,
        super(reverse: reverse);
 
   bool get isConstant => from != null && to != null && from == to;
@@ -49,10 +49,12 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends ActImp
       final phases = switch (keyframes) {
         MotionKeyframes<T>(:final frames) => Phase.resolveMotionFrames<T, R>(
           frames,
+          from: from,
           transform: (v) => transform(context, v),
         ),
         FractionalKeyframes<T>(:final frames, :final duration) => Phase.resolveFractionalFrames<T, R>(
           frames,
+          from: from,
           duration: duration ?? motion.baseDuration,
           transform: (v) => transform(context, v),
         ),
@@ -229,6 +231,7 @@ abstract class TweenAct<T> extends TweenActBase<T, T> {
     required super.frames,
     super.delay,
     super.reverse,
+    super.from,
   }) : super.keyframed();
 
   @override

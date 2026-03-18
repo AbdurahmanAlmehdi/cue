@@ -13,7 +13,7 @@ class PaddingAct extends TweenAct<EdgeInsetsGeometry> {
     required super.frames,
     super.delay,
     super.reverse,
-  }) : super.keyframed();
+  }) : super.keyframed(from: EdgeInsets.zero);
 
   @override
   Animatable<EdgeInsetsGeometry> createSingleTween(EdgeInsetsGeometry from, EdgeInsetsGeometry to) {

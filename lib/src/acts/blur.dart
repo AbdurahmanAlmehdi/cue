@@ -12,7 +12,7 @@ class BlurAct extends TweenAct<double> {
     required super.frames,
     super.reverse,
     super.delay,
-  }) : super.keyframed();
+  }) : super.keyframed(from: 0.0);
 
   const BlurAct.focus({
     super.from = 10.0,

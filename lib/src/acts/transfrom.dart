@@ -1,24 +1,24 @@
 part of 'base/act.dart';
 
 class TransformAct extends TweenAct<Matrix4> {
-  const TransformAct({
-    required super.from,
+   TransformAct({
+     Matrix4? from,
     required super.to,
     super.motion,
     super.reverse,
     this.alignment,
     this.origin,
-  }) : super.tween();
+  }) : super.tween(from: from ?? Matrix4.identity());
 
   final AlignmentGeometry? alignment;
   final Offset? origin;
 
-  const TransformAct.keyframed({
+   TransformAct.keyframed({
     required super.frames,  
     super.reverse,
     this.alignment,
     this.origin,
-  }) : super.keyframed();
+  }) : super.keyframed(from: Matrix4.identity());
 
   @override
   Animatable<Matrix4> createSingleTween(Matrix4 from, Matrix4 to) {
