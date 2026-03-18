@@ -40,7 +40,7 @@ class _BottomBarState extends State<BottomBar> {
                       Cue.onChange(
                         value: _activeTab,
                         fromCurrentValue: true,
-                        motion: Spring.wobbly(),
+                        motion: Spring.smooth(),
                         act: .slideX(to: slideStep * _activeTab),
                         child: Container(
                           width: expandedWidth,

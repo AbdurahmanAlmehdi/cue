@@ -193,56 +193,9 @@ final class Spring extends SimulationMotion<CueSpringSimulation> {
   }
 
   @override
-  Duration get duration {
+  Duration get baseDuration {
     final sim = build(true, 0, 0.0, 0.0);
     return Duration(milliseconds: (sim.calculateSettleDuration() * 1000).round());
   }
 
-  // double calculateSettleDurationHybrid(SpringSimulation sim, SpringDescription desc, {int samples = 60}) {
-  //   final stepSize = 1 / samples;
-  //   final s = desc;
-  //   final m = s.mass;
-  //   final k = s.stiffness;
-  //   final c = s.damping;
-
-  //   final x0 = sim.x(0);
-  //   final target = 1.0;
-  //   final deltaX = (x0 - target).abs();
-  //   final tol = sim.tolerance.distance;
-
-  //   if (deltaX < tol) return 0.0;
-
-  //   // damping ratio
-  //   final zeta = c / (2 * sqrt(k * m));
-  //   final omegaN = sqrt(k / m);
-
-  //   double tEstimate;
-
-  //   if (zeta < 1.0) {
-  //     // underdamped: use envelope to estimate
-  //     tEstimate = -log(tol / (deltaX * sqrt(1 - zeta * zeta))) / (zeta * omegaN);
-  //   } else {
-  //     // critically or overdamped
-  //     tEstimate = -log(tol / deltaX) / (c / (2 * m));
-  //   }
-
-  //   // clamp estimate to positive
-  //   tEstimate = tEstimate.clamp(0.0, double.infinity);
-
-  //   // now step a few ticks from tEstimate - 2*stepSize to capture exact Flutter settle
-  //   double t = max(0.0, tEstimate - 2 * stepSize);
-  //   final maxTime = tEstimate + 2.0; // safety cap
-
-  //   while (t < maxTime) {
-  //     final x = sim.x(t);
-  //     final v = sim.dx(t);
-  //     if ((x - target).abs() < tol && v.abs() < sim.tolerance.velocity) {
-  //       return t;
-  //     }
-  //     t += stepSize;
-  //   }
-
-  //   // fallback
-  //   return t;
-  // }
 }

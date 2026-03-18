@@ -53,7 +53,7 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends ActImp
         ),
         FractionalKeyframes<T>(:final frames, :final duration) => Phase.resolveFractionalFrames<T, R>(
           frames,
-          duration: duration ?? motion.duration,
+          duration: duration ?? motion.baseDuration,
           transform: (v) => transform(context, v),
         ),
       };

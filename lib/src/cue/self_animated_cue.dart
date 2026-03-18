@@ -4,7 +4,7 @@ class SelfAnimatedCue extends Cue {
   const SelfAnimatedCue({
     super.key,
     required super.child,
-    this.motion = CueMotion.defaultDuration,
+    this.motion = CueMotion.defaultTime,
     this.reverseMotion,
     super.debugLabel,
     this.loop = false,

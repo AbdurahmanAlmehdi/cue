@@ -4,13 +4,16 @@ import 'spring_motion.dart';
 abstract class CueMotion {
   const CueMotion();
 
-  Duration get duration;
-
   int get totalPhases => 1;
+
+  Duration get baseDuration;
 
   CueSimulation build(bool forward, int phase, double progress, double? velocity);
 
+  CueSimulation buildBase([bool forward = true]) => build(forward, 0, forward ? 0.0 : 1.0, 0.0);
+
   bool get isTimed => this is TimedMotion;
+
   bool get isSimulation => this is SimulationMotion;
 
   const factory CueMotion.curved(
@@ -22,9 +25,7 @@ abstract class CueMotion {
 
   static const jump = TimedMotion(Duration.zero);
 
-  static const CueMotion defaultDuration = TimedMotion(
-    Duration(milliseconds: 300),
-  );
+  static const CueMotion defaultTime = TimedMotion(Duration(milliseconds: 300));
 
   factory CueMotion.spring({
     Duration duration,
@@ -81,27 +82,28 @@ abstract class CueMotion {
 }
 
 class TimedMotion extends CueMotion {
-  @override
-  final Duration duration;
   final Curve? curve;
-  const TimedMotion(this.duration) : curve = null;
-  const TimedMotion.curved(this.duration, {required Curve this.curve});
+  const TimedMotion(this.baseDuration) : curve = null;
+  const TimedMotion.curved(this.baseDuration, {required Curve this.curve});
 
   @override
-  double calculateDuration() => duration.inMicroseconds / Duration.microsecondsPerSecond;
+  final Duration baseDuration;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TimedMotion && runtimeType == other.runtimeType && duration == other.duration && curve == other.curve;
+      other is TimedMotion &&
+          runtimeType == other.runtimeType &&
+          baseDuration == other.baseDuration &&
+          curve == other.curve;
 
   @override
-  int get hashCode => duration.hashCode ^ curve.hashCode;
+  int get hashCode => baseDuration.hashCode ^ curve.hashCode;
 
   @override
   CueSimulation build(bool forward, int phase, double progress, double? velocity) {
     return CurvedSimulation(
-      baseDuration: duration,
+      baseDuration: baseDuration,
       curve: curve ?? Curves.linear,
       from: progress,
       to: forward ? 1.0 : 0.0,
@@ -114,6 +116,10 @@ mixin CueSimulation on Simulation {
 
   double get lastX;
   double get duration;
+
+  double valueAtProgress(double progress) {
+    return x(progress * duration);
+  }
 }
 
 class CurvedSimulation extends Simulation with CueSimulation {
@@ -171,6 +177,9 @@ class SegmentedMotion extends CueMotion {
   const SegmentedMotion(this.motions);
 
   @override
+  Duration get baseDuration => motions.fold(Duration.zero, (total, motion) => total + motion.baseDuration);
+
+  @override
   int get totalPhases => motions.length;
 
   @override
@@ -179,55 +188,83 @@ class SegmentedMotion extends CueMotion {
       motions: motions,
       forward: forward,
       initialPhase: phase,
-      initialProgress: progress,
-      initialVelocity: velocity ?? 0.0,
+      initialValue: progress,
+      velocity: velocity ?? 0.0,
     );
   }
-
-  @override
-  Duration get duration => motions.fold(Duration.zero, (acc, a) => acc + a.duration);
 }
 
 class SegmentedSimulation extends Simulation with CueSimulation {
   final List<CueMotion> _motions;
   final bool _forward;
+  late double _duration;
 
   @override
-  double get duration =>
-      _motions.fold(0.0, (acc, motion) => acc + motion.duration.inMicroseconds / Duration.microsecondsPerSecond);
+  double get duration => _duration;
 
   int _phase;
-  double _phaseStartTime = 0;
+
   late CueSimulation _current;
-  double _progress = 0.0;
 
   @override
-  double get lastX => _progress;
+  double get lastX => _lastX;
 
   @override
   int get phase => _phase;
 
+  double _phaseStartTime = 0;
+
+  double _lastX = 0.0;
+
+  late final _seekableSims = List.unmodifiable(_motions.map((m) => m.buildBase()));
+
   SegmentedSimulation({
     required List<CueMotion> motions,
     required bool forward,
-    required double initialVelocity,
+    required double velocity,
     int initialPhase = 0,
-    double initialProgress = 0,
+    double initialValue = 0,
   }) : _motions = motions,
        _forward = forward,
        _phase = initialPhase {
-    _current = motions[initialPhase].build(
-      forward,
-      initialPhase,
-      initialProgress,
-      initialVelocity,
-    );
+    _current = motions[initialPhase].build(forward, initialPhase, initialValue, velocity);
+    _duration = _current.duration;
+    if (_forward) {
+      for (int i = initialPhase + 1; i < motions.length; i++) {
+        _duration += motions[i].baseDuration.inMicroseconds / Duration.microsecondsPerSecond;
+      }
+    } else {
+      for (int i = 0; i < initialPhase; i++) {
+        _duration += motions[i].baseDuration.inMicroseconds / Duration.microsecondsPerSecond;
+      }
+    }
+  }
+
+  @override
+  double valueAtProgress(double progress) {
+    if (_motions.isEmpty) return 0.0;
+
+    final totalBaseDuration = _seekableSims.fold(0.0, (sum, value) => sum + value.duration);
+    if (totalBaseDuration <= 0.0) {
+      return _seekableSims.first.valueAtProgress(1.0);
+    }
+    double elapsed = progress * totalBaseDuration;
+    int phase = 0;
+    while (phase < _seekableSims.length - 1 && elapsed >= _seekableSims[phase].duration) {
+      elapsed -= _seekableSims[phase].duration;
+      phase++;
+    }
+
+    final segmentDuration = _seekableSims[phase].duration;
+    final localProgress = segmentDuration <= 0.0 ? 1.0 : (elapsed / segmentDuration).clamp(0.0, 1.0);
+    _phase = phase;
+    return _seekableSims[phase].valueAtProgress(localProgress);
   }
 
   @override
   double x(double time) {
     _advanceIfNeeded(time);
-    return _progress = _current.x(time - _phaseStartTime);
+    return _lastX = _current.x(time - _phaseStartTime);
   }
 
   @override
@@ -249,7 +286,7 @@ class SegmentedSimulation extends Simulation with CueSimulation {
     final localTime = time - _phaseStartTime;
     final canAdvance = _forward ? _phase < _motions.length - 1 : _phase > 0;
     if (canAdvance && _current.isDone(localTime)) {
-      double exitVelocity = _current.dx((localTime - 0.016).clamp(0.0, double.infinity));
+      double exitVelocity = _current.dx((localTime).clamp(0.0, double.infinity));
       // Negate velocity when reversing
       if (!_forward) {
         exitVelocity = -exitVelocity;

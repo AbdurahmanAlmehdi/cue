@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 abstract class CueAnimtable<T> {
   const CueAnimtable();
   CueMotion? get motion => null;
-  T evaluate(CueTrack driver);
+  T evaluate(CueTrack track);
 }
 
 class TweenAnimtable<T> extends CueAnimtable<T> {
@@ -16,8 +16,8 @@ class TweenAnimtable<T> extends CueAnimtable<T> {
   const TweenAnimtable(this.tween, { this.motion});
 
   @override
-  T evaluate(CueTrack driver) {
-    return tween.transform(driver.value);
+  T evaluate(CueTrack track) {
+    return tween.transform(track.value);
   }
 }
 
@@ -25,7 +25,7 @@ class ReversedAnimtable<T> extends TweenAnimtable<T> {
   const ReversedAnimtable(super.tween, {super.motion});
 
   @override
-  T evaluate(CueTrack driver) => tween.transform(1.0 - driver.value);
+  T evaluate(CueTrack track) => tween.transform(1.0 - track.value);
 }
 
 class DualAnimatable<T> extends CueAnimtable<T> {
@@ -38,9 +38,9 @@ class DualAnimatable<T> extends CueAnimtable<T> {
   });
 
   @override
-  T evaluate(CueTrack driver) {
-    final isReversing = driver.isReverseOrDismissed;
-    return isReversing ? reverse.evaluate(driver) : forward.evaluate(driver);
+  T evaluate(CueTrack track) {
+    final isReversing = track.isReverseOrDismissed;
+    return isReversing ? reverse.evaluate(track) : forward.evaluate(track);
   }
 }
 
@@ -50,7 +50,7 @@ class AlwaysStoppedAnimatable<T> extends CueAnimtable<T> {
   const AlwaysStoppedAnimatable(this.value);
 
   @override
-  T evaluate(CueTrack driver) => value;
+  T evaluate(CueTrack track) => value;
 }
 
 class AnimatableSegment<T> extends Animatable<T> {
@@ -75,7 +75,7 @@ class SegmentedAnimtable<T> extends CueAnimtable<T> {
   CueMotion? get motion => SegmentedMotion(List.unmodifiable(segments.map((e) => e.motion)));
 
   @override
-  T evaluate(CueTrack driver) {
-    return segments[driver.phase].transform(driver.value);
+  T evaluate(CueTrack track) {
+    return segments[track.phase].transform(track.value);
   }
 }

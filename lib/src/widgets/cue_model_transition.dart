@@ -1,6 +1,6 @@
 import 'package:cue/cue.dart';
 import 'package:cue/src/core/curves.dart';
-import 'package:cue/src/motion/cue_animation_controller.dart';
+import 'package:cue/src/motion/cue_controller.dart';
 import 'package:cue/src/motion/cue_motion.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +19,7 @@ class CueModalTransition extends StatefulWidget {
     this.barrierDismissible = true,
     this.barrierLabel = 'ModalTransition',
     this.barrierColor = const Color(0x80000000),
-    this.motion = .defaultDuration,
+    this.motion = .defaultTime,
     this.reverseMotion,
     this.hideTriggerOnTransition = false,
   });
