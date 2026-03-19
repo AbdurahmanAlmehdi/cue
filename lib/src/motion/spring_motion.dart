@@ -16,8 +16,9 @@ class CueSpringSimulation extends SpringSimulation with CueSimulation {
     super.velocity, {
     super.tolerance,
     super.snapToEnd,
-  });
+  }): _end = end;
 
+  final double _end;
   double? _duration;
 
   @override
@@ -29,7 +30,7 @@ class CueSpringSimulation extends SpringSimulation with CueSimulation {
     while (t < 100.0) {
       final x = this.x(t);
       final v = dx(t);
-      if ((x - 1.0).abs() < tolerance.distance && v.abs() < tolerance.velocity) return t;
+      if ((x - _end).abs() < tolerance.distance && v.abs() < tolerance.velocity) return t;
       t += stepSize;
     }
     return t;

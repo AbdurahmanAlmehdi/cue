@@ -42,7 +42,6 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
       from: mainTrack.progress,
       exteranlVelocity: mainTrack.velocity,
     );
-
     return animation;
   }
 

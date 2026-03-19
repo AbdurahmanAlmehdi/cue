@@ -52,10 +52,6 @@ class CurvedSimulation extends Simulation with CueSimulation {
   bool isDone(double t) => t >= _duration;
 }
 
-
-
-
-
 class SegmentedMotion extends CueMotion {
   final List<CueMotion> motions;
   const SegmentedMotion(this.motions);
@@ -100,7 +96,14 @@ class SegmentedSimulation extends Simulation with CueSimulation {
 
   double _lastX = 0.0;
 
-  late final _seekableSims = List.unmodifiable(_motions.map((m) => m.buildBase()));
+  List<CueSimulation> _buildSeekableSegments() {
+    if (_forward) {
+      return List.unmodifiable(_motions.map((m) => m.buildBase(true)));
+    }
+    return List.unmodifiable(_motions.reversed.map((m) => m.buildBase(false)));
+  }
+
+  late final _seekableSegments = _buildSeekableSegments();
 
   SegmentedSimulation({
     required List<CueMotion> motions,
@@ -127,22 +130,22 @@ class SegmentedSimulation extends Simulation with CueSimulation {
   @override
   double valueAtProgress(double progress) {
     if (_motions.isEmpty) return 0.0;
+    if (_motions.isEmpty) return 0.0;
 
-    final totalBaseDuration = _seekableSims.fold(0.0, (sum, value) => sum + value.duration);
+    final totalBaseDuration = _seekableSegments.fold(0.0, (sum, value) => sum + value.duration);
     if (totalBaseDuration <= 0.0) {
-      return _seekableSims.first.valueAtProgress(1.0);
+      return _seekableSegments.first.valueAtProgress(1.0);
     }
     double elapsed = progress * totalBaseDuration;
     int phase = 0;
-    while (phase < _seekableSims.length - 1 && elapsed >= _seekableSims[phase].duration) {
-      elapsed -= _seekableSims[phase].duration;
+    while (phase < _seekableSegments.length - 1 && elapsed >= _seekableSegments[phase].duration) {
+      elapsed -= _seekableSegments[phase].duration;
       phase++;
     }
-
-    final segmentDuration = _seekableSims[phase].duration;
+    final segmentDuration = _seekableSegments[phase].duration;
     final localProgress = segmentDuration <= 0.0 ? 1.0 : (elapsed / segmentDuration).clamp(0.0, 1.0);
-    _phase = phase;
-    return _seekableSims[phase].valueAtProgress(localProgress);
+    _phase = _forward ? phase : _motions.length - 1 - phase;
+    return _seekableSegments[phase].valueAtProgress(localProgress);
   }
 
   @override

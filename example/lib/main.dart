@@ -1,4 +1,6 @@
 import 'package:cue/cue.dart';
+import 'package:example/examples/slack_style_fab.dart';
+import 'package:example/examples/three_dots_action.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +65,8 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: .center,
+            crossAxisAlignment: .end,
             children: [
               // SlackStyleFab(),
               // DeleteConfirmationDialog(),
@@ -75,12 +78,12 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                   children: [
                     // Actor(
                     //   act: .compose([
-                    //     SizedBoxAct.keyframed(
+                    //     SlideAct.keyframedX(
                     //       frames: Keyframes([
-                    //         .key(Size.square(20), motion: .none),
-                    //         .key(Size.square(50), motion: .wobbly()),
-                    //         .key(Size.square(70), motion: .wobbly()),
+                    //        .key(1, motion: .linear(150.ms)),
+                    //        .key(2, motion: .linear(150.ms)),
                     //       ]),
+                    //       reverse: .mirror(delay: 300.ms)
                     //     ),
                     //   ]),
                     //   child: Container(
@@ -90,25 +93,26 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                     //   ),
                     // ),
 
-                    Actor(
-                      act: .compose([
-                        .slideX(to: 1, reverse: .mirror(motion: .wobbly())),
-                      ]),
-                      child: Container(
-                        height: 100,
-                        width: 100,
-                        color: Colors.red,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () => setState(() => checked = !checked),
-                      child: Text('Toggle'),
-                    ),
+                    // Actor(
+                    //   act: .compose([
+                    //     .slideX(to: 1, reverse: .mirror(delay: 300.ms)),
+                    //   ]),
+                    //   child: Container(
+                    //     height: 100,
+                    //     width: 100,
+                    //     color: Colors.red,
+                    //   ),
+                    // ),
+                    // SizedBox(height: 20),
+                    // ElevatedButton(
+                    //   onPressed: () => setState(() => checked = !checked),
+                    //   child: Text('Toggle'),
+                    // ),
                   ],
                 ),
-              ),
+              ), 
 
+              ThreeDotsAction(),
               //  SlackStyleFab(),
               //  DeleteConfirmationDialog(),
               //   GestureDetector(

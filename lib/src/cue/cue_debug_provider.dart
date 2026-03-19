@@ -64,24 +64,22 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
       _controller.repeat();
     } else {
       double startValue = _controller.value;
-
       if (_overlayData.value.forward) {
-        if (startValue == 1.0) {
+          if (startValue == 1.0) {
           startValue = 0.0;
         }
         _controller.forward(from: startValue);
       } else {
-        if (startValue == 0.0) {
+          if (startValue == 0.0) {
           startValue = 1.0;
         }
-        print('Reversing from $startValue');
         _controller.reverse(from: startValue);
       }
     }
   }
 
   VoidCallback attachDebugTarget(BuildContext context, {required String id, required CueTrack track}) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+
       _overlayData.value = _overlayData.value.copyWith(activeTargetId: id);
       _controller.timeline.reset(
         TrackConfig(
@@ -92,11 +90,11 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
         ),
       );
       _controller.setProgress(track.progress, forward: _overlayData.value.forward);
-    });
 
     void deattachCallback() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _controller.setProgress(0, forward: _overlayData.value.forward);
+        timeDilation = 1.0;
         _overlayData.value = _overlayData.value.copyWith(
           activeTargetId: '',
           isMinimized: true,
@@ -357,6 +355,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                               _dataNotifier.value = _data.copyWith(
                                                 isMinimized: true,
                                               );
+                                              timeDilation = 1.0;
                                             },
                                             padding: EdgeInsets.zero,
                                             constraints: const BoxConstraints(),

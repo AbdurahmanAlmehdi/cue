@@ -1,5 +1,4 @@
 import 'package:cue/cue.dart';
-import 'package:cue/src/motion/cue_motion.dart';
 import 'package:cue/src/motion/simulation.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +29,7 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
   bool _needsPrepare = false;
 
   late final CueSimulation _seekableSim = motion.buildBase();
-  late final CueSimulation _seekableReverseSim = reverseMotion?.buildBase(false) ?? _seekableSim;
+  late final CueSimulation _seekableReverseSim =  reverseMotion?.buildBase(false) ?? motion.buildBase(false);
 
   @override
   double get baseDuration {
@@ -68,6 +67,7 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
   double _valueAtProgress(double progress, bool forward) {
     final sim = forward ? _seekableSim : _seekableReverseSim;
     final delaySeconds = (forward ? delay : reverseDelay);
+    progress = forward ? progress : (1.0 - progress);
 
     final simDuration = sim.duration;
     final totalDuration = delaySeconds + simDuration;
@@ -93,8 +93,7 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
       newValue = _valueAtProgress(t, true);
       _done = t >= 1.0;
     } else if (!forward && !reverseType.isNone) {
-      print('Setting progress to $t ');
-      newValue = _valueAtProgress(1, false);
+      newValue = _valueAtProgress(t, false);
       _done = t <= 0.0;
     } else {
       _done = true;

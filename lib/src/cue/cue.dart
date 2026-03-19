@@ -141,15 +141,21 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
     super.didChangeDependencies();
     if (kDebugMode) {
       if (CueDebugTools.isWrappedByDebugProvider(context)) {
-          // _deattachDebugOverlay = CueDebugTools.attachDebugTarget(context, id: _debugId);
-        timeline.addOnPrepareListener((forward) {
-          if (forward) {
+        void statusListener(status) {
+          if (status.isForwardOrCompleted) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-             
-              _deattachDebugOverlay = CueDebugTools.attachDebugTarget(context, id: _debugId, driver: timeline.mainTrack);
+              _deattachDebugOverlay?.call();
+              _deattachDebugOverlay = null;
+              _deattachDebugOverlay = CueDebugTools.attachDebugTarget(
+                context,
+                id: _debugId,
+                driver: timeline.mainTrack,
+              );
             });
           }
-        });
+        }
+        timeline.removeStatusListener(statusListener);
+        timeline.addStatusListener(statusListener);
       }
     }
   }

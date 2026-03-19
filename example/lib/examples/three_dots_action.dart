@@ -8,6 +8,8 @@ class ThreeDotsAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return CueModalTransition(
       barrierColor: Colors.black12,
+      motion: .smooth(),
+      reverseMotion: .iosDefaultSpring(),
       alignment: Alignment.bottomCenter,
       triggerBuilder: (context, showModal) => FloatingActionButton(
         shape: CircleBorder(),
@@ -32,6 +34,7 @@ class ThreeDotsAction extends StatelessWidget {
           width: rect.width,
           child: Stack(
             alignment: .bottomCenter,
+            fit: StackFit.loose,
             children: [
               FloatingActionButton(
                 elevation: 0,
@@ -41,7 +44,7 @@ class ThreeDotsAction extends StatelessWidget {
                   act: .compose([
                     .fadeIn(from: 0),
                     .focus(from: 8),
-                    .slideY(from: rect.height / 3),
+                    .slideY(from: 1),
                   ]),
                   child: const Icon(Icons.keyboard_arrow_down),
                 ),
@@ -62,7 +65,10 @@ class ThreeDotsAction extends StatelessWidget {
                       Actor(
                         act: .compose([
                           .padding(from: .all(1), to: .only(bottom: 10.0)),
-                          .sizedClip(from: .square(5), to: .square(44)),
+                          .sizedBox(
+                            width: .tween(from: 5, to: 44),
+                            height: .tween(from: 5, to: 44),
+                          ),
                         ]),
                         child: FloatingActionButton(
                           mini: true,
@@ -72,8 +78,12 @@ class ThreeDotsAction extends StatelessWidget {
                           heroTag: null,
                           onPressed: () {},
                           child: Actor(
-                            act: .compose([.focus(from: 8), .fadeIn()]),
-                            child: Icon(icon, color: Colors.white, size: 24),
+                            act: .compose([
+                              .focus(from: 8),
+                              .zoomIn(),
+                              .fadeIn(),
+                            ]),
+                            child: Icon(icon, color: Colors.white, size: 20),
                           ),
                         ),
                       ),
