@@ -22,7 +22,7 @@ class ActorState extends State<Actor> {
 
   List<(Act, ActContext)> _acts = [];
 
-  void _onPrepare(bool forward) {
+  void _onWillAnimate(bool forward) {
     for (final entry in _animations.entries) {
       _animationSnapshots[entry.key] = entry.value.value;
     }
@@ -103,12 +103,11 @@ class ActorState extends State<Actor> {
         ),
       );
     }
-
     if (_cachedScope == null || scope.updateShouldNotify(_cachedScope!)) {
-      print('Dependencies changed, updating animations for Actor. New acts: ${_acts.map((e) => e.$1).toList()}');
-      // _cachedScope?.timeline.removeOnPrepareListener(_onPrepare);
-      scope.timeline.addOnWillAnimateListener(_onPrepare);
-      // scope.willReanimateNotifier?.addEventListener(_onPrepare);
+      if (_cachedScope?.timeline != scope.timeline) {
+        _cachedScope?.timeline.removeOnWillAnimateListener(_onWillAnimate);
+        scope.timeline.addOnWillAnimateListener(_onWillAnimate);
+      }
       _clearCache();
       _setupAnimations(scope);
     }
@@ -134,7 +133,7 @@ class ActorState extends State<Actor> {
   @override
   void dispose() {
     super.dispose();
-    _cachedScope?.timeline.removeOnWillAnimateListener(_onPrepare);
+    _cachedScope?.timeline.removeOnWillAnimateListener(_onWillAnimate);
     // _cachedScope?.animations.disposeAll(_animations.values);
   }
 }
