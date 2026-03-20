@@ -35,6 +35,7 @@ class CueController extends AnimationController {
     if (_statusListener != null) {
       removeStatusListener(_statusListener!);
     }
+    _timeline.dispose();
     super.dispose();
   }
 
@@ -49,7 +50,6 @@ class CueController extends AnimationController {
     timeline.setProgress(newValue, forward: forward);
     super.value = newValue;
   }
-
 
   @override
   AnimationStatus get status => timeline.status;
@@ -69,6 +69,7 @@ class CueController extends AnimationController {
 
   @override
   TickerFuture forward({double? from}) {
+    _timeline.willAnimate(true);
     if (from != null) {
       assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0. Received: $from');
       value = from;
@@ -79,6 +80,7 @@ class CueController extends AnimationController {
 
   @override
   TickerFuture reverse({double? from}) {
+    _timeline.willAnimate(false);
     if (from != null) {
       assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0. Received: $from');
       value = from;

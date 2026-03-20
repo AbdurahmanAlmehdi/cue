@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:cue/cue.dart';
+import 'package:cue/src/timeline/event_notifier.dart';
 import 'package:cue/src/timeline/track/track.dart';
 import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +24,23 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     _onPrepareNotifier.removeEventListener(listener);
   }
 
+  @override
+  void addOnWillAnimateListener(ValueChanged<bool> listener) {
+    _onWillAnimateNotifier.addEventListener(listener);
+  }
+
+  @override
+  void removeOnWillAnimateListener(ValueChanged<bool> listener) {
+    _onWillAnimateNotifier.removeEventListener(listener);
+  }
+
+  @override
+  void willAnimate(bool forward) {
+    _onWillAnimateNotifier.fireEvent(forward);
+  }
+
   final _onPrepareNotifier = EventNotifier<bool>();
+  final _onWillAnimateNotifier = EventNotifier<bool>();
 
   double _lastT = 0.0;
 
@@ -143,12 +159,20 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
   void didUnregisterListener() {
     // TODO: implement didUnregisterListener
   }
+
+  @override
+  void dispose() {
+    _onPrepareNotifier.dispose();
+    _onWillAnimateNotifier.dispose();
+  }
 }
 
 abstract class CueTimeline extends Simulation {
   CueTrack trackFor(TrackConfig config);
 
   void prepare({required bool forward, double? from});
+
+  void willAnimate(bool forward);
 
   void setProgress(double value, {bool forward = true});
 
@@ -158,7 +182,7 @@ abstract class CueTimeline extends Simulation {
 
   double get progress {
     final progressList = tracks.values.map((track) => track.progress);
-     if (status == AnimationStatus.reverse) {
+    if (status == AnimationStatus.reverse) {
       return progressList.fold(0.0, max).clamp(0.0, 1.0);
     } else {
       return progressList.fold(double.infinity, min).clamp(0.0, 1.0);
@@ -175,12 +199,16 @@ abstract class CueTimeline extends Simulation {
 
   CueTrack get mainTrack;
 
+  void dispose();
+
   void reset(TrackConfig config) {
     tracks.clear();
     tracks[config] = buildTrack(config);
   }
 
   void addOnPrepareListener(ValueChanged<bool> listener);
+  void addOnWillAnimateListener(ValueChanged<bool> listener);
+  void removeOnWillAnimateListener(ValueChanged<bool> listener);
   void removeOnPrepareListener(ValueChanged<bool> listener);
   void addStatusListener(AnimationStatusListener listener);
   void removeStatusListener(AnimationStatusListener listener);

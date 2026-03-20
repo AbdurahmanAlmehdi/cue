@@ -21,8 +21,7 @@ class _OnChangeCue extends SelfAnimatedCue {
 }
 
 class _OnChangeCueState extends SelfAnimatedState<_OnChangeCue> {
-  @override
-  final EventNotifier<bool> willReanimateNotifier = EventNotifier();
+
 
   @override
   String get debugName => 'OnChangeCue';
@@ -40,16 +39,9 @@ class _OnChangeCueState extends SelfAnimatedState<_OnChangeCue> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    willReanimateNotifier.dispose();
-  }
-
-  @override
   void didUpdateWidget(covariant _OnChangeCue oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != oldWidget.value) {
-      willReanimateNotifier.fireEvent(true);
       controller.forward(from: 0.0);
     }
   }

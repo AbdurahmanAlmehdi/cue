@@ -1,7 +1,4 @@
 import 'package:cue/cue.dart';
-import 'package:example/examples/delete_confirmation.dart';
-import 'package:example/examples/indicator_to_button.dart';
-import 'package:example/examples/slack_style_fab.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +41,7 @@ class _OnChangeDemo extends StatefulWidget {
 }
 
 class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProviderStateMixin {
-  double size = 100.0;
+  double slide = 1.0;
   bool checked = false;
   late final _controller = CueController(vsync: this, motion: .wobbly());
 
@@ -66,7 +63,9 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
             crossAxisAlignment: .center,
             children: [
               // IndicatorToButton(),
-              Cue.onMount(
+              Cue.onChange(
+                value: slide,
+                fromCurrentValue: true,
                 // toggled: checked,
                 motion: .linear(300.ms),
                 child: Column(
@@ -90,7 +89,7 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
 
                     Actor(
                       act: .compose([
-                        .slideX(to: 1, delay: 300.ms, reverse: .mirror(delay: 300.ms)),
+                        .slideX(to: slide),
                       ]),
                       child: Container(
                         height: 100,
@@ -99,10 +98,14 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                       ),
                     ),
                     // SizedBox(height: 20),
-                    // ElevatedButton(
-                    //   onPressed: () => setState(() => checked = !checked),
-                    //   child: Text('Toggle'),
-                    // ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          slide = slide+.1;
+                        });
+                      },
+                      child: Text('Toggle'),
+                    ),
                   ],
                 ),
               ), 

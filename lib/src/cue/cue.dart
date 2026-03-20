@@ -128,8 +128,6 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
 
   VoidCallback? _deattachDebugOverlay;
 
-  EventNotifier<bool>? get willReanimateNotifier => null;
-
   bool get reanimateFromCurrent => false;
 
   String get debugName;
@@ -178,14 +176,12 @@ abstract class _CueState<T extends Cue> extends State<Cue> {
         return CueScope(
           reanimateFromCurrent: reanimateFromCurrent,
           timeline: useDebugAnimation ? debugToolsScope.timeline : timeline,
-          willReanimateNotifier: willReanimateNotifier,
           child: child,
         );
       }
     }
     return CueScope(
       timeline: timeline,
-      willReanimateNotifier: willReanimateNotifier,
       reanimateFromCurrent: reanimateFromCurrent,
       child: child,
     );
