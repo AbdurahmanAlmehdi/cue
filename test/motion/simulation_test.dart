@@ -1,5 +1,7 @@
+import 'package:cue/cue.dart';
 import 'package:cue/src/motion/simulation.dart';
-import 'package:flutter/physics.dart';
+import 'package:cue/src/motion/cue_motion.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -242,13 +244,450 @@ void main() {
       expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
     });
   });
+
+  group('DelayedSimulation wrapping CueSpringSimulation', () {
+    // Basic delayed spring - underdamped
+    test('underdamped with 0.5s delay', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.5);
+      
+      expect(refDuration(delayed), closeTo(delayed.duration, 1 / 60));
+    });
+
+    test('critically damped with 0.3s delay', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 20.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.3);
+      
+      expect(refDuration(delayed), closeTo(delayed.duration, 1 / 60));
+    });
+
+    test('overdamped with 0.2s delay', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 50.0, damping: 20.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.2);
+      
+      expect(refDuration(delayed), closeTo(delayed.duration, 1 / 60));
+    });
+
+    // Delayed spring with initial velocity
+    test('underdamped with velocity and 0.4s delay', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        1.0,
+        2.0,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.4);
+      
+      expect(refDuration(delayed), closeTo(delayed.duration, 1 / 60));
+    });
+
+    // Delayed spring with different ranges
+    test('underdamped different range with 0.25s delay', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.5,
+        2.5,
+        0.0,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.25);
+      
+      expect(refDuration(delayed), closeTo(delayed.duration, 1 / 60));
+    });
+
+    // Delayed spring with different frame rates
+    test('underdamped delayed @ 90fps', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        1.0,
+        0.0,
+        samplingStepSize: 1 / 90,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.3);
+      
+      expect(refDuration(delayed, stepSize: 1 / 90), closeTo(delayed.duration, 1 / 90));
+    });
+
+    test('critically damped delayed @ 120fps', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 20.0),
+        0.0,
+        1.0,
+        0.0,
+        samplingStepSize: 1 / 120,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.5);
+      
+      expect(refDuration(delayed, stepSize: 1 / 120), closeTo(delayed.duration, 1 / 120));
+    });
+
+    test('overdamped delayed @ 144fps', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 50.0, damping: 20.0),
+        0.0,
+        1.0,
+        0.0,
+        samplingStepSize: 1 / 144,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.2);
+      
+      expect(refDuration(delayed, stepSize: 1 / 144), closeTo(delayed.duration, 1 / 144));
+    });
+
+    // Very small and very large delays
+    test('underdamped with very small delay (0.01s)', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.01);
+      
+      expect(refDuration(delayed), closeTo(delayed.duration, 1 / 60));
+    });
+
+    test('underdamped with large delay (1.5s)', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 1.5);
+      
+      expect(refDuration(delayed), closeTo(delayed.duration, 1 / 60));
+    });
+
+    // Delayed spring with complex parameters
+    test('complex delayed spring: high mass, velocity, delay', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 2.0, stiffness: 200.0, damping: 15.0),
+        0.0,
+        5.0,
+        3.0,
+        samplingStepSize: 1 / 120,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.6);
+      
+      expect(refDuration(delayed, stepSize: 1 / 120), closeTo(delayed.duration, 1 / 120));
+    });
+
+    // Delayed spring with reverse direction
+    test('reversed underdamped with delay', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        1.0,
+        0.0,
+        0.0,
+      );
+      final delayed = DelayedSimulation(base: springCue, delay: 0.4);
+      
+      expect(refDuration(delayed), closeTo(delayed.duration, 1 / 60));
+    });
+  });
+
+  group('CueSpringSimulation edge cases', () {
+    // Zero displacement
+    test('zero displacement (0->0)', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        0.0,
+        0.0,
+      );
+      // Should be nearly instant or very short
+      expect(sim.duration, lessThan(0.1));
+      expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
+    });
+
+    // Negative displacement
+    test('negative displacement (-1.0->1.0)', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        -1.0,
+        1.0,
+        0.0,
+      );
+      expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
+    });
+
+    test('negative displacement (5.0->-5.0)', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        5.0,
+        -5.0,
+        0.0,
+      );
+      expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
+    });
+
+    // Extreme positive velocity
+    test('extremely high positive velocity', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        1.0,
+        10.0,
+      );
+      expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
+    });
+
+    // Extreme negative velocity
+    test('extremely high negative velocity', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        1.0,
+        -10.0,
+      );
+      expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
+    });
+
+    // Very low stiffness (sluggish)
+    test('very low stiffness (sluggish spring)', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 10.0, damping: 5.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
+    });
+
+    // Very low damping (bouncy)
+    test('very low damping (bouncy spring)', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 500.0, damping: 1.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
+    });
+
+    // Opposite velocity (moving away first)
+    test('opposite initial velocity (1.0->0.0 with positive velocity)', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        1.0,
+        -2.0, // Moving backwards initially
+      );
+      expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
+    });
+
+    // Very large displacement
+    test('very large displacement (0->100)', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        100.0,
+        0.0,
+      );
+      expect(refDuration(sim), closeTo(sim.duration, 0.05));
+    });
+
+    // Different masses
+    test('very heavy mass (10.0)', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 10.0, stiffness: 100.0, damping: 20.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
+    });
+
+    test('very light mass (0.1)', () {
+      final sim = CueSpringSimulation(
+        SpringDescription(mass: 0.1, stiffness: 100.0, damping: 5.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      expect(refDuration(sim), closeTo(sim.duration, 1 / 60));
+    });
+  });
+
+  group('CurvedSimulation duration', () {
+    // Linear curve
+    test('linear curve 300ms', () {
+      final motion = CueMotion.linear(Duration(milliseconds: 300));
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      
+      expect(refDuration(curved), closeTo(curved.duration, 1 / 60));
+    });
+
+    test('linear curve 500ms', () {
+      final motion = CueMotion.linear(Duration(milliseconds: 500));
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      
+      expect(refDuration(curved), closeTo(curved.duration, 1 / 60));
+    });
+
+    // Ease in curve
+    test('easeIn curve', () {
+      final motion = CueMotion.curved(
+        Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      
+      expect(refDuration(curved), closeTo(curved.duration, 1 / 60));
+    });
+
+    // Ease out curve
+    test('easeOut curve', () {
+      final motion = CueMotion.curved(
+        Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      
+      expect(refDuration(curved), closeTo(curved.duration, 1 / 60));
+    });
+
+    // Ease in-out curve
+    test('easeInOut curve', () {
+      final motion = CueMotion.curved(
+        Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      
+      expect(refDuration(curved), closeTo(curved.duration, 1 / 60));
+    });
+
+    // Elastic curve
+    test('elasticIn curve', () {
+      final motion = CueMotion.curved(
+        Duration(milliseconds: 500),
+        curve: Curves.elasticIn,
+      );
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      
+      expect(refDuration(curved), closeTo(curved.duration, 1 / 60));
+    });
+
+    // Bounce curve
+    test('bounceOut curve', () {
+      final motion = CueMotion.curved(
+        Duration(milliseconds: 400),
+        curve: Curves.bounceOut,
+      );
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      
+      expect(refDuration(curved), closeTo(curved.duration, 1 / 60));
+    });
+
+    // Zero duration curve (edge case)
+    test('zero duration curve', () {
+      final motion = CueMotion.linear(Duration.zero);
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      
+      expect(curved.duration, lessThanOrEqualTo(0.01));
+      expect(refDuration(curved), closeTo(curved.duration, 1 / 60));
+    });
+
+    // Very long duration curve
+    test('very long duration curve (2s)', () {
+      final motion = CueMotion.linear(Duration(seconds: 2));
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      
+      expect(refDuration(curved), closeTo(curved.duration, 1 / 60));
+    });
+
+    // Different starting values
+    test('curved motion with non-zero start value', () {
+      final motion = CueMotion.curved(
+        Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.5));
+      
+      expect(refDuration(curved), closeTo(curved.duration, 1 / 60));
+    });
+  });
+
+  group('Chained DelayedSimulations', () {
+    // Double delayed: DelayedSimulation wrapping DelayedSimulation wrapping CueSpringSimulation
+    test('double delayed spring (delay + delay + spring)', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 10.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      final delayed1 = DelayedSimulation(base: springCue, delay: 0.2);
+      final delayed2 = DelayedSimulation(base: delayed1, delay: 0.3);
+      
+      // Total duration = 0.3 + 0.2 + spring.duration
+      expect(refDuration(delayed2), closeTo(delayed2.duration, 1 / 60));
+    });
+
+    test('triple delayed spring', () {
+      final springCue = CueSpringSimulation(
+        SpringDescription(mass: 1.0, stiffness: 100.0, damping: 20.0),
+        0.0,
+        1.0,
+        0.0,
+      );
+      final delayed1 = DelayedSimulation(base: springCue, delay: 0.1);
+      final delayed2 = DelayedSimulation(base: delayed1, delay: 0.2);
+      final delayed3 = DelayedSimulation(base: delayed2, delay: 0.1);
+      
+      // Total duration = 0.1 + 0.2 + 0.1 + spring.duration
+      expect(refDuration(delayed3), closeTo(delayed3.duration, 1 / 60));
+    });
+
+    // Delayed curved motion
+    test('delayed curved motion', () {
+      final motion = CueMotion.curved(
+        Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      final delayed = DelayedSimulation(base: curved, delay: 0.5);
+      
+      expect(refDuration(delayed), closeTo(delayed.duration, 1 / 60));
+    });
+
+    // Delayed + delayed curved motion
+    test('double delayed curved motion', () {
+      final motion = CueMotion.curved(
+        Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+      final curved = motion.build(SimulationBuildData.forward(startValue: 0.0));
+      final delayed1 = DelayedSimulation(base: curved, delay: 0.3);
+      final delayed2 = DelayedSimulation(base: delayed1, delay: 0.2);
+      
+      expect(refDuration(delayed2), closeTo(delayed2.duration, 1 / 60));
+    });
+  });
 }
 
 
 
 // mimic an actual ticker by incrementing time until the simulation reports it's done, 
 //then return the total elapsed time
-double refDuration(SpringSimulation sim, {double stepSize = 1 / 60}) {
+double refDuration(Simulation sim, {double stepSize = 1 / 60}) {
   double t = 0.0;
   while (t < 100.0) {
     if (sim.isDone(t)) return t;

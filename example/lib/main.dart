@@ -2,7 +2,6 @@ import 'package:cue/cue.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 
 void main() {
   runApp(const MyApp());
