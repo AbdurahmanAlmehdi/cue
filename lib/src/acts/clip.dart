@@ -67,6 +67,9 @@ class _AxisClipEffect extends TweenAct<double> implements ClipAct {
       child: child,
     );
   }
+  
+  @override
+  ActKey get key => const ActKey('Clip');
 }
 
 class _ClipEffect extends TweenAct<double> implements ClipAct {
@@ -124,6 +127,9 @@ class _ClipEffect extends TweenAct<double> implements ClipAct {
       child: child,
     );
   }
+  
+  @override
+  ActKey get key => const ActKey('Clip');
 }
 
 class ExpandingPathClipper extends CustomClipper<Path> {

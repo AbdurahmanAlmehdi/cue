@@ -1,6 +1,9 @@
 part of 'base/act.dart';
 
 class RotateAct extends TweenAct<double> {
+  @override
+  final ActKey key = const ActKey('Rotate');
+  
   final AlignmentGeometry alignment;
   final RotateUnit unit;
   final RotateAxis axis;

@@ -1,6 +1,10 @@
 part of 'base/act.dart';
 
 class FractionalSizeAct extends AnimtableAct<FractionaSizeProps, FractionaSizeProps> {
+
+  @override
+  final ActKey key = const ActKey('FractionalSize');
+  
   final AnimatableValue<double>? widthFactor;
   final AnimatableValue<double>? heightFactor;
   final AnimatableValue<AlignmentGeometry>? alignment;

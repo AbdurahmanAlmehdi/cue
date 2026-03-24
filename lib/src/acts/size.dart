@@ -1,6 +1,10 @@
 part of 'base/act.dart';
 
 class SizedBoxAct extends DeferredTweenAct<Size> {
+  
+  @override
+  final ActKey key = const ActKey('SizedBox');
+
   final AnimatableValue<double>? width;
   final AnimatableValue<double>? height;
   final AlignmentGeometry alignment;
@@ -24,10 +28,8 @@ class SizedBoxAct extends DeferredTweenAct<Size> {
        height = null;
 
   @override
-  (CueAnimtable<Size>, CueAnimtable<Size>?) buildTweens(ActContext context) {
-    // We build fake tweens here just to extract the motion and other parameters from the context.
-    // The actual tween will be built later in the render object when we have the constraints.
-    final builder = _SizeActBuilder(
+  ActContext resolve(ActContext context) {
+     final builder = _SizeActBuilder(
       motion: motion,
       delay: delay,
       from: width != null || height != null ? Size.zero : null,
@@ -35,19 +37,18 @@ class SizedBoxAct extends DeferredTweenAct<Size> {
       frames: frames,
       reverse: reverse,
     );
-    return builder.buildTweens(context);
-  }
-
-  @override
-  ActContext resolve(ActContext context) {
-    // TODO: implement resolve
-    throw UnimplementedError();
+    return builder.resolve(context);
   }
 
   @override
   CueAnimation<Size> buildAnimation(CueTimeline timline, ActContext context) {
-    final superDriver = super.buildAnimation(timline, context);
-    return DeferredCueAnimation<Size>(parent: superDriver.parent, context: context);
+     final trackConfig = TrackConfig(
+       motion: context.motion,
+       reverseMotion: context.reverseMotion,
+       reverseType: reverse.type,
+     );
+      final track = timline.trackFor(trackConfig);
+    return DeferredCueAnimation<Size>(parent: track, context: context);
   }
 
   @override
@@ -333,6 +334,10 @@ class _SizeActBuilder extends TweenAct<Size> {
       'This class is only used to build the animatable for SizeAct and should never be built itself.',
     );
   }
+  @override
+  ActKey get key => throw UnimplementedError(
+    'This class is only used to build the animatable for SizeAct and should never be built itself.',
+  );
 }
 
 class _SizeTween extends Tween<Size> {

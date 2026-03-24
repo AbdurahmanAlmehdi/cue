@@ -1,6 +1,10 @@
 part of 'base/act.dart';
 
 class ScaleAct extends TweenAct<double> {
+  
+  @override
+  final ActKey key = const ActKey('Scale');
+
   final AlignmentGeometry? alignment;
 
   const ScaleAct({
@@ -9,6 +13,7 @@ class ScaleAct extends TweenAct<double> {
     super.motion,
     super.reverse,
     this.alignment,
+    super.delay,
   }) : super.tween();
 
   const ScaleAct.zoomIn({

@@ -1,6 +1,9 @@
 part of 'base/act.dart';
 
 class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
+
+ @override final ActKey key = const ActKey('DecoratedBox');
+
   final AnimatableValue<Color>? color;
   final AnimatableValue<BorderRadiusGeometry>? borderRadius;
   final AnimatableValue<BoxBorder>? border;
@@ -19,6 +22,7 @@ class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
     ReverseBehavior<Decoration> super.reverse = const ReverseBehavior.mirror(),
     this.position = DecorationPosition.background,
     this.shape = BoxShape.rectangle,
+    super.delay,
   });
 
   @override
@@ -97,11 +101,22 @@ class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
 
   @override
   int get hashCode => Object.hash(color, borderRadius, border, boxShadow, gradient, shape, position);
-  
+
   @override
-ActContext resolve(ActContext context) {
-    // TODO: implement resolve
-    throw UnimplementedError();
+  ActContext resolve(ActContext context) {
+    final delay = this.delay + context.delay;
+    final reverseDelay = reverse.delay + context.reverseDelay;
+
+    CueMotion forwardMotion = motion ?? context.motion;
+    CueMotion reverseMotion = reverse.motion ?? motion ?? context.reverseMotion;
+
+    if (delay != Duration.zero) {
+      forwardMotion = forwardMotion.delayed(delay);
+    }
+    if (reverseDelay != Duration.zero) {
+      reverseMotion = reverseMotion.delayed(reverseDelay);
+    }
+    return context.copyWith(motion: forwardMotion, reverseMotion: reverseMotion);
   }
 }
 
@@ -116,6 +131,8 @@ class DecoratedBoxActor extends StatelessWidget {
   final CueMotion? motion;
   final CueMotion? reverseMotion;
   final DecorationPosition position;
+  final Duration delay;
+  final Duration reverseDelay;
 
   const DecoratedBoxActor({
     super.key,
@@ -129,21 +146,26 @@ class DecoratedBoxActor extends StatelessWidget {
     this.motion,
     this.reverseMotion,
     this.position = DecorationPosition.background,
+    this.delay = Duration.zero,
+    this.reverseDelay = Duration.zero,
   });
 
   @override
   Widget build(BuildContext context) {
     return Actor(
-      acts: [DecoratedBoxAct(
-        color: color,
-        borderRadius: borderRadius,
-        border: border,
-        boxShadow: boxShadow,
-        gradient: gradient,
-        shape: shape,
-        position: position,
-        motion: motion,
-      )]  ,
+      acts: [
+        DecoratedBoxAct(
+          color: color,
+          borderRadius: borderRadius,
+          border: border,
+          boxShadow: boxShadow,
+          gradient: gradient,
+          shape: shape,
+          position: position,
+          motion: motion,
+          delay: delay,
+        ),
+      ],
       child: child ?? const SizedBox.shrink(),
     );
   }

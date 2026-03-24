@@ -1,6 +1,10 @@
 part of 'base/act.dart';
 
 class TransformAct extends TweenAct<Matrix4> {
+  
+  @override
+  final ActKey key = const ActKey('Transform');
+
    TransformAct({
      Matrix4? from,
     required super.to,

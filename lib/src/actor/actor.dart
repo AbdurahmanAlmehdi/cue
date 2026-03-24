@@ -26,56 +26,72 @@ class Actor extends StatefulWidget {
 }
 
 class ActorState extends State<Actor> {
-  final _animations = <Type, CueAnimation<Object?>>{};
-  final _cachedAnimations = <Act, CueAnimation<Object?>>{};
-  final _animationSnapshots = <Type, Object?>{};
+  final _animations = <ActKey, CueAnimation<Object?>>{};
+  final _cache = <Act, CueAnimation<Object?>>{};
+  final _animationSnapshots = <ActKey, Object?>{};
+  CueScope? _cachedScope;
 
   List<(Act, ActContext)> _acts = [];
 
   void _onWillAnimate() {
+    _animationSnapshots.clear();
     for (final entry in _animations.entries) {
       _animationSnapshots[entry.key] = entry.value.value;
     }
   }
 
-  CueScope? _cachedScope;
-
   void _setupAnimations(CueScope scope) {
     _cachedScope = scope;
     assert(() {
-      if (_acts.map((e) => e.runtimeType).toSet().length != _acts.length) {
-        final duplicates = _acts
-            .map((e) => e.runtimeType)
-            .fold<Map<Type, int>>({}, (acc, type) {
-              acc[type] = (acc[type] ?? 0) + 1;
-              return acc;
-            })
-            .entries
-            .where((entry) => entry.value > 1)
-            .map((entry) => entry.key)
-            .toList();
-        throw StateError(
-          'Multiple effects of the same type are not supported. Please ensure all effects in the list are of different types. Duplicates found: $duplicates',
-        );
+      if (_acts.map((e) => e.$1.key).toSet().length != _acts.length) {
+        final seenKeys = <ActKey>{};
+        for (final key in _acts.map((e) => e.$1.key)) {
+          if (seenKeys.contains(key)) {
+            throw StateError(
+              'Multiple Acts of the same type are not supported. Please ensure all Acts in the list are of different types. Duplicate found: $key',
+            );
+          }
+          seenKeys.add(key);
+        }
       }
       return true;
     }());
 
-    _animations.removeWhere((act, _) => !_acts.map((e) => e.$1.runtimeType).contains(act));
-    _cachedAnimations.removeWhere((effect, _) => !_acts.map((e) => e.$1).contains(effect));
+    final acts = _acts.map((e) => e.$1);
+    final actKeys = acts.map((e) => e.key).toSet();
+    final toRelease = <TrackConfig>{};
+    for (final entry in List.of(_cache.entries)) {
+      if (!acts.contains(entry.key)) {
+        toRelease.add(entry.value.trackConfig);
+        _cache.remove(entry.key);
+      }
+    }
+    for (final entry in  List.of(_animations.entries)) {
+      if (!actKeys.contains(entry.key)) {
+        toRelease.add(entry.value.trackConfig);
+        _animations.remove(entry.key);
+      }
+    }
+    for (final config in toRelease) {
+      scope.timeline.release(config);
+    }
+
+    print('Setting up animations for acts: $actKeys');
+  
+    final textDirection = Directionality.maybeOf(context) ?? TextDirection.ltr;
     for (final entry in _acts) {
       final (act, actContext) = entry;
-      if (!_cachedAnimations.containsKey(act)) {
-        final implicitFrom = scope.reanimateFromCurrent ? _animationSnapshots[act.runtimeType] : null;
+      if (!_cache.containsKey(act)) {
+        final implicitFrom = scope.reanimateFromCurrent ? _animationSnapshots[act.key] : null;
         final animation = act.buildAnimation(
           scope.timeline,
           actContext.copyWith(
-            textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+            textDirection: textDirection,
             implicitFrom: implicitFrom,
           ),
         );
-        _animations[act.runtimeType] = animation;
-        _cachedAnimations[act] = animation;
+        _animations[act.key] = animation;
+        _cache[act] = animation;
       }
     }
   }
@@ -83,12 +99,14 @@ class ActorState extends State<Actor> {
   @override
   void didUpdateWidget(covariant Actor oldWidget) {
     super.didUpdateWidget(oldWidget);
+    print('Acts same : ${listEquals(widget.acts, oldWidget.acts)}');
     if (!listEquals(widget.acts, oldWidget.acts) ||
         widget.delay != oldWidget.delay ||
         widget.reverseDelay != oldWidget.reverseDelay ||
         widget.motion != oldWidget.motion ||
         widget.reverseMotion != oldWidget.reverseMotion) {
       final scope = CueScope.of(context);
+      print('Actor widget updated. Re-evaluating animations.');
       _setupActs(scope.timeline.mainTrackConfig);
       _setupAnimations(scope);
     }
@@ -111,9 +129,12 @@ class ActorState extends State<Actor> {
     ];
   }
 
-  void _clearCache() {
+  void _clearCache(CueScope scope) {
+    for (final animation in _animations.values) {
+      scope.timeline.release(animation.trackConfig);
+    }
     _animations.clear();
-    _cachedAnimations.clear();
+    _cache.clear();
     _animationSnapshots.clear();
   }
 
@@ -125,14 +146,13 @@ class ActorState extends State<Actor> {
     final scope = CueScope.of(context);
     if (_acts.isEmpty) {
       _setupActs(scope.timeline.mainTrackConfig);
-      
     }
     if (_cachedScope == null || scope.updateShouldNotify(_cachedScope!)) {
       if (_cachedScope?.timeline != scope.timeline) {
         _eventsDisposer?.call();
         _eventsDisposer = scope.timeline.addEventListener<TimelineEvent>((_) => _onWillAnimate());
       }
-      _clearCache();
+      _clearCache(scope);
       _setupAnimations(scope);
     }
   }
@@ -143,7 +163,7 @@ class ActorState extends State<Actor> {
     Widget current = widget.child;
     for (final entry in _acts.reversed) {
       final (act, _) = entry;
-      if (_animations[act.runtimeType] case final animation?) {
+      if (_animations[act.key] case final animation?) {
         current = act.build(context, animation, current);
       } else {
         throw StateError(
@@ -159,9 +179,9 @@ class ActorState extends State<Actor> {
     super.dispose();
     _eventsDisposer?.call();
     _eventsDisposer = null;
-    _clearCache();
-    _cachedScope = null;
-    // _cachedScope?.animations.disposeAll(_animations.values);
+    if (_cachedScope case final scope?) {
+      _clearCache(scope);
+    }
   }
 }
 
@@ -169,6 +189,10 @@ abstract class SingleActorBase<T> extends StatelessWidget {
   final Widget child;
   final ReverseBehavior<T> reverse;
   final CueMotion? motion;
+  final Duration delay;
+  final Duration reverseDelay;
+  final CueMotion? reverseMotion;
+
   final Keyframes<T>? frames;
   final T? _from;
   final T? _to;
@@ -182,6 +206,9 @@ abstract class SingleActorBase<T> extends StatelessWidget {
     required T from,
     required T to,
     this.motion,
+    this.delay = Duration.zero,
+    this.reverseMotion,
+    this.reverseDelay = Duration.zero,
     this.reverse = const ReverseBehavior.mirror(),
   }) : frames = null,
        _from = from,
@@ -192,15 +219,25 @@ abstract class SingleActorBase<T> extends StatelessWidget {
     super.key,
     required this.child,
     this.reverse = const ReverseBehavior.mirror(),
-    this.motion,
+    this.delay = Duration.zero,
+    this.reverseDelay = Duration.zero,
   }) : _from = null,
-       _to = null;
+       _to = null,
+       motion = null,
+       reverseMotion = null;
 
   Act get act;
 
   @override
   Widget build(BuildContext context) {
-    return Actor(acts: [act], child: child);
+    return Actor(
+      motion: motion,
+      delay: delay,
+      reverseMotion: reverseMotion,
+      reverseDelay: reverseDelay,
+      acts: [act],
+      child: child,
+    );
   }
 }
 

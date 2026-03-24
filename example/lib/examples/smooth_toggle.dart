@@ -13,13 +13,14 @@ class _SmoothSwitchState extends State<SmoothSwitch> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final height = 52.0;
+    final height = 44.0;
     final width = height * 2;
     final trackColor = theme.colorScheme.surface;
     final thumbColor = theme.colorScheme.onSurface;
+    const duration = Duration(milliseconds: 300);
     return Cue.onToggle(
       toggled: _toggled,
-      motion: .linear(200.ms),
+      motion: .linear(duration),
       child: GestureDetector(
         onTap: () {
           setState(() {
@@ -34,10 +35,10 @@ class _SmoothSwitchState extends State<SmoothSwitch> {
         child: Actor(
           acts: [
             ScaleAct.keyframed(
-              frames: Keyframes([
-                .key(1, motion: .smooth()),
-                .key(1.3, motion: .wobbly()),
-                .key(2, motion: .curved(400.ms, curve: Curves.bounceIn)),
+              frames: Keyframes.fractional([
+                  .key(1.1, at: .4),
+                  .key(1.1, at: .6),
+                  .key(1.0, at: 1.0),
               ]),
             ),
           ],
@@ -79,16 +80,17 @@ class _SmoothSwitchState extends State<SmoothSwitch> {
                       child: DecoratedBoxActor(
                         shape: .circle,
                         color: .tween(from: trackColor, to: thumbColor),
-                        // timing: .endAt(.5),
+                        motion: .linear(duration * .5), 
                         child: SizedBox.square(dimension: width * .16),
                       ),
                     ),
                     Expanded(
                       child: Center(
                         child: DecoratedBoxActor(
-                          color: .tween(from: trackColor, to: thumbColor),
+                          color: .tween(from: thumbColor, to: trackColor),
                           borderRadius: .tween(from: .circular(width * .2), to: .circular(width * .2)),
-                          // timing: .startAt(.5),
+                          motion: .linear(duration * .5), 
+                          delay: duration * .5,
                           child: SizedBox(width: width * .08, height: width * .22),
                         ),
                       ),

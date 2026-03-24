@@ -63,6 +63,10 @@ abstract class TranslateAct extends Act {
 }
 
 class _TranslateOffset extends TweenAct<Offset> implements TranslateAct {
+
+  @override
+  final ActKey key = const ActKey('Translate');
+
   const _TranslateOffset({
     super.from = Offset.zero,
     super.to = Offset.zero,
@@ -84,6 +88,10 @@ class _TranslateOffset extends TweenAct<Offset> implements TranslateAct {
 }
 
 class _AxisTranslate extends TweenActBase<double, Offset> implements TranslateAct {
+
+  @override
+  final ActKey key = const ActKey('Translate');
+
   final Axis _axis;
 
   const _AxisTranslate.vertical({
@@ -155,6 +163,10 @@ class TranslateTransition extends AnimatedWidget {
 }
 
 class _TranslateFromGlobalEffect extends TweenAct<double> implements TranslateAct {
+  
+  @override
+  final ActKey key = const ActKey('Translate');
+
   final Offset? offset;
   final Rect? rect;
   final AlignmentGeometry? alignment;

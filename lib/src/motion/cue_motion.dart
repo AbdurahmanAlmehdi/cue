@@ -114,6 +114,51 @@ class TimedMotion extends CueMotion {
   }
 }
 
+class IntervalMotion extends CueMotion {
+  final double start;
+  final double end;
+  final Curve? curve;
+
+  const IntervalMotion({this.start = 0.0, this.end = 1.0, this.curve});
+
+  @override
+  Duration get baseDuration {
+    throw UnimplementedError(
+      'IntervalMotion does not have a base duration. It must be used with a SegmentedMotion or DelayedMotion to specify timing.',
+    );
+  }
+
+  @override
+  CueSimulation build(SimulationBuildData data) {
+    throw UnimplementedError(
+      'IntervalMotion cannot be built directly. It must be used with a SegmentedMotion or DelayedMotion to specify timing.',
+    );
+  }
+
+  CueMotion resolve(Duration totalDuration) {
+    final startTime = totalDuration * start;
+    final endTime = totalDuration * end;
+    final duration = endTime - startTime;
+    final motion = TimedMotion.curved(duration, curve: curve ?? Curves.linear);
+    if (startTime > Duration.zero) {
+      return DelayedMotion(motion, startTime);
+    }
+    return motion;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is IntervalMotion &&
+          runtimeType == other.runtimeType &&
+          start == other.start &&
+          end == other.end &&
+          curve == other.curve;
+
+  @override
+  int get hashCode => Object.hash(start, end, curve);
+}
+
 abstract class SimulationMotion<S extends CueSimulation> extends CueMotion {
   const SimulationMotion();
 }

@@ -1,6 +1,10 @@
 part of 'base/act.dart';
 
 class PaintAct extends TweenAct<double> {
+  
+  @override
+  final ActKey key = const ActKey('Paint');
+
   final EffectPainter painter;
   final bool paintOnTop;
 

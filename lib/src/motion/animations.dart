@@ -1,11 +1,14 @@
 import 'package:cue/cue.dart';
-import 'package:cue/src/motion/animtable.dart';
 import 'package:cue/src/timeline/track/track.dart';
+import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/widgets.dart';
 
 abstract class CueAnimation<T> extends Animation<T> with AnimationWithParentMixin<double> {
+
   @override
   final CueTrack parent;
+
+  TrackConfig get trackConfig => parent.config;
 
   CueAnimation({required this.parent});
 

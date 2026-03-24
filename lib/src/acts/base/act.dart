@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:cue/cue.dart';
 import 'package:cue/src/acts/base/deferred_tween_act.dart';
 import 'package:cue/src/acts/base/animatable_act.dart';
-import 'package:cue/src/timeline/track/track.dart';
 import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -37,11 +36,13 @@ typedef TweenBuilder<T> = Animatable<T> Function(T from, T to);
 abstract class Act {
   const Act();
 
+
   const factory Act.scale({
-    required double from,
+     double from,
     required double to,
     CueMotion? motion,
     ReverseBehavior<double> reverse,
+    Duration delay,
   }) = ScaleAct;
 
   const factory Act.zoomIn({
@@ -297,6 +298,8 @@ abstract class Act {
     CueMotion? motion,
   }) = DecoratedBoxAct;
 
+   ActKey get key;
+
   ActContext resolve(ActContext context);
 
   CueAnimation<Object?> buildAnimation(CueTimeline timline, ActContext context);
@@ -419,4 +422,18 @@ class ActContext {
       implicitFrom: implicitFrom ?? this.implicitFrom,
     );
   }
+}
+
+class ActKey {
+  final String key;
+  final String? desc;
+
+ const ActKey(this.key, [this.desc]);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is ActKey && runtimeType == other.runtimeType && key == other.key;
+
+  @override
+  int get hashCode => key.hashCode;
 }

@@ -1,6 +1,10 @@
 part of 'base/act.dart';
 
 class ColorTintAct extends TweenAct<Color?> {
+
+  @override
+  final ActKey key = const ActKey('ColorTint');
+  
   const ColorTintAct({
     required super.from,
     required super.to,

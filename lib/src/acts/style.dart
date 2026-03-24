@@ -1,6 +1,10 @@
 part of 'base/act.dart';
 
 class TextStyleAct extends TweenAct<TextStyle> {
+
+    @override
+  final ActKey key = const ActKey('TextStyle');
+
   const TextStyleAct({
     required super.from,
     required super.to,
@@ -26,6 +30,10 @@ class TextStyleAct extends TweenAct<TextStyle> {
 }
 
 class IconThemeAct extends TweenAct<IconThemeData> {
+  @override
+  final ActKey key = const ActKey('IconTheme');
+
+
   const IconThemeAct({
     required super.from,
     required super.to,

@@ -17,7 +17,10 @@ class CueController extends AnimationController {
     required CueMotion motion,
     CueMotion? reverseMotion,
   }) : _timeline = CueTimelineImpl(
-         CueTrackImpl(motion, reverseMotion: reverseMotion ?? motion),
+         TrackConfig(
+           motion: motion,
+           reverseMotion: reverseMotion ?? motion,
+         ),
        ),
        super.unbounded();
 

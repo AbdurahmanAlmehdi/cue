@@ -1,6 +1,10 @@
 part of 'base/act.dart';
 
 class BlurAct extends TweenAct<double> {
+
+  @override
+  final ActKey key = const ActKey('Blur');
+
   const BlurAct({
     super.from = 0.0,
     super.to = 0.0,
@@ -48,6 +52,10 @@ class BlurAct extends TweenAct<double> {
 }
 
 class BackdropBlurAct extends TweenAct<double> {
+
+  @override
+  final ActKey key = const ActKey('BackdropBlur');
+
   const BackdropBlurAct({
     super.from = 0.0,
     super.to = 0.0,

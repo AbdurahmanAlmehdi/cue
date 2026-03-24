@@ -39,15 +39,15 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animta
 
   @override
   ActContext resolve(ActContext context) {
-    CueMotion motion = switch (frames) {
+    CueMotion? framesMotion = switch (frames) {
       MotionKeyframes<T> m => SegmentedMotion(m.extractMotion(includeFirst: from != null)),
       FractionalKeyframes<T> m => SegmentedMotion(
         m.extractMotion(includeFirst: from != null, duration: m.duration ?? context.motion.baseDuration),
       ),
-      _ => this.motion ?? context.motion,
+      _ => null,
     };
 
-    CueMotion reverseMotion = switch (reverse.frames?.reversed) {
+    CueMotion? reverseFramesMotion = switch (reverse.frames?.reversed) {
       MotionKeyframes<T> m => SegmentedMotion(m.extractMotion(includeFirst: true)),
       FractionalKeyframes<T> m => SegmentedMotion(
         m.extractMotion(
@@ -55,19 +55,23 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animta
           duration: m.duration ?? context.reverseMotion.baseDuration,
         ),
       ),
-      _ => reverse.motion ?? (frames != null ? motion : context.reverseMotion),
+      _ => framesMotion,
     };
 
     final delay = this.delay + context.delay;
     final reverseDelay = reverse.delay + context.reverseDelay;
+    
+
+    CueMotion forwardMotion = framesMotion ?? motion ?? context.motion;
+    CueMotion reverseMotion = reverseFramesMotion ?? reverse.motion ?? motion ?? context.reverseMotion;
 
     if (delay != Duration.zero) {
-      motion = motion.delayed(delay);
+      forwardMotion = forwardMotion.delayed(delay);
     }
     if (reverseDelay != Duration.zero) {
       reverseMotion = reverseMotion.delayed(reverseDelay);
     }
-    return context.copyWith(motion: motion, reverseMotion: reverseMotion);
+    return context.copyWith(motion: forwardMotion, reverseMotion: reverseMotion);
   }
 
   CueAnimtable<R> resolveTween(
@@ -161,12 +165,14 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animta
     return other is TweenActBase<T, R> &&
         other.from == from &&
         other.to == to &&
+        other.delay == delay &&
+        other.motion == motion &&
         other.reverse == reverse &&
         frames == other.frames;
   }
 
   @override
-  int get hashCode => Object.hash(from, to, frames);
+  int get hashCode => Object.hash(from, to, frames, reverse, motion, delay);
 }
 
 enum ReverseBehaviorType {

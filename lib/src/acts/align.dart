@@ -1,6 +1,9 @@
 part of 'base/act.dart';
 
 class AlignAct extends TweenActBase<AlignmentGeometry?, Alignment?> {
+  @override
+  final ActKey key = const ActKey('Align');
+
   const AlignAct({
     super.from = Alignment.center,
     super.to = Alignment.center,

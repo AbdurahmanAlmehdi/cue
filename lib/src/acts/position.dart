@@ -1,6 +1,10 @@
 part of 'base/act.dart';
 
 class PositionAct extends TweenAct<Position> {
+
+  @override
+  final ActKey key = const ActKey('Position');
+  
   final Size? _relativeTo;
 
   const PositionAct({
@@ -135,6 +139,9 @@ class PositionActor extends SingleActorBase<Position> {
     required super.to,
     required super.child,
     super.motion,
+    super.reverseMotion,
+    super.delay,
+    super.reverseDelay,
     super.reverse,
   }) : _relativeTo = null;
 
@@ -142,7 +149,6 @@ class PositionActor extends SingleActorBase<Position> {
     super.key,
     required super.frames,
     required super.child,
-    super.motion,
     super.reverse,
     Size? relativeTo,
   }) : _relativeTo = relativeTo,
@@ -155,7 +161,9 @@ class PositionActor extends SingleActorBase<Position> {
     required Size size,
     required super.child,
     super.motion,
-    super.reverse,
+    super.reverseMotion,
+    super.delay,
+    super.reverseDelay,
   }) : _relativeTo = size;
 
   @override

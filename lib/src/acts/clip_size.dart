@@ -1,6 +1,10 @@
 part of 'base/act.dart';
 
 class SizedClipAct extends DeferredTweenAct<Size?> {
+
+  @override
+  final ActKey key = const ActKey('SizedClip');
+
   final AlignmentGeometry? alignment;
   final Clip clipBehavior;
   final NSize? from;
@@ -46,26 +50,14 @@ class SizedClipAct extends DeferredTweenAct<Size?> {
   int get hashCode => Object.hash(alignment, clipBehavior, from, to, delay, _reverse, frames);
 
   @override
-  (CueAnimtable<Size?>, CueAnimtable<Size?>?) buildTweens(ActContext context) {
-    // we build a fake tweens here just to extract motion
-    // the actual tween will be built later.
-    final builder = _NullableSizeActBuilder(
-      motion: motion ,
-      delay: delay,
-      from: from != null ? Size.zero : null,
-      to: to != null ? Size.infinite : null,
-      frames: frames?.mapValues((v) => Size.zero),
-      reverse: _reverse.mapValues((v) => Size.zero),
-    );
-    return builder.buildTweens(context);
-  }
-
-  
-
-  @override
   CueAnimation<Size?> buildAnimation(CueTimeline timline, ActContext context) {
-    final superDriver = super.buildAnimation(timline, context);
-    return DeferredCueAnimation<Size?>(parent: superDriver.parent, context: context);
+    final trackConfig = TrackConfig(
+      motion: context.motion,
+      reverseMotion: context.reverseMotion,
+      reverseType: reverse.type,
+    );
+    final track = timline.trackFor(trackConfig);
+    return DeferredCueAnimation<Size?>(parent: track, context: context);
   }
 
   @override
@@ -81,11 +73,18 @@ class SizedClipAct extends DeferredTweenAct<Size?> {
       child: child,
     );
   }
-  
+
   @override
   ActContext resolve(ActContext context) {
-    // TODO: implement resolve
-    throw UnimplementedError();
+    final builder = _NullableSizeActBuilder(
+      motion: motion,
+      delay: delay,
+      from: from != null ? Size.zero : null,
+      to: to != null ? Size.infinite : null,
+      frames: frames?.mapValues((v) => Size.zero),
+      reverse: _reverse.mapValues((v) => Size.zero),
+    );
+    return builder.resolve(context);
   }
 }
 
@@ -248,6 +247,7 @@ class _RenderAnimatedSizeClip extends RenderAligningShiftedBox {
         maxHeight = null;
       }
     }
+
     if (_frames != null) {
       for (final value in _frames!.values) {
         checkNSize(value);
@@ -282,6 +282,7 @@ class _RenderAnimatedSizeClip extends RenderAligningShiftedBox {
       }
       return value;
     }
+
     return Size(
       resolveAxis(nsize.w, maxConstraint.width, childSize.width),
       resolveAxis(nsize.h, maxConstraint.height, childSize.height),
@@ -492,4 +493,7 @@ class _NullableSizeActBuilder extends TweenAct<Size?> {
       'This class is only used to build the animatable for SizeAct and should never be built itself.',
     );
   }
+  
+  @override
+  ActKey get key => throw UnimplementedError();
 }

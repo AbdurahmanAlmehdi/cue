@@ -64,12 +64,14 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
             mainAxisAlignment: .center,
             crossAxisAlignment: .center,
             children: [
+              // SmoothSwitch(),
+              // SlackStyleFab(),
               // IndicatorToButton(),
               Cue.onToggle(
                 toggled: checked,
                 // loop: true,
                 // reverseOnLoop: true,
-                motion: .smooth(),
+                motion: .linear(300.ms),
                 child: Column(
                   children: [
                     // Actor(
@@ -90,16 +92,17 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                     // ),
                     Actor(
                       acts: [
-                       SlideAct.keyframedX(
-                          frames: Keyframes([
-                           .key(1, motion: .linear(150.ms)),
-                           .key(2, motion: .linear(150.ms)),
-                          ]),
-                          reverse: .to(Keyframes([
-                            .key(1, motion: .linear(150.ms)),
-                            .key(-1, motion: .linear(150.ms)),
-                          ]))
-                        ),
+                        .slideX(to: 2, motion: .smooth()),
+                        //  SlideAct.keyframedX(
+                        //     frames: Keyframes([
+                        //      .key(1, motion: .linear(150.ms)),
+                        //      .key(2, motion: .linear(150.ms)),
+                        //     ],),
+                        //     // reverse: .to(Keyframes([
+                        //     //   .key(1, motion: .linear(150.ms)),
+                        //     //   .key(-1, motion: .linear(150.ms)),
+                        //     // ]))
+                        //   ),
                         // ScaleAct.keyframed(
                         //   frames: Keyframes([
                         //     .key(1, motion: .linear(150.ms)),

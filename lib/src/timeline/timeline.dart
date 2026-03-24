@@ -1,18 +1,16 @@
-import 'dart:math';
-
+import 'package:cue/cue.dart';
 import 'package:cue/src/timeline/event_notifier.dart';
 import 'package:cue/src/timeline/track/track.dart';
 import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/material.dart';
 
 class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixin {
-  CueTimelineImpl(CueTrack main)
-    : super({
-        TrackConfig(
-          motion: main.motion,
-          reverseMotion: main.reverseMotion ?? main.motion,
-        ): main,
-      });
+  CueTimelineImpl(TrackConfig config) : super({config: CueTrackImpl(config)});
+
+  factory CueTimelineImpl.fromMotion(CueMotion motion, {CueMotion? reverseMotion}) {
+    final config = TrackConfig(motion: motion, reverseMotion: reverseMotion ?? motion);
+    return CueTimelineImpl(config);
+  }
 
   @override
   void willAnimate({required bool forward}) {
@@ -23,7 +21,10 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
 
   double _lastT = 0.0;
   double _cycleOffset = 0.0;
+  int _listenres = 0;
   RepeatConfig? _repeatConfig;
+
+  final Map<TrackConfig, int> _trackRefs = {};
 
   @override
   CueTrack get mainTrack => tracks.values.first;
@@ -50,7 +51,6 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     return Duration(milliseconds: (maxDurationSeconds * 1000).round());
   }
 
-
   @override
   void reset() {
     _repeatConfig = null;
@@ -63,6 +63,8 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     if (config == mainTrackConfig) {
       return mainTrack;
     }
+    print('Requesting track for $config');
+    _trackRefs[config] = (_trackRefs[config] ?? 0) + 1;
     final animation = tracks.putIfAbsent(config, () => buildTrack(config));
     animation.prepare(
       forward: mainTrack.isForwardOrCompleted,
@@ -73,17 +75,30 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
   }
 
   @override
+  void release(TrackConfig config) {
+    if (config == mainTrackConfig) return;
+    print('Releasing track for $config');
+    final next = (_trackRefs[config] ?? 1) - 1;
+    if (next <= 0) {
+      _trackRefs.remove(config);
+      tracks.remove(config);
+    } else {
+      _trackRefs[config] = next;
+    }
+  }
+
+   @override
   AnimationStatus get status => _status;
 
   AnimationStatus _status = AnimationStatus.dismissed;
 
   @override
-  void release(CueTrack anim) {}
-
-  @override
   void setProgress(double value, {bool forward = true}) {
-    for (final anim in tracks.values) {
-      anim.setProgress(value, forward: forward);
+    final maxDuration = (forward ? forwardDuration : reverseDuration).inMicroseconds / Duration.microsecondsPerSecond;
+    for (final track in tracks.values) {
+      final trackDuration = forward ? track.forwardDuration : track.reverseDuration;
+      final normalized = (value * maxDuration / trackDuration).clamp(0.0, 1.0);
+      track.setProgress(normalized, forward: forward);
     }
     _updateStatus();
   }
@@ -195,22 +210,16 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
 
   @override
   CueTrack buildTrack(TrackConfig config) {
-    return CueTrackImpl(
-      config.motion,
-      reverseMotion: config.reverseMotion,
-      reverseType: config.reverseType,
-    );
+    return CueTrackImpl(config);
   }
 
   @override
-  void didRegisterListener() {
-    // TODO: implement didRegisterListener
-  }
+  void didRegisterListener() => _listenres++;
 
   @override
-  void didUnregisterListener() {
-    // TODO: implement didUnregisterListener
-  }
+  void didUnregisterListener() => _listenres--;
+
+  bool get hasListeners => _listenres > 0;
 
   @override
   void dispose() {
@@ -220,8 +229,6 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
 }
 
 abstract class CueTimeline extends Simulation with EventNotifier<TimelineEvent> {
-  CueTrack trackFor(TrackConfig config);
-
   void prepare({required bool forward, double? from});
   void prepareForRepeat(RepeatConfig config);
 
@@ -231,7 +238,9 @@ abstract class CueTimeline extends Simulation with EventNotifier<TimelineEvent> 
 
   void reset();
 
-  void release(CueTrack anim);
+  CueTrack trackFor(TrackConfig config);
+
+  void release(TrackConfig config);
 
   AnimationStatus get status;
 
@@ -240,12 +249,15 @@ abstract class CueTimeline extends Simulation with EventNotifier<TimelineEvent> 
   Duration get reverseDuration;
 
   double get progress {
-    final progressList = tracks.values.map((track) => track.progress);
-    if (status == AnimationStatus.reverse) {
-      return progressList.fold(0.0, max).clamp(0.0, 1.0);
-    } else {
-      return progressList.fold(double.infinity, min).clamp(0.0, 1.0);
+    final isForward = status.isForwardOrCompleted;
+    var longest = tracks.values.first;
+    for (final track in tracks.values) {
+      if ((isForward ? track.forwardDuration : track.reverseDuration) >
+          (isForward ? longest.forwardDuration : longest.reverseDuration)) {
+        longest = track;
+      }
     }
+    return longest.progress;
   }
 
   final Map<TrackConfig, CueTrack> tracks;

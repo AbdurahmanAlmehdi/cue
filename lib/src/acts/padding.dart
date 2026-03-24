@@ -1,6 +1,9 @@
 part of 'base/act.dart';
 
 class PaddingAct extends TweenAct<EdgeInsetsGeometry> {
+  @override
+  final ActKey key = const ActKey('Padding');
+  
   const PaddingAct({
     super.from = EdgeInsets.zero,
     super.to = EdgeInsets.zero,

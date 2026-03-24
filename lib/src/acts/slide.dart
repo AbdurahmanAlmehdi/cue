@@ -65,6 +65,9 @@ abstract class SlideAct extends Act {
 }
 
 class _SlideEffect extends TweenAct<Offset> implements SlideAct {
+  @override
+  final ActKey key = const ActKey('Slide');
+
   const _SlideEffect({
     super.from = Offset.zero,
     super.to = Offset.zero,
@@ -122,6 +125,9 @@ class _SlideEffect extends TweenAct<Offset> implements SlideAct {
 }
 
 class _AxisSlideEffect extends TweenActBase<double, Offset> implements SlideAct {
+  @override
+  final ActKey key = const ActKey('Slide');
+
   final Axis _axis;
 
   const _AxisSlideEffect.tweenX({
