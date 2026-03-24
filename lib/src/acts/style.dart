@@ -30,6 +30,7 @@ class TextStyleAct extends TweenAct<TextStyle> {
 }
 
 class IconThemeAct extends TweenAct<IconThemeData> {
+  
   @override
   final ActKey key = const ActKey('IconTheme');
 

@@ -317,7 +317,7 @@ class _RenderAnimatedSizeClip extends RenderAligningShiftedBox {
     );
   }
 
-  Size _calculateMaxSize(_NullableSizeActBuilder builder) {
+  Size _calculateMaxSize(TweensBuildHelper<Size?> builder) {
     final allValues = [
       builder.from,
       builder.to,
@@ -351,11 +351,12 @@ class _RenderAnimatedSizeClip extends RenderAligningShiftedBox {
     final tween = SizeTween(begin: from, end: to);
 
     // // Build the tween from phases
-    final builder = _NullableSizeActBuilder(
+    final builder = TweensBuildHelper<Size?>(
       from: _resolveSize(_from, maxConstrains, childSize),
       to: _resolveSize(_to, maxConstrains, childSize),
       frames: _frames?.mapValues((v) => _resolveSize(v, maxConstrains, childSize)),
       reverse: _reverse.mapValues((v) => _resolveSize(v, maxConstrains, childSize)),
+      tweenBuilder: (begin, end) => SizeTween(begin: begin, end: end),
     );
 
     final (animtable, reverseAnimtable) = builder.buildTweens(_driver.context);
@@ -627,28 +628,4 @@ class NSize {
 
   @override
   String toString() => 'NSize(width: $w, height: $h)';
-}
-
-class _NullableSizeActBuilder extends TweenAct<Size?> {
-  const _NullableSizeActBuilder({
-    super.from,
-    super.to,
-    super.frames,
-    super.reverse,
-  }) : super();
-
-  @override
-  Animatable<Size?> createSingleTween(Size? from, Size? to) {
-    return SizeTween(begin: from, end: to);
-  }
-
-  @override
-  Widget apply(BuildContext context, covariant CueAnimation<Size?> animation, Widget child) {
-    throw UnimplementedError(
-      'This class is only used to build the animatables for SizedClipAct and should never be built itself.',
-    );
-  }
-
-  @override
-  ActKey get key => const ActKey('TempNullableSize');
 }

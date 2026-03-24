@@ -1,7 +1,6 @@
 part of 'base/act.dart';
 
 class SizedBoxAct extends DeferredTweenAct<Size> {
-
   @override
   final ActKey key = const ActKey('SizedBox');
 
@@ -186,7 +185,6 @@ class _AnimtableRenderConstrainedBox extends RenderConstrainedBox {
     _keyframes = value;
   }
 
-
   ReverseBehaviorBase<Size> _reverse;
 
   set reverse(ReverseBehaviorBase<Size> value) {
@@ -236,14 +234,15 @@ class _AnimtableRenderConstrainedBox extends RenderConstrainedBox {
       );
     }
 
-    final actBuilder = _SizedBoxActBuilder(
+    final builder = TweensBuildHelper<Size>(
       from: from,
       to: to,
       frames: _keyframes?.mapValues((v) => _normalizeSize(v, constraints)),
       reverse: _reverse.mapValues((v) => _normalizeSize(v, constraints)),
+      tweenBuilder: (begin, end) => _SizeTween(begin: begin, end: end),
     );
 
-    final (animtable, reverseAnimtable) = actBuilder.buildTweens(_driver.context);
+    final (animtable, reverseAnimtable) = builder.buildTweens(_driver.context);
 
     final effectiveAnimatable = reverseAnimtable == null
         ? animtable
@@ -298,29 +297,6 @@ class _AnimtableRenderConstrainedBox extends RenderConstrainedBox {
   }
 }
 
- class _SizedBoxActBuilder extends TweenAct<Size> {
-  const _SizedBoxActBuilder({
-    super.from,
-    super.to,
-    super.frames,
-    super.reverse,
-  }) : super();
-
-  @override
-  Animatable<Size> createSingleTween(Size from, Size to) {
-    return _SizeTween(begin: from, end: to);
-  }
-
-  @override
-  Widget apply(BuildContext context, covariant CueAnimation<Size> animation, Widget child) {
-    throw UnimplementedError(
-      'This class is only used to build the animatables for SizedBoxAct and should never be built itself.',
-    );
-  }
-
-  @override
-  ActKey get key => ActKey('TempSizedBox');
-}
 
 class _SizeTween extends Tween<Size> {
   _SizeTween({required Size begin, required Size end}) : super(begin: begin, end: end);

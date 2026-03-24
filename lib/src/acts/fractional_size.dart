@@ -1,24 +1,33 @@
 part of 'base/act.dart';
 
-class FractionalSizeAct extends AnimtableAct<FractionaSizeProps, FractionaSizeProps> {
-
+class FractionalSizeAct extends AnimtableAct<FractionalSize, FractionalSize> {
   @override
   final ActKey key = const ActKey('FractionalSize');
-  
+
   final AnimatableValue<double>? widthFactor;
   final AnimatableValue<double>? heightFactor;
   final AnimatableValue<AlignmentGeometry>? alignment;
+  final Keyframes<FractionalSize>? frames;
 
   const FractionalSizeAct({
     super.motion,
+    super.delay,
     this.widthFactor,
     this.heightFactor,
     this.alignment = const AnimatableValue.fixed(Alignment.center),
-    ReverseBehavior<FractionaSizeProps> super.reverse = const ReverseBehavior.mirror(),
-  });
+    ReverseBehavior<FractionalSize> super.reverse = const ReverseBehavior.mirror(),
+  }) : frames = null;
+
+  const FractionalSizeAct.keyframed({
+    required Keyframes<FractionalSize> this.frames,
+    super.delay,
+    ReverseBehavior<FractionalSize> super.reverse = const ReverseBehavior.mirror(),
+  }) : widthFactor = null,
+       heightFactor = null,
+       alignment = null;
 
   @override
-  Widget apply(BuildContext context, Animation<FractionaSizeProps> animation, Widget child) {
+  Widget apply(BuildContext context, Animation<FractionalSize> animation, Widget child) {
     return AnimatedBuilder(
       animation: animation,
       child: child,
@@ -35,46 +44,46 @@ class FractionalSizeAct extends AnimtableAct<FractionaSizeProps, FractionaSizePr
   }
 
   @override
-  (CueAnimtable<FractionaSizeProps> animtable, CueAnimtable<FractionaSizeProps>? reverseAnimtable) buildTweens(
-    ActContext context, {
-    ValueTransformer<FractionaSizeProps, FractionaSizeProps>? transform,
-  }) {
-    //TODL: handle reverse motion
-    final iFrom = context.implicitFrom as FractionaSizeProps?;
-    final from =
-        iFrom ??
-        FractionaSizeProps(
-          widthFactor: widthFactor?.from,
-          heightFactor: heightFactor?.from,
-          alignment: alignment?.from,
-        );
-    final tween = _FractionalSizeTween(
-      begin: from,
-      end: FractionaSizeProps(
+  (CueAnimtable<FractionalSize>, CueAnimtable<FractionalSize>?) buildTweens(ActContext context) {
+    final builder = TweensBuildHelper<FractionalSize>(
+      from: FractionalSize(
+        widthFactor: widthFactor?.from,
+        heightFactor: heightFactor?.from,
+        alignment: alignment?.from,
+      ),
+      to: FractionalSize(
         widthFactor: widthFactor?.to,
         heightFactor: heightFactor?.to,
         alignment: alignment?.to,
       ),
+      frames: frames,
+      reverse: reverse,
+      tweenBuilder: (from, to) => _FractionalSizeTween(begin: from, end: to),
     );
-    return (TweenAnimtable(tween), null);
+    return builder.buildTweens(context);
   }
 
   @override
   ActContext resolve(ActContext context) {
-    // TODO: implement resolve
-    throw UnimplementedError();
+    return TweenActBase.resolveMotion(
+      context,
+      motion: motion,
+      delay: delay,
+      reverse: reverse,
+      frames: frames,
+    );
   }
 }
 
-class FractionaSizeProps {
+class FractionalSize {
   final double? widthFactor;
   final double? heightFactor;
   final AlignmentGeometry? alignment;
 
-  FractionaSizeProps({this.widthFactor, this.heightFactor, this.alignment});
+  FractionalSize({this.widthFactor, this.heightFactor, this.alignment});
 
-  static FractionaSizeProps lerp(FractionaSizeProps a, FractionaSizeProps b, double t) {
-    return FractionaSizeProps(
+  static FractionalSize lerp(FractionalSize a, FractionalSize b, double t) {
+    return FractionalSize(
       widthFactor: lerpDouble(a.widthFactor, b.widthFactor, t),
       heightFactor: lerpDouble(a.heightFactor, b.heightFactor, t),
       alignment: AlignmentGeometry.lerp(a.alignment, b.alignment, t),
@@ -82,9 +91,9 @@ class FractionaSizeProps {
   }
 }
 
-class _FractionalSizeTween extends Tween<FractionaSizeProps> {
+class _FractionalSizeTween extends Tween<FractionalSize> {
   _FractionalSizeTween({super.begin, super.end});
 
   @override
-  FractionaSizeProps lerp(double t) => FractionaSizeProps.lerp(begin!, end!, t);
+  FractionalSize lerp(double t) => FractionalSize.lerp(begin!, end!, t);
 }

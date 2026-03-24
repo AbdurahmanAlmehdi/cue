@@ -1,13 +1,12 @@
 part of 'base/act.dart';
 
 class OpacityAct extends TweenAct<double> {
-
   @override
   final ActKey key = const ActKey('Opacity');
-  
+
   const OpacityAct({
-    super.from = 0.0,
-    super.to = 1.0,
+    super.from = 1.0,
+    required super.to,
     super.motion,
     super.reverse,
   }) : super.tween();
@@ -18,6 +17,7 @@ class OpacityAct extends TweenAct<double> {
     super.motion,
     super.reverse,
   }) : super.tween();
+
   const OpacityAct.fadeOut({
     super.from = 1.0,
     super.to = 0.0,
@@ -29,7 +29,7 @@ class OpacityAct extends TweenAct<double> {
     required super.frames,
     super.delay,
     super.reverse,
-  }) : super.keyframed(from: 0.0);
+  }) : super.keyframed(from: 1.0);
 
   @override
   Widget apply(BuildContext context, Animation<double> animation, Widget child) {

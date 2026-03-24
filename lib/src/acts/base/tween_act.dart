@@ -327,3 +327,25 @@ class AnimatableValue<T> {
   @override
   int get hashCode => Object.hash(from, to);
 }
+
+@internal
+class TweensBuildHelper<T extends Object?> extends TweenAct<T> {
+  TweensBuildHelper({super.reverse, super.from, super.to, super.frames, required this.tweenBuilder});
+
+  final Animatable<T> Function(T from, T to) tweenBuilder;
+
+  @override
+  Animatable<T> createSingleTween(T from, T to) {
+    return tweenBuilder(from, to);
+  }
+
+  @override
+  Widget apply(BuildContext context, covariant CueAnimation<T> animation, Widget child) {
+    throw UnimplementedError(
+      'TempTweenBuilder is a utility class for building tweens and should not be used directly in the widget tree.',
+    );
+  }
+
+  @override
+  ActKey get key => throw UnimplementedError();
+}

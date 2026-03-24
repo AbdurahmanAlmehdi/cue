@@ -12,10 +12,9 @@ part of 'base/act.dart';
 /// rectangle. Use [shape] for arbitrary [ShapeBorder] animations (e.g.
 /// [StadiumBorder], [BeveledRectangleBorder]). The two are mutually exclusive.
 class CardAct extends AnimtableAct<CardProps, CardProps> {
-
   @override
   final ActKey key = const ActKey('Card');
-  
+
   final Clip clipBehavior;
   final bool borderOnForeground;
   final AnimatableValue<Color>? color;
@@ -26,8 +25,9 @@ class CardAct extends AnimtableAct<CardProps, CardProps> {
   final AnimatableValue<EdgeInsetsGeometry>? margin;
   final AnimatableValue<ShapeBorder>? shape;
   final bool semanticContainer;
+  final Keyframes<CardProps>? frames;
 
-  CardAct({
+  const CardAct({
     super.motion,
     ReverseBehavior<CardProps> super.reverse = const ReverseBehavior.mirror(),
     this.color,
@@ -40,26 +40,40 @@ class CardAct extends AnimtableAct<CardProps, CardProps> {
     this.clipBehavior = Clip.none,
     this.borderOnForeground = true,
     this.semanticContainer = true,
-  }) : assert(
+    super.delay,
+  }) : frames = null,
+       assert(
          shape == null || borderRadius == null,
          'Cannot specify both shape and borderRadius. '
          'Use shape for arbitrary ShapeBorder, or borderRadius for rounded rectangles.',
        );
 
+  const CardAct.keyframed({
+    required Keyframes<CardProps> this.frames,
+    super.delay,
+    KFReverseBehavior<CardProps> super.reverse = const KFReverseBehavior.mirror(),
+  }) : color = null,
+       shadowColor = const AnimatableValue.fixed(Color(0xFF000000)),
+       surfaceTintColor = null,
+       elevation = null,
+       borderRadius = null,
+       shape = null,
+       margin = null,
+       clipBehavior = Clip.none,
+       borderOnForeground = true,
+       semanticContainer = true;
+
   @override
-  (CueAnimtable<CardProps> animtable, CueAnimtable<CardProps>? reverseAnimtable) buildTweens(ActContext context) {
-    final iFrom = context.implicitFrom as CardProps?;
-    final from =
-        iFrom ??
-        CardProps(
-          elevation: elevation?.from,
-          color: color?.from,
-          shadowColor: shadowColor.from,
-          surfaceTintColor: surfaceTintColor?.from,
-          borderRadius: borderRadius?.from,
-          shape: shape?.from,
-          margin: margin?.from,
-        );
+  (CueAnimtable<CardProps>, CueAnimtable<CardProps>?) buildTweens(ActContext context) {
+    final from = CardProps(
+      elevation: elevation?.from,
+      color: color?.from,
+      shadowColor: shadowColor.from,
+      surfaceTintColor: surfaceTintColor?.from,
+      borderRadius: borderRadius?.from,
+      shape: shape?.from,
+      margin: margin?.from,
+    );
     final to = CardProps(
       elevation: elevation?.to,
       color: color?.to,
@@ -69,7 +83,14 @@ class CardAct extends AnimtableAct<CardProps, CardProps> {
       shape: shape?.to,
       margin: margin?.to,
     );
-    return (TweenAnimtable(_CardPropsProxyTween(begin: from, end: to)), null);
+    final builder = TweensBuildHelper(
+      from: from,
+      to: to,
+      frames: frames,
+      reverse: reverse,
+      tweenBuilder: (begin, end) => _CardPropsProxyTween(begin: begin, end: end),
+    );
+    return builder.buildTweens(context);
   }
 
   @override
@@ -144,6 +165,9 @@ class CardAct extends AnimtableAct<CardProps, CardProps> {
         other.elevation == elevation &&
         other.borderRadius == borderRadius &&
         other.shape == shape &&
+        other.margin == margin &&
+        other.semanticContainer == semanticContainer &&
+        other.frames == frames &&
         other.clipBehavior == clipBehavior &&
         other.borderOnForeground == borderOnForeground;
   }
@@ -158,12 +182,20 @@ class CardAct extends AnimtableAct<CardProps, CardProps> {
     shape,
     clipBehavior,
     borderOnForeground,
+    semanticContainer,
+    margin,
+    frames,
   );
-  
+
   @override
- ActContext resolve(ActContext context) {
-    // TODO: implement resolve
-    throw UnimplementedError();
+  ActContext resolve(ActContext context) {
+    return TweenActBase.resolveMotion(
+      context,
+      motion: motion,
+      delay: delay,
+      frames: frames,
+      reverse: reverse,
+    );
   }
 }
 
@@ -270,6 +302,7 @@ class CardActor extends StatelessWidget {
   final Widget? child;
   final CueMotion? motion;
   final ReverseBehavior<CardProps> reverse;
+  final Duration delay;
 
   const CardActor({
     super.key,
@@ -285,6 +318,7 @@ class CardActor extends StatelessWidget {
     this.child,
     this.motion,
     this.reverse = const ReverseBehavior.mirror(),
+    this.delay = Duration.zero,
   }) : assert(
          shape == null || borderRadius == null,
          'Cannot specify both shape and borderRadius. '
@@ -294,19 +328,22 @@ class CardActor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Actor(
-      acts: [CardAct(
-        color: color,
-        shadowColor: shadowColor,
-        surfaceTintColor: surfaceTintColor,
-        elevation: elevation,
-        borderRadius: borderRadius,
-        shape: shape,
-        clipBehavior: clipBehavior,
-        borderOnForeground: borderOnForeground,
-        margin: margin,
-        motion: motion,
-        reverse: reverse,
-      )],
+      acts: [
+        CardAct(
+          color: color,
+          shadowColor: shadowColor,
+          surfaceTintColor: surfaceTintColor,
+          elevation: elevation,
+          borderRadius: borderRadius,
+          shape: shape,
+          clipBehavior: clipBehavior,
+          borderOnForeground: borderOnForeground,
+          margin: margin,
+          motion: motion,
+          reverse: reverse,
+          delay: delay,
+        ),
+      ],
       child: child ?? const SizedBox.shrink(),
     );
   }

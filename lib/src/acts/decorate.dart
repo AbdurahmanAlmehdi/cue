@@ -1,8 +1,8 @@
 part of 'base/act.dart';
 
 class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
-
- @override final ActKey key = const ActKey('DecoratedBox');
+  @override
+  final ActKey key = const ActKey('DecoratedBox');
 
   final AnimatableValue<Color>? color;
   final AnimatableValue<BorderRadiusGeometry>? borderRadius;
@@ -11,6 +11,7 @@ class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
   final AnimatableValue<Gradient>? gradient;
   final BoxShape shape;
   final DecorationPosition position;
+  final Keyframes<Decoration>? frames;
 
   const DecoratedBoxAct({
     this.color,
@@ -23,21 +24,30 @@ class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
     this.position = DecorationPosition.background,
     this.shape = BoxShape.rectangle,
     super.delay,
-  });
+  }) : frames = null;
+
+  const DecoratedBoxAct.keyframed({
+    required Keyframes<Decoration> this.frames,
+    KFReverseBehavior<Decoration> super.reverse = const KFReverseBehavior.mirror(),
+    super.delay,
+    this.position = DecorationPosition.background,
+  }) : color = null,
+       borderRadius = null,
+       border = null,
+       boxShadow = null,
+       gradient = null,
+       shape = BoxShape.rectangle;
 
   @override
-  (CueAnimtable<Decoration> animtable, CueAnimtable<Decoration>? reverseAnimtable) buildTweens(ActContext context) {
-    final iFrom = context.implicitFrom as Decoration?;
-    final from =
-        iFrom ??
-        BoxDecoration(
-          color: color?.from,
-          borderRadius: borderRadius?.from,
-          border: border?.from,
-          boxShadow: boxShadow?.from,
-          gradient: gradient?.from,
-          shape: shape,
-        );
+  (CueAnimtable<Decoration>, CueAnimtable<Decoration>?) buildTweens(ActContext context) {
+    final from = BoxDecoration(
+      color: color?.from,
+      borderRadius: borderRadius?.from,
+      border: border?.from,
+      boxShadow: boxShadow?.from,
+      gradient: gradient?.from,
+      shape: shape,
+    );
     final to = BoxDecoration(
       color: color?.to,
       borderRadius: borderRadius?.to,
@@ -46,34 +56,14 @@ class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
       gradient: gradient?.to,
       shape: shape,
     );
-
-    // CueAnimtable<Decoration>? reverseAnimtable;
-    // if (reverse.needsReverseTween) {
-    //   final rTo = reverse.to;
-    //   final effectiveRTo =
-    //       rTo ??
-    //       BoxDecoration(
-    //         color: color?.to,
-    //         borderRadius: borderRadius?.to,
-    //         border: border?.to,
-    //         boxShadow: boxShadow?.to,
-    //         gradient: gradient?.to,
-    //         shape: shape,
-    //       );
-    //   if (effectiveRTo != to) {
-    //     reverseAnimtable = TweenAnimtable<Decoration>(
-    //       DecorationTween(begin: to, end: effectiveRTo),
-    //       motion: reverse.motion ?? context.reverseMotion,
-    //     );
-    //   }
-    // }
-
-    return (
-      TweenAnimtable(
-        DecorationTween(begin: from, end: to),
-      ),
-      null,
+    final builder = TweensBuildHelper<Decoration>(
+      from: from,
+      to: to,
+      frames: frames,
+      reverse: reverse,
+      tweenBuilder: (begin, end) => DecorationTween(begin: begin, end: end),
     );
+    return builder.buildTweens(context);
   }
 
   @override
@@ -104,19 +94,13 @@ class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
 
   @override
   ActContext resolve(ActContext context) {
-    final delay = this.delay + context.delay;
-    final reverseDelay = reverse.delay + context.reverseDelay;
-
-    CueMotion forwardMotion = motion ?? context.motion;
-    CueMotion reverseMotion = reverse.motion ?? motion ?? context.reverseMotion;
-
-    if (delay != Duration.zero) {
-      forwardMotion = forwardMotion.delayed(delay);
-    }
-    if (reverseDelay != Duration.zero) {
-      reverseMotion = reverseMotion.delayed(reverseDelay);
-    }
-    return context.copyWith(motion: forwardMotion, reverseMotion: reverseMotion);
+    return TweenActBase.resolveMotion(
+      context,
+      motion: motion,
+      delay: delay,
+      reverse: reverse,
+      frames: frames,
+    );
   }
 }
 
@@ -133,6 +117,7 @@ class DecoratedBoxActor extends StatelessWidget {
   final DecorationPosition position;
   final Duration delay;
   final Duration reverseDelay;
+  final ReverseBehavior<Decoration> reverse;
 
   const DecoratedBoxActor({
     super.key,
@@ -148,6 +133,7 @@ class DecoratedBoxActor extends StatelessWidget {
     this.position = DecorationPosition.background,
     this.delay = Duration.zero,
     this.reverseDelay = Duration.zero,
+    this.reverse = const ReverseBehavior.mirror(),
   });
 
   @override
@@ -164,6 +150,7 @@ class DecoratedBoxActor extends StatelessWidget {
           position: position,
           motion: motion,
           delay: delay,
+          reverse: reverse,
         ),
       ],
       child: child ?? const SizedBox.shrink(),
