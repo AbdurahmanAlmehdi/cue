@@ -20,12 +20,18 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
   String get debugName => 'OnScrollVisibleCue';
 
   @override
-  CueTimeline get timeline => _progressTimeline;
+  CueTimeline get timeline => _controller.timeline;
 
-  late final _progressTimeline = CueTimelineImpl.fromMotion(.defaultTime);
+  late final _controller = CueController(motion: .defaultTime, value: 1.0, vsync: this);
 
   ScrollPosition? _scrollPosition;
   double? _cachedRevealedOffset;
+
+  @override
+  void initState() {
+    super.initState();
+   _controller.setProgress(1.0, forward: true);
+  }
 
   @override
   void didChangeDependencies() {
@@ -56,7 +62,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
     super.didUpdateWidget(oldWidget);
     if (widget.enabled != oldWidget.enabled) {
       if (!widget.enabled) {
-        _progressTimeline.setProgress(1.0, forward: true);
+        _controller.setProgress(1.0, forward: true);
         _scrollPosition?.removeListener(_trackViiblity);
       } else {
         _subscribeToScrollPosition();
@@ -69,7 +75,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
     _scrollPosition?.removeListener(_trackViiblity);
     super.dispose();
   }
-
+  bool _isFirstFrame = true;
 
   AnimationStatus? _committedStatus;
   void _trackViiblity() async {
@@ -100,26 +106,29 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
     final scrollDirection = _scrollPosition!.userScrollDirection;
     final isScrollingForward = scrollDirection == ScrollDirection.forward || (scrollDirection == ScrollDirection.idle);
 
-    AnimationStatus status = _progressTimeline.status;
+    AnimationStatus status = _controller.status;
 
     if (visibleFraction == 0.0 || visibleFraction == 1.0) {
       _committedStatus = null;
       status = AnimationStatus.completed;
     } else if (_committedStatus == null) {
       // First frame mid-transition — commit direction now
-      if (visibleFraction > _progressTimeline.progress) {
+      if (visibleFraction > _controller.value) {
         _committedStatus = isScrollingForward ? AnimationStatus.reverse : AnimationStatus.forward;
-      } else if (visibleFraction < _progressTimeline.progress) {
+      } else if (visibleFraction < _controller.value) {
         _committedStatus = isScrollingForward ? AnimationStatus.forward : AnimationStatus.reverse;
       }
-      status = _committedStatus ?? _progressTimeline.status;
+      status = _committedStatus ?? _controller.status;
     } else {
       status = _committedStatus!;
     }
     final target = visibleFraction.clamp(0.0, 1.0);
 
-    
-      _progressTimeline.setProgress(target, forward: status.isForwardOrCompleted);
-    
+    if(target != 1 && target != 0.0 && _isFirstFrame){
+      _isFirstFrame = false;
+      _controller.setProgress(.5, forward: status.isForwardOrCompleted);
+    }else{
+    _controller.setProgress(target, forward: status.isForwardOrCompleted);
+    }
   }
 }

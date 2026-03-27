@@ -1,5 +1,4 @@
 import 'package:cue/cue.dart';
-import 'package:example/examples/indicator_to_button.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
