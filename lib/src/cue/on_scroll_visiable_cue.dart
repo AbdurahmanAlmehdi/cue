@@ -30,7 +30,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
   @override
   void initState() {
     super.initState();
-   _controller.setProgress(1.0, forward: true);
+    _controller.setProgress(1.0, forward: true);
   }
 
   @override
@@ -75,6 +75,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
     _scrollPosition?.removeListener(_trackViiblity);
     super.dispose();
   }
+
   bool _isFirstFrame = true;
 
   AnimationStatus? _committedStatus;
@@ -106,6 +107,9 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
     final scrollDirection = _scrollPosition!.userScrollDirection;
     final isScrollingForward = scrollDirection == ScrollDirection.forward || (scrollDirection == ScrollDirection.idle);
 
+    print(
+      'isScrollingForward: $isScrollingForward, scrollDirection: $scrollDirection, visibleFraction: $visibleFraction, scrollOffset: $scrollOffset, revealedOffset: $revealedOffset',
+    );
     AnimationStatus status = _controller.status;
 
     if (visibleFraction == 0.0 || visibleFraction == 1.0) {
@@ -124,11 +128,11 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
     }
     final target = visibleFraction.clamp(0.0, 1.0);
 
-    if(target != 1 && target != 0.0 && _isFirstFrame){
+    if (target != 1 && target != 0.0 && _isFirstFrame) {
       _isFirstFrame = false;
-      _controller.setProgress(.5, forward: status.isForwardOrCompleted);
-    }else{
-    _controller.setProgress(target, forward: status.isForwardOrCompleted);
+      _controller.animateTo(target, forward: status.isForwardOrCompleted);
+    } else {
+      _controller.setProgress(target, forward: status.isForwardOrCompleted);
     }
   }
 }

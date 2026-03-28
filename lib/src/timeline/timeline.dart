@@ -157,17 +157,17 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
   }
 
   @override
-  void prepare({required bool forward, double? from}) {
+  void prepare({required bool forward, double? from, double? target}) {
     _repeatConfig = null;
     _cycleOffset = 0.0;
     fireEvent(TimelinePrepareEvent(forward));
     _lastT = 0.0;
-    _prepareInternal(forward, from);
+    _prepareInternal(forward, from, target);
   }
 
-  void _prepareInternal(bool forward, [double? from]) {
+  void _prepareInternal(bool forward, [double? from, double? target]) {
     for (final entry in tracks.values) {
-      entry.track.prepare(forward: forward, from: from);
+      entry.track.prepare(forward: forward, from: from, target: target);
     }
     _updateStatus();
   }
@@ -177,7 +177,7 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     _repeatConfig = config;
     _lastT = 0.0;
     _cycleOffset = 0.0;
-    _prepareInternal(true, 0.0);
+    _prepareInternal(true, config.from ?? 0.0, config.target);
   }
 
   @override
@@ -218,9 +218,13 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     _lastT = 0.0;
 
     if (config.reverse) {
-      _prepareInternal(!mainTrack.isForwardOrCompleted);
+      if (mainTrack.isForwardOrCompleted) {
+        _prepareInternal(false, config.target, config.from ?? 0.0);
+      } else {
+        _prepareInternal(true, config.from ?? 0.0, config.target);
+      }
     } else {
-      _prepareInternal(true, 0.0);
+      _prepareInternal(true, config.from ?? 0.0, config.target);
     }
 
     return false;
@@ -247,7 +251,7 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
 }
 
 abstract class CueTimeline extends Simulation with EventNotifier<TimelineEvent> {
-  void prepare({required bool forward, double? from});
+  void prepare({required bool forward, double? from, double? target});
   void prepareForRepeat(RepeatConfig config);
 
   void willAnimate({required bool forward});
@@ -319,14 +323,23 @@ class TimelinePrepareEvent extends TimelineEvent {
 class RepeatConfig {
   final int? count;
   final bool reverse;
+  final double? target;
+  final double? from;
 
   RepeatConfig({
     this.count,
     required this.reverse,
+    this.target,
+    this.from,
   });
 
   RepeatConfig updateCount(int newCount) {
-    return RepeatConfig(count: newCount, reverse: reverse);
+    return RepeatConfig(
+      count: newCount,
+      reverse: reverse,
+      target: target,
+      from: from,
+    );
   }
 }
 

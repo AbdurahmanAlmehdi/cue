@@ -127,8 +127,6 @@ class TimedMotion extends CueMotion {
       return 'TimedMotion(duration: $baseDuration, curve: $curve)';
     }
   }
-  
-  
 }
 
 abstract class SimulationMotion<S extends CueSimulation> extends CueMotion {
@@ -156,6 +154,8 @@ class SegmentedMotion extends CueMotion {
       initialPhase: data.phase,
       startValue: data.startValue,
       velocity: data.velocity ?? 0.0,
+      endPhase: data.endPhase ?? (data.forward ? motions.length - 1 : 0),
+      endValue: data.endValue,
     );
   }
 
@@ -209,33 +209,44 @@ class DelayedMotion extends CueMotion {
 class SimulationBuildData {
   final bool forward;
   final int phase;
+  final int? endPhase;
+  final double? _endValue;
   final double startValue;
   final double? startProgress;
   final double? velocity;
 
-  double get endValue => forward ? 1.0 : 0.0;
+  double get endValue => _endValue ?? (forward ? 1.0 : 0.0);
 
   const SimulationBuildData({
     required this.forward,
     required this.startValue,
     this.phase = 0,
+    this.endPhase,
     this.velocity,
     this.startProgress,
-  });
+
+    double? endValue,
+  }) : _endValue = endValue;
 
   const SimulationBuildData.forward({
     this.phase = 0,
+    this.endPhase,
     this.startValue = 0.0,
     this.velocity,
     this.startProgress,
-  }) : forward = true;
+    double? endValue,
+  }) : forward = true,
+       _endValue = endValue;
 
   const SimulationBuildData.reverse({
     this.phase = 0,
+    this.endPhase,
     this.startValue = 1.0,
     this.velocity,
     this.startProgress,
-  }) : forward = false;
+    double? endValue,
+  }) : forward = false,
+       _endValue = endValue;
 }
 
 sealed class CueDuration {

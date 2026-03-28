@@ -31,6 +31,7 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
   double _value = 0.0;
   double _localT = 0.0;
   double _startProgress = 0.0;
+  double _targetProgress = 1.0;
   bool _done = true;
 
   AnimationStatus _status = AnimationStatus.dismissed;
@@ -80,7 +81,7 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
   }
 
   @override
-  void prepare({required bool forward, double? from, double? exteranlVelocity}) {
+  void prepare({required bool forward, double? from, double? target, double? exteranlVelocity}) {
     _needsPrepare = false;
     _forward = forward;
 
@@ -104,6 +105,7 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
     }
 
     _startProgress = _progress;
+    _targetProgress = target ?? (forward ? 1.0 : 0.0);
 
     if (reverseType.isExclusive) {
       _value = 1.0;
@@ -119,11 +121,16 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
       _value = sim.x(_localT);
       _phase = sim.phase;
     }
+
+    final (targetValue, targetPhase) = target == null ? (null, null) : _valueAtProgress(target, forward);
+
     _activeSim = active.build(
       SimulationBuildData(
         forward: forward,
         startValue: _value,
+        endValue: targetValue,
         phase: _phase,
+        endPhase: targetPhase,
         startProgress: _startProgress,
         velocity: exteranlVelocity ?? velocity,
       ),
@@ -154,16 +161,15 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
     if (_done || _activeSim == null) return;
     _localT += td;
 
-    final target = _forward ? 1.0 : 0.0;
     final simDuration = _activeSim!.duration;
     final fraction = simDuration <= 0 ? 1.0 : (_localT / simDuration).clamp(0.0, 1.0);
-    _progress = _startProgress + (target - _startProgress) * fraction;
+    _progress = _startProgress + (_targetProgress - _startProgress) * fraction;
 
     if (_activeSim!.isDone(_localT)) {
       _value = _activeSim!.x(_localT);
       _phase = _activeSim!.phase;
       _done = true;
-      _progress = target;
+      _progress = _targetProgress;
       notifyListeners();
       _upateStatus(_forward ? .completed : .dismissed);
       return;
@@ -199,7 +205,7 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
 }
 
 abstract class CueTrack extends Animation<double> with AnimationLocalListenersMixin {
-  void prepare({required bool forward, double? from, double? exteranlVelocity});
+  void prepare({required bool forward, double? from, double? target, double? exteranlVelocity});
 
   TrackConfig get config;
 

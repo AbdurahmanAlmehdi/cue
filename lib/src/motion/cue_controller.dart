@@ -100,37 +100,46 @@ class CueController extends AnimationController {
 
   @override
   TickerFuture repeat({double? min, double? max, bool reverse = false, int? count, Duration? period}) {
-    if (period != null || min != null || max != null) {
+    if (period != null) {
       throw UnsupportedError(
         'CueController does does not support time-based repetitio because physics-based animations is a first-class citizen. You may only specify count and reverse parameters. Received: period: $period, min: $min, max: $max',
       );
     }
+    assert(min == null || (min >= 0.0 && min <= 1.0), 'The "min" value must be between 0.0 and 1.0. Received: $min');
+    assert(max == null || (max >= 0.0 && max <= 1.0), 'The "max" value must be between 0.0 and 1.0. Received: $max');
+
     assert(count == null || count > 0, 'The "count" value must be greater than 0. Received: $count');
     _timeline.willAnimate(forward: true);
-    _timeline.prepareForRepeat(RepeatConfig(reverse: reverse, count: count));
+    _timeline.prepareForRepeat(RepeatConfig(reverse: reverse, count: count, from: min, target: max));
     return super.animateWith(_timeline);
   }
 
-  // @override
-  // TickerFuture animateTo(double target, {Duration? duration, Curve curve = Curves.linear}) {
-  //   if (duration != null) {
-  //     throw UnsupportedError(
-  //       'animateTo with duration is not supported by CueController. CueController is designed for physics-based animations and does not support time-based animations. Received: duration: $duration',
-  //     );
-  //   }
-  //   if (curve != Curves.linear) {
-  //     throw UnsupportedError(
-  //       'animateTo with curve is not supported by CueController. CueController is designed to run muliple tracks, each with its own motion configuration, and does not support global curves. Received: curve: $curve',
-  //     );
-  //   }
+  @override
+  TickerFuture animateTo(double target, {bool? forward, Duration? duration, Curve curve = Curves.linear}) {
+    if (duration != null) {
+      throw UnsupportedError(
+        'animateTo with duration is not supported by CueController. CueController is designed for physics-based animations and does not support time-based animations. Received: duration: $duration',
+      );
+    }
+    if (curve != Curves.linear) {
+      throw UnsupportedError(
+        'animateTo with curve is not supported by CueController. CueController is designed to run muliple tracks, each with its own motion configuration, and does not support global curves. Received: curve: $curve',
+      );
+    }
+    assert(target >= 0.0 && target <= 1.0, 'The target value must be between 0.0 and 1.0. Received: $target');
+    if (target == value) {
+      return TickerFuture.complete();
+    }
 
-  //   assert(target >= 0.0 && target <= 1.0, 'The target value must be between 0.0 and 1.0. Received: $target');
-
-  //   final forward = target > value;
-  //   _timeline.willAnimate(forward: forward);
-  //   _timeline.prepare(forward: forward, from: value);
-
-  // }
+     forward ??= target > value;
+    _timeline.willAnimate(forward: forward);
+    _timeline.prepare(forward: forward, target: target);
+    if (forward) {
+      return super.animateWith(_timeline);
+    } else {
+      return super.animateBackWith(_timeline);
+    }
+  }
 
   // @override
   // TickerFuture fling({

@@ -95,6 +95,8 @@ class SegmentedSimulation extends Simulation with CueSimulation {
   final List<CueMotion> _motions;
   final bool _forward;
   late double _duration;
+  final int endPhase;
+  final double? _endValue;
 
   @override
   double get duration => _duration;
@@ -123,24 +125,30 @@ class SegmentedSimulation extends Simulation with CueSimulation {
     required double velocity,
     int initialPhase = 0,
     double startValue = 0,
+    int? endPhase,
+    double? endValue,
   }) : _motions = motions,
        _forward = forward,
-       _phase = initialPhase {
+       _phase = initialPhase,
+       endPhase = endPhase ?? (forward ? motions.length - 1 : 0),
+       _endValue = endValue {
+    final computedEndPhase = endPhase ?? (forward ? motions.length - 1 : 0);
     _current = motions[initialPhase].build(
       SimulationBuildData(
         forward: forward,
         startValue: startValue,
+        endValue: initialPhase == computedEndPhase ? endValue : null,
         phase: initialPhase,
         velocity: velocity.abs(),
       ),
     );
     _duration = _current.duration;
     if (_forward) {
-      for (int i = initialPhase + 1; i < motions.length; i++) {
+      for (int i = initialPhase + 1; i <= this.endPhase; i++) {
         _duration += motions[i].baseDuration.inMicroseconds / Duration.microsecondsPerSecond;
       }
     } else {
-      for (int i = 0; i < initialPhase; i++) {
+      for (int i = this.endPhase; i < initialPhase; i++) {
         _duration += motions[i].baseDuration.inMicroseconds / Duration.microsecondsPerSecond;
       }
     }
@@ -161,9 +169,9 @@ class SegmentedSimulation extends Simulation with CueSimulation {
   @override
   bool isDone(double time) {
     if (_forward) {
-      return _phase >= _motions.length - 1 && _current.isDone(time - _phaseStartTime);
+      return _phase >= endPhase && _current.isDone(time - _phaseStartTime);
     } else {
-      return _phase <= 0 && _current.isDone(time - _phaseStartTime);
+      return _phase <= endPhase && _current.isDone(time - _phaseStartTime);
     }
   }
 
@@ -192,7 +200,7 @@ class SegmentedSimulation extends Simulation with CueSimulation {
 
   void _advanceIfNeeded(double time) {
     final localTime = time - _phaseStartTime;
-    final canAdvance = _forward ? _phase < _motions.length - 1 : _phase > 0;
+    final canAdvance = _forward ? _phase < endPhase : _phase > endPhase;
     if (canAdvance && _current.isDone(localTime)) {
       double exitVelocity = _current.dx((localTime).clamp(0.0, double.infinity));
       // Negate velocity when reversing
@@ -206,6 +214,7 @@ class SegmentedSimulation extends Simulation with CueSimulation {
         SimulationBuildData(
           forward: _forward,
           startValue: initialProgress,
+          endValue: _phase == endPhase ? _endValue : null,
           velocity: exitVelocity,
         ),
       );
@@ -233,7 +242,6 @@ class CueSpringSimulation extends SpringSimulation with CueSimulation {
 
   @override
   late final double duration = calculateSettleDuration(spring: _spring, stepSize: samplingStepSize);
-
 
   double calculateSettleDuration({
     double stepSize = 1 / 60,

@@ -45,28 +45,26 @@ class _OnChangeDemo extends StatefulWidget {
 
 class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProviderStateMixin {
   Offset offset = Offset.zero;
+  late final _controller = CueController(vsync: this, motion: .defaultTime);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      // backgroundColor: Colors.blue,
+      backgroundColor: theme.colorScheme.surfaceContainer,
       appBar: AppBar(),
       body: SizedBox.expand(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: .center,
-            crossAxisAlignment: .end,
-            children: [
+        child: ListView(
+          padding: const EdgeInsets.all(0),
+          children:  [
               // ElevatedButton(
               //   onPressed: () {
               //     showCueModalBottomSheet(
               //       context: context,
               //       showDragHandle: true,
               //       enableDrag: true,
-              //       motion: .linear(780.ms),
+              //       motion: .linear(400.ms),
               //       builder: (context) => Container(
               //         height: 320,
               //         width: double.infinity,
@@ -88,7 +86,7 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
               //   },
               //   child: Text('Show BottomSheet'),
               // ),
-
+             
               //  SlackStyleFab(),
               //  DeleteConfirmationDialog(),
               // if(false)
@@ -122,37 +120,45 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
               //       },
               //     ),
               //   ),
-
-              for (var i = 0; i < 20; i++)
-                Cue.onScrollVisible(
-                  key: ValueKey(i),
-                  acts:[
-                    // .zoomIn(from: .75),
-                    // .slideY(from: 0, reverse: .to(1.1)),
-                    .slideX(from: -1, reverse: .to(1)),
-                  ],
-                  child: Container(
-                    height: 220,
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 8.0),
-
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(12.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: .3),
-                          blurRadius: 8.0,
-                          offset: const Offset(0, 4),
-                        ),
+                for (var i = 0; i < 100; i++)
+                  Cue.onScrollVisible(
+                    key: ValueKey(i),
+                   
+                    child: Actor(
+                      motion: .smooth(),
+                      acts: [
+                        .slideX(from: -1, reverse: .to(1)),
                       ],
+                      child: Container(
+                        height: 220,
+                        margin:  const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
                     ),
                   ),
-                ),
             ],
           ),
-        ),
+     
       ),
+    );
+  }
+}
+
+class Box extends StatelessWidget {
+  const Box({super.key, required this.color, required this.size});
+  final Color color;
+  final Size size;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: size.height,
+      width: size.width,
+      color:  color,
+    
     );
   }
 }
