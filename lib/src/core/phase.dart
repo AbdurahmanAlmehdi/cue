@@ -78,7 +78,7 @@ sealed class Keyframes<T> {
 
   const factory Keyframes.fractional(
     List<FractionalKeyframe<T>> frames, {
-    Duration? duration,
+    double? duration,
   }) = FractionalKeyframes<T>;
 
   T get lastTarget;
@@ -143,7 +143,7 @@ final class MotionKeyframes<T> implements Keyframes<T> {
 
 final class FractionalKeyframes<T> implements Keyframes<T> {
   final List<FractionalKeyframe<T>> frames;
-  final Duration? duration;
+  final double? duration;
   const FractionalKeyframes(this.frames, {this.duration});
 
   @override
@@ -181,7 +181,7 @@ final class FractionalKeyframes<T> implements Keyframes<T> {
     return frames.last.value;
   }
 
-  List<CueMotion> extractMotion({bool includeFirst = false, required Duration duration}) {
+  List<CueMotion> extractMotion({bool includeFirst = false, required double duration}) {
     // Remove duplicates (keep last) and track curves
     final Map<double, Curve?> frameCurves = {};
 

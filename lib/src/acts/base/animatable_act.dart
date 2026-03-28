@@ -4,10 +4,10 @@ import 'package:flutter/widgets.dart';
 
 abstract class AnimtableAct<R extends Object?, T extends Object?> extends Act {
   final CueMotion? motion;
-  final Duration delay;
+  final double delay;
   final ReverseBehaviorBase<T> reverse;
 
-  const AnimtableAct({this.motion, this.delay = Duration.zero, required this.reverse});
+  const AnimtableAct({this.motion, this.delay = 0.0, required this.reverse});
 
   (CueAnimtable<R>, CueAnimtable<R>?) buildTweens(ActContext context);
 

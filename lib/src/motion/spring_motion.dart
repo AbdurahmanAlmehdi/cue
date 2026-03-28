@@ -44,7 +44,6 @@ final class Spring extends SimulationMotion<CueSpringSimulation> {
     );
   }
 
-
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -131,11 +130,11 @@ final class Spring extends SimulationMotion<CueSpringSimulation> {
   });
 
   factory Spring({
-    Duration duration = const Duration(milliseconds: 500),
+    double duration = 0.5,
     double bounce = 0,
   }) {
     final desc = SpringDescription.withDurationAndBounce(
-      duration: duration,
+      duration: Duration(milliseconds: (duration * 1000).round()),
       bounce: bounce,
     );
     return Spring.custom(
@@ -146,9 +145,5 @@ final class Spring extends SimulationMotion<CueSpringSimulation> {
   }
 
   @override
-  Duration get baseDuration {
-    final sim = buildBase();
-    return Duration(milliseconds: (sim.duration * 1000).round());
-  }
+  double get baseDuration => buildBase().duration;
 }
-

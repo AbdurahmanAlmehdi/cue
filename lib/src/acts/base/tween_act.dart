@@ -39,7 +39,7 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animta
   static ActContext resolveMotion<T>(
     ActContext context, {
     CueMotion? motion,
-    Duration delay = Duration.zero,
+    double delay = 0.0,
     required ReverseBehaviorBase reverse,
     Keyframes<T>? frames,
     bool includeFirstFrame = false,
@@ -233,14 +233,14 @@ class ReverseBehaviorBase<T> {
   final T? to;
   final Keyframes<T>? frames;
   final CueMotion? motion;
-  final Duration delay;
+  final double delay;
 
   const ReverseBehaviorBase._({
     required this.type,
     this.to,
     this.frames,
     this.motion,
-    this.delay = Duration.zero,
+    this.delay = 0.0,
   });
 
   bool get needsReverseTween => type == ReverseBehaviorType.to;

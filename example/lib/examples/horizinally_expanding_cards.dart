@@ -44,7 +44,7 @@ class _HorizontallyExpandingCardsState extends State<HorizontallyExpandingCards>
                 for (var i = 0; i < cardsInfo.length; i++)
                   Cue.onToggle(
                     toggled: i == _expandedIndex,
-                    motion: Spring.smooth(),
+                    motion: .smooth(),
                     child: Card(
                       margin: .zero,
                       elevation: 0,
@@ -55,7 +55,6 @@ class _HorizontallyExpandingCardsState extends State<HorizontallyExpandingCards>
                           .sizedClip(
                             from: .width(availableWidth * 0.16),
                             to: .width(availableWidth * 0.6),
-                            motion: .smooth(),
                           ),
                         ],
                         child: DecoratedBox(
@@ -99,7 +98,7 @@ class _HorizontallyExpandingCardsState extends State<HorizontallyExpandingCards>
                                     child: Actor(
                                       acts: [
                                         .fadeIn(),
-                                        .clipHeight(from: .3),
+                                        .clipHeight(fromFactor: .25),
                                       ],
                                       child: Padding(
                                         padding: .only(bottom: 14),

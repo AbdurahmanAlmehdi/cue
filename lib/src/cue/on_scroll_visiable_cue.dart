@@ -22,7 +22,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
   @override
   CueTimeline get timeline => _controller.timeline;
 
-  late final _controller = CueController(motion: .defaultTime, vsync: this);
+  late final _controller = CueController(motion: .linear(1.0), vsync: this);
 
   ScrollPosition? _scrollPosition;
   double? _cachedRevealedOffset;
@@ -98,7 +98,7 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
     final visibleExtent = visibleEnd - visibleStart;
 
     final visibleFraction = itemExtent > 0 ? (visibleExtent / itemExtent) : 0.0;
-    final forward = scrollOffset + viewportDimension / 2 > revealedOffset;
+    final forward = (scrollOffset + viewportDimension / 2) < revealedOffset;
 
     final target = visibleFraction.clamp(0.0, 1.0);
 

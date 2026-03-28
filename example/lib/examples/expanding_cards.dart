@@ -82,7 +82,7 @@ class _ExpandingCardsState extends State<ExpandingCards> {
                               ),
                               Actor(
                                 acts: [
-                                  .clipHeight(from: .3),
+                                  .clipHeight(fromFactor: .3),
                                   .fadeIn(),
                                   .slideY(from: 0.5),
                                   .blur(from: 8),

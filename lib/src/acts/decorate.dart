@@ -115,8 +115,8 @@ class DecoratedBoxActor extends StatelessWidget {
   final CueMotion? motion;
   final CueMotion? reverseMotion;
   final DecorationPosition position;
-  final Duration delay;
-  final Duration reverseDelay;
+  final double delay;
+  final double reverseDelay;
   final ReverseBehavior<Decoration> reverse;
 
   const DecoratedBoxActor({
@@ -131,8 +131,8 @@ class DecoratedBoxActor extends StatelessWidget {
     this.motion,
     this.reverseMotion,
     this.position = DecorationPosition.background,
-    this.delay = Duration.zero,
-    this.reverseDelay = Duration.zero,
+    this.delay = 0.0,
+    this.reverseDelay = 0.0,
     this.reverse = const ReverseBehavior.mirror(),
   });
 

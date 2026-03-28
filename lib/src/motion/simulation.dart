@@ -66,11 +66,11 @@ class CurvedSimulation extends Simulation with CueSimulation {
   double get duration => _duration;
 
   CurvedSimulation({
-    required Duration baseDuration,
+    required double baseDuration,
     required Curve curve,
     required double from,
     required double to,
-  }) : _duration = (baseDuration.inMicroseconds / Duration.microsecondsPerSecond) * (to - from).abs(),
+  }) : _duration = baseDuration * (to - from).abs(),
        _curve = curve,
        _from = from,
        _to = to;
@@ -145,11 +145,11 @@ class SegmentedSimulation extends Simulation with CueSimulation {
     _duration = _current.duration;
     if (_forward) {
       for (int i = initialPhase + 1; i <= this.endPhase; i++) {
-        _duration += motions[i].baseDuration.inMicroseconds / Duration.microsecondsPerSecond;
+        _duration += motions[i].baseDuration;
       }
     } else {
       for (int i = this.endPhase; i < initialPhase; i++) {
-        _duration += motions[i].baseDuration.inMicroseconds / Duration.microsecondsPerSecond;
+        _duration += motions[i].baseDuration;
       }
     }
   }

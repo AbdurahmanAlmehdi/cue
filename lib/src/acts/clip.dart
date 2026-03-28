@@ -14,15 +14,15 @@ abstract class ClipAct extends Act {
   }) = _ClipEffect.circular;
 
   const factory ClipAct.width({
-    double from,
-    double to,
+    double fromFactor,
+    double toFactor,
     AlignmentGeometry alignment,
      CueMotion? motion,
   }) = _AxisClipEffect.horizontal;
 
   const factory ClipAct.height({
-    double from,
-    double to,
+    double fromFactor,
+     double toFactor,
     AlignmentGeometry alignment,
       CueMotion? motion,
   }) = _AxisClipEffect.vertical;
@@ -33,20 +33,20 @@ class _AxisClipEffect extends TweenAct<double> implements ClipAct {
   final AlignmentGeometry alignment;
 
   const _AxisClipEffect.horizontal({
-    super.from = 0,
-    super.to = 1,
+    double fromFactor = 0,
+    double toFactor = 1,
     this.alignment = AlignmentDirectional.centerStart,
     super.motion,
   }) : _axis = Axis.horizontal,
-       super.tween();
+       super.tween(from: fromFactor, to: toFactor);
 
   const _AxisClipEffect.vertical({
-    super.from = 0,
-    super.to = 1,
+    double fromFactor = 0,
+    double toFactor = 1,
     this.alignment = AlignmentDirectional.topCenter,
     super.motion,
   }) : _axis = Axis.vertical,
-       super.tween();
+       super.tween(from: fromFactor, to: toFactor);
 
   @override
   Widget apply(BuildContext context, Animation<double> animation, Widget child) {

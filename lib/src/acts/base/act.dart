@@ -43,7 +43,7 @@ abstract class Act {
     required double to,
     CueMotion? motion,
     ReverseBehavior<double> reverse,
-    Duration delay,
+    double delay,
   }) = ScaleAct;
 
   const factory Act.zoomIn({
@@ -75,7 +75,7 @@ abstract class Act {
     double from,
     double to,
     CueMotion? motion,
-    Duration delay,
+    double delay,
     ReverseBehavior<double> reverse,
   }) = TranslateAct.fromX;
 
@@ -116,7 +116,7 @@ abstract class Act {
     double to,
     CueMotion? motion,
     ReverseBehavior<double> reverse,
-    Duration delay,
+    double delay,
   }) = SlideAct.fromX;
 
   const factory Act.slideY({
@@ -124,7 +124,7 @@ abstract class Act {
     double to,
     CueMotion? motion,
     ReverseBehavior<double> reverse,
-    Duration delay,
+    double delay,
   }) = SlideAct.y;
 
   const factory Act.slideUp({
@@ -173,7 +173,7 @@ abstract class Act {
     EdgeInsetsGeometry from,
     EdgeInsetsGeometry to,
     CueMotion? motion,
-    Duration delay,
+    double delay,
     ReverseBehavior<EdgeInsetsGeometry> reverse,
   }) = PaddingAct;
 
@@ -213,7 +213,7 @@ abstract class Act {
     AnimatableValue<double>? height,
     AlignmentGeometry alignment,
     CueMotion? motion,
-    Duration delay,
+    double delay,
   }) = SizedBoxAct;
 
   const factory Act.sizedClip({
@@ -233,15 +233,15 @@ abstract class Act {
   }) = ClipAct;
 
   const factory Act.clipHeight({
-    double from,
-    double to,
+    double fromFactor,
+    double toFactor,
     AlignmentGeometry alignment,
     CueMotion? motion,
   }) = ClipAct.height;
 
   const factory Act.clipWidth({
-    double from,
-    double to,
+    double fromFactor,
+    double toFactor,
     AlignmentGeometry alignment,
     CueMotion? motion,
   }) = ClipAct.width;
@@ -257,7 +257,7 @@ abstract class Act {
     CueMotion? motion,
     RotateUnit unit,
     RotateAxis axis,
-    Duration delay,
+    double delay,
     AlignmentGeometry alignment,
     ReverseBehavior<double> reverse,
   }) = RotateAct;
@@ -399,16 +399,16 @@ abstract class Act {
 class ActContext {
   final CueMotion motion;
   final CueMotion reverseMotion;
-  final Duration delay;
-  final Duration reverseDelay;
+  final double delay;
+  final double reverseDelay;
   final TextDirection textDirection;
   final Object? implicitFrom;
 
   const ActContext({
     required this.motion,
     required this.reverseMotion,
-    this.delay = Duration.zero,
-    this.reverseDelay = Duration.zero,
+    this.delay = 0.0,
+    this.reverseDelay = 0.0,
     this.textDirection = TextDirection.ltr,
     this.implicitFrom,
   });
@@ -418,8 +418,8 @@ class ActContext {
     Object? implicitFrom,
     CueMotion? motion,
     CueMotion? reverseMotion,
-    Duration? delay,
-    Duration? reverseDelay,
+    double? delay,
+    double? reverseDelay,
   }) {
     return ActContext(
       motion: motion ?? this.motion,

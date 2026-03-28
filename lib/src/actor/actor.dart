@@ -8,8 +8,8 @@ class Actor extends StatefulWidget {
   final Widget child;
   final CueMotion? motion;
   final CueMotion? reverseMotion;
-  final Duration delay;
-  final Duration reverseDelay;
+  final double delay;
+  final double reverseDelay;
 
   const Actor({
     super.key,
@@ -17,8 +17,8 @@ class Actor extends StatefulWidget {
     required this.child,
     this.motion,
     this.reverseMotion,
-    this.delay = Duration.zero,
-    this.reverseDelay = Duration.zero,
+    this.delay = 0.0,
+    this.reverseDelay = 0.0,
   });
 
   @override
@@ -184,8 +184,8 @@ abstract class SingleActorBase<T> extends StatelessWidget {
   final Widget child;
   final ReverseBehavior<T> reverse;
   final CueMotion? motion;
-  final Duration delay;
-  final Duration reverseDelay;
+  final double delay;
+  final double reverseDelay;
   final CueMotion? reverseMotion;
 
   final Keyframes<T>? frames;
@@ -201,9 +201,9 @@ abstract class SingleActorBase<T> extends StatelessWidget {
     required T from,
     required T to,
     this.motion,
-    this.delay = Duration.zero,
+    this.delay = 0.0,
     this.reverseMotion,
-    this.reverseDelay = Duration.zero,
+    this.reverseDelay = 0.0,
     this.reverse = const ReverseBehavior.mirror(),
   }) : frames = null,
        _from = from,
@@ -214,8 +214,8 @@ abstract class SingleActorBase<T> extends StatelessWidget {
     super.key,
     required this.child,
     this.reverse = const ReverseBehavior.mirror(),
-    this.delay = Duration.zero,
-    this.reverseDelay = Duration.zero,
+    this.delay = 0.0,
+    this.reverseDelay = 0.0,
   }) : _from = null,
        _to = null,
        motion = null,
