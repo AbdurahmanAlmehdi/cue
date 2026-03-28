@@ -194,14 +194,8 @@ final class FractionalKeyframes<T> implements Keyframes<T> {
     // Sort by time
     final sortedTimes = frameCurves.keys.toList()..sort();
 
-    // Handle edge cases
-    if (sortedTimes.isEmpty) {
-      return [];
-    }
+    if (sortedTimes.isEmpty || (!includeFirst && sortedTimes.length < 2)) return [];
 
-    if (!includeFirst && sortedTimes.length < 2) {
-      return [];
-    }
 
     final List<CueMotion> motions = [];
 
