@@ -2,7 +2,7 @@ part of 'cue.dart';
 
 class _OnScrollVisibleCue extends Cue {
   const _OnScrollVisibleCue({
-    required Key super.key,
+    super.key,
     required super.child,
     super.debugLabel,
     this.enabled = true,
@@ -22,16 +22,10 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
   @override
   CueTimeline get timeline => _controller.timeline;
 
-  late final _controller = CueController(motion: .defaultTime, value: 1.0, vsync: this);
+  late final _controller = CueController(motion: .defaultTime, vsync: this);
 
   ScrollPosition? _scrollPosition;
   double? _cachedRevealedOffset;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller.setProgress(1.0, forward: true);
-  }
 
   @override
   void didChangeDependencies() {
@@ -73,26 +67,30 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
   @override
   void dispose() {
     _scrollPosition?.removeListener(_trackViiblity);
+    _controller.dispose();
     super.dispose();
   }
 
   bool _isFirstFrame = true;
 
   void _trackViiblity() async {
-    if (!context.mounted) return;
+    if (!mounted) return;
     final renderObject = context.findRenderObject();
-    if (renderObject is! RenderBox) return;
-    if (!renderObject.attached || _scrollPosition == null) return;
+    if (renderObject is! RenderBox || !renderObject.attached || !renderObject.hasSize) {
+      _controller.setProgress(1.0, forward: true);
+      return;
+    }
 
     final revealedOffset = _cachedRevealedOffset ??= RenderAbstractViewport.of(
       renderObject,
     ).getOffsetToReveal(renderObject, 0.0).offset;
+    final renderSize = renderObject.size;
 
     // Widget is visible if its revealed offset is within current scroll range
     final scrollOffset = _scrollPosition!.pixels;
     final viewportDimension = _scrollPosition!.viewportDimension;
 
-    final itemExtent = _scrollPosition!.axis == Axis.horizontal ? renderObject.size.width : renderObject.size.height;
+    final itemExtent = _scrollPosition!.axis == Axis.horizontal ? renderSize.width : renderSize.height;
 
     // Compute how many pixels of the widget overlap with the viewport
     final visibleStart = math.max(revealedOffset, scrollOffset);

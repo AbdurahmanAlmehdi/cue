@@ -107,7 +107,7 @@ abstract class Cue extends StatefulWidget {
 
   // if you need a general purpose visibility detector, use the VisibilityDetector package. an trigger Cue animations based on visibility changes using that package and Cue's imperative API.
   const factory Cue.onScrollVisible({
-    required Key key,
+     Key? key,
     String? debugLabel,
     bool enabled,
     List<Act>? acts,

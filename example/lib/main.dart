@@ -123,12 +123,11 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
               //   ),
                 for (var i = 0; i < 100; i++)
                   Cue.onScrollVisible(
-                    key: ValueKey(i),
                     child: Actor(
-                      // motion: .smooth(),
+                      motion: .linear(400.ms),
                       acts: [
                         .slideX(from: -1, reverse: .to(1)),
-                        .scale(from: .5, to: 1.0),
+                        // .scale(from: .5, to: 1.0),
                       ],
                       child: Container(
                         height: 220,
@@ -137,6 +136,13 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                       ),
                     ),
