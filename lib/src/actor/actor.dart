@@ -110,7 +110,7 @@ class ActorState extends State<Actor> {
           act.resolve(
             ActContext(
               motion: widget.motion ?? mainConfig.motion,
-              reverseMotion: widget.reverseMotion ?? mainConfig.reverseMotion,
+              reverseMotion: widget.reverseMotion ?? widget.motion ?? mainConfig.reverseMotion,
               delay: widget.delay,
               reverseDelay: widget.reverseDelay,
             ),

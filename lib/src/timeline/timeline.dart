@@ -5,11 +5,13 @@ import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/material.dart';
 
 class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixin {
-  CueTimelineImpl(TrackConfig config) : super({config: TrackEntry(CueTrackImpl(config))});
+  CueTimelineImpl(TrackConfig config, {this.progressBased = false}) : super({config: TrackEntry(CueTrackImpl(config))});
 
-  factory CueTimelineImpl.fromMotion(CueMotion motion, {CueMotion? reverseMotion}) {
+  final bool progressBased;
+
+  factory CueTimelineImpl.fromMotion(CueMotion motion, {CueMotion? reverseMotion, bool progressBased = false}) {
     final config = TrackConfig(motion: motion, reverseMotion: reverseMotion ?? motion);
-    return CueTimelineImpl(config);
+    return CueTimelineImpl(config, progressBased: progressBased);
   }
 
   @override
@@ -27,8 +29,10 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
   @override
   CueTrack get mainTrack => tracks.values.first.track;
 
-  @override
-  double get forwardDuration {
+  double? _forwardDuration;
+  double? _reverseDuration;
+
+  double _calculateForwardDuration() {
     double maxDuration = 0.0;
     for (final entry in tracks.values) {
       if (entry.track.forwardDuration > maxDuration) {
@@ -38,8 +42,7 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     return maxDuration;
   }
 
-  @override
-  double get reverseDuration {
+  double _calculateReverseDuration() {
     double maxDuration = 0.0;
     for (final entry in tracks.values) {
       if (entry.track.reverseDuration > maxDuration) {
@@ -50,10 +53,24 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
   }
 
   @override
+  double get forwardDuration => _forwardDuration ??= _calculateForwardDuration();
+
+  @override
+  double get reverseDuration => _reverseDuration ??= _calculateReverseDuration();
+
+  @override
   void reset() {
     _repeatConfig = null;
     _cycleOffset = 0.0;
     setProgress(0.0, forward: true);
+  }
+
+  @override
+  void resetTracks(TrackConfig main) {
+    tracks.clear();
+    _forwardDuration = null;
+    _reverseDuration = null;
+    tracks[main] = TrackEntry(buildTrack(main));
   }
 
   @override
@@ -64,6 +81,8 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
       config,
       () => TrackEntry(buildTrack(config)),
     );
+    _forwardDuration = null;
+    _reverseDuration = null;
     entry.track.prepare(
       forward: mainTrack.isForwardOrCompleted,
       from: progress,
@@ -82,6 +101,8 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     entry.removeToken(token);
     if (entry.canRelease) {
       tracks.remove(token.config);
+      _forwardDuration = null;
+      _reverseDuration = null;
     }
   }
 
@@ -105,7 +126,7 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     final timelineDuration = forwardDuration;
     for (final entry in tracks.entries) {
       final track = entry.value.track;
-      final normalized = (value * timelineDuration / track.forwardDuration).clamp(0.0, 1.0);
+      final normalized = progressBased ? value : (value * timelineDuration / track.forwardDuration).clamp(0.0, 1.0);
       track.setProgress(normalized, forward: true);
     }
   }
@@ -114,6 +135,10 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     final timelineDuration = reverseDuration;
     for (final entry in tracks.entries) {
       final track = entry.value.track;
+      if (progressBased) {
+        track.setProgress(value, forward: false);
+        continue;
+      }
       final idleRatio = (1.0 - (track.reverseDuration / timelineDuration));
       final adjustedValue = (value - idleRatio);
       final normalized = (adjustedValue / (track.reverseDuration / timelineDuration)).clamp(0.0, 1.0);
@@ -295,10 +320,7 @@ abstract class CueTimeline extends Simulation with EventNotifier<TimelineEvent> 
   @override
   void dispose();
 
-  void resetTracks(TrackConfig main) {
-    tracks.clear();
-    tracks[main] = TrackEntry(buildTrack(main));
-  }
+  void resetTracks(TrackConfig main);
 
   void addStatusListener(AnimationStatusListener listener);
   void removeStatusListener(AnimationStatusListener listener);

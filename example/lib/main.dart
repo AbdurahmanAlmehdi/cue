@@ -130,12 +130,13 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
               //       },
               //     ),
               //   ),
-              for (var i = 0; i < 100; i++)
+              for (var i = 0; i < 20; i++)
                 Cue.onScrollVisible(
                   child: Actor(
+                    motion: .smooth(),
                     acts: [
-                      .slideX(from: -1, reverse: .to(1)),
-                      .scale(from: .5, to: 1.0),
+                      // .slideX(from: -1, reverse: .to(1)), 
+                      // .scale(from: .5, to: 1.0,reverse: .to(.5), motion: .linear(.5)),  
                     ],
                     child: Container(
                       height: 220,

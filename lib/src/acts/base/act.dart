@@ -37,9 +37,8 @@ typedef TweenBuilder<T> = Animatable<T> Function(T from, T to);
 abstract class Act {
   const Act();
 
-
   const factory Act.scale({
-     double from,
+    double from,
     required double to,
     CueMotion? motion,
     ReverseBehavior<double> reverse,
@@ -58,6 +57,14 @@ abstract class Act {
     CueMotion? motion,
   }) = ScaleAct.zoomOut;
 
+  const factory Act.stretch({
+    Stretch from,
+    required Stretch to,
+    CueMotion? motion,
+    ReverseBehavior<Stretch> reverse,
+    double delay,
+  }) = StretchAct;
+
   const factory Act.fractionalSize({
     AnimatableValue<double>? widthFactor,
     AnimatableValue<double>? heightFactor,
@@ -69,6 +76,8 @@ abstract class Act {
     Offset from,
     Offset to,
     CueMotion? motion,
+    ReverseBehavior<Offset> reverse,
+    double delay,
   }) = TranslateAct;
 
   const factory Act.translateX({
@@ -277,6 +286,16 @@ abstract class Act {
     CueMotion? motion,
   }) = RotateAct.flipY;
 
+  const factory Act.skew({
+    Skew from,
+    Skew to,
+    AlignmentGeometry? alignment,
+    Offset? origin,
+    CueMotion? motion,
+    ReverseBehavior<Skew> reverse,
+    double delay,
+  }) = SkewAct;
+
   const factory Act.textStyle({
     required TextStyle from,
     required TextStyle to,
@@ -306,7 +325,7 @@ abstract class Act {
     CueMotion? motion,
   }) = DecoratedBoxAct;
 
-   ActKey get key;
+  ActKey get key;
 
   ActContext resolve(ActContext context);
 
@@ -314,87 +333,6 @@ abstract class Act {
 
   Widget build(BuildContext context, covariant CueAnimation<Object?> animation, Widget child);
 }
-
-// class ComposeAct extends Act {
-//   final List<Act> acts;
-//   final CueMotion? motion;
-//   final CueMotion? reverseMotion;
-//   final Duration delay;
-//   final Duration reverseDelay;
-
-//   const ComposeAct(
-//     this.acts, {
-//     this.motion,
-//     this.reverseMotion,
-//     this.delay = Duration.zero,
-//     this.reverseDelay = Duration.zero,
-//   });
-
-//   @override
-//   List<(AnimtableAct, ActContext)> resolve(ActContext context) {
-//     final result = <(AnimtableAct, ActContext)>[];
-//     final composeContext = context.copyWith(
-//       motion: motion,
-//       reverseMotion: reverseMotion,
-//       delay: delay + context.delay,
-//       reverseDelay: reverseDelay + context.reverseDelay,
-//     );
-//     for (final act in acts) {
-//       result.addAll(act.resolve(composeContext));
-//     }
-//     return result;
-//   }
-
-//   @override
-//   bool operator ==(Object other) =>
-//       identical(this, other) ||
-//       other is ComposeAct &&
-//           runtimeType == other.runtimeType &&
-//           listEquals(acts, other.acts) &&
-//           motion == other.motion &&
-//           reverseMotion == other.reverseMotion &&
-//           delay == other.delay &&
-//           reverseDelay == other.reverseDelay;
-
-//   @override
-//   int get hashCode => Object.hashAll(acts);
-// }
-
-// class SequenceAct extends Act {
-//   final List<Act> acts;
-//   final Duration overlap;
-
-//   const SequenceAct(this.acts, {this.overlap = Duration.zero});
-
-//   @override
-//   List<(AnimtableAct, ActContext)> resolve(ActContext context) {
-//     final result = <(AnimtableAct, ActContext)>[];
-//     Duration accumulatedDelay = Duration.zero;
-//     for (final act in acts) {
-//       final actContext = context.copyWith(
-//         delay: accumulatedDelay + context.delay,
-//         reverseDelay: context.reverseDelay,
-//       );
-//       final actResult = act.resolve(actContext);
-//       final longestDuration = actResult.map((e) => e.$2.motion.baseDuration).reduce((a, b) => a > b ? a : b);
-//       // Assuming each act has a method to calculate its duration, which is not defined here.
-//       accumulatedDelay += longestDuration - overlap;
-//       result.addAll(actResult);
-//     }
-//     return result;
-//   }
-
-//   @override
-//   bool operator ==(Object other) =>
-//       identical(this, other) ||
-//       other is SequenceAct &&
-//           runtimeType == other.runtimeType &&
-//           listEquals(acts, other.acts) &&
-//           overlap == other.overlap;
-
-//   @override
-//   int get hashCode => Object.hash(Object.hashAll(acts), overlap);
-// }
 
 class ActContext {
   final CueMotion motion;
@@ -436,7 +374,7 @@ class ActKey {
   final String key;
   final String? desc;
 
- const ActKey(this.key, [this.desc]);
+  const ActKey(this.key, [this.desc]);
 
   @override
   bool operator ==(Object other) =>

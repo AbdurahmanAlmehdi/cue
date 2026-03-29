@@ -22,7 +22,11 @@ class _OnVisibleCueState extends _CueState<_OnScrollVisibleCue> with SingleTicke
   @override
   CueTimeline get timeline => _controller.timeline;
 
-  late final _controller = CueController(motion: .linear(1.0), vsync: this);
+  late final _controller = CueController(
+    motion: .linear(1.0),
+    vsync: this,
+    progressBased: true,
+  );
 
   ScrollPosition? _scrollPosition;
   double? _cachedRevealedOffset;

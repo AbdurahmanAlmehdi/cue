@@ -189,6 +189,78 @@ void main() {
         expect(timeline.tracks.length, equals(1));
       });
 
+      test('releasing longest track updates forwardDuration', () {
+        final shortMotion = CueMotion.linear(0.2);
+        final longMotion = CueMotion.linear(0.5);
+
+        final shortConfig = TrackConfig(motion: shortMotion, reverseMotion: shortMotion);
+        final timeline = CueTimelineImpl(shortConfig);
+
+        final longConfig = TrackConfig(motion: longMotion, reverseMotion: longMotion);
+        final (_, token) = timeline.trackFor(longConfig);
+
+        expect(timeline.forwardDuration, equals(0.5));
+
+        timeline.release(token);
+
+        expect(timeline.forwardDuration, equals(0.2));
+      });
+
+      test('releasing longest reverse track updates reverseDuration', () {
+        final motion1 = CueMotion.linear(0.3);
+        final motion2 = CueMotion.linear(0.5);
+
+        final config1 = TrackConfig(motion: motion1, reverseMotion: motion1);
+        final timeline = CueTimelineImpl(config1);
+
+        final config2 = TrackConfig(motion: motion2, reverseMotion: motion2);
+        final (_, token) = timeline.trackFor(config2);
+
+        expect(timeline.reverseDuration, equals(0.5));
+
+        timeline.release(token);
+
+        expect(timeline.reverseDuration, equals(0.3));
+      });
+
+      test('releasing intermediate track does not change duration', () {
+        final shortMotion = CueMotion.linear(0.2);
+        final mediumMotion = CueMotion.linear(0.4);
+        final longMotion = CueMotion.linear(0.6);
+
+        final shortConfig = TrackConfig(motion: shortMotion, reverseMotion: shortMotion);
+        final timeline = CueTimelineImpl(shortConfig);
+
+        final mediumConfig = TrackConfig(motion: mediumMotion, reverseMotion: mediumMotion);
+        final longConfig = TrackConfig(motion: longMotion, reverseMotion: longMotion);
+
+        timeline.trackFor(mediumConfig);
+        final (_, longToken) = timeline.trackFor(longConfig);
+
+        expect(timeline.forwardDuration, equals(0.6));
+
+        timeline.release(longToken);
+
+        expect(timeline.forwardDuration, equals(0.4));
+      });
+
+      test('duration remains correct with multiple tracks of same duration', () {
+        final motion1 = CueMotion.linear(0.3);
+        final motion2 = CueMotion.linear(0.3);
+
+        final config1 = TrackConfig(motion: motion1, reverseMotion: motion1);
+        final timeline = CueTimelineImpl(config1);
+
+        final config2 = TrackConfig(motion: motion2, reverseMotion: motion2);
+        final (_, token) = timeline.trackFor(config2);
+
+        expect(timeline.forwardDuration, equals(0.3));
+
+        timeline.release(token);
+
+        expect(timeline.forwardDuration, equals(0.3));
+      });
+
       test('trackFor prepares the new track with timeline progress', () {
         final mainMotion = CueMotion.linear(0.3);
         final mainConfig = TrackConfig(motion: mainMotion, reverseMotion: mainMotion);
@@ -489,6 +561,286 @@ void main() {
         expect(timeline.isDone(0.6), isFalse);
         timeline.x(0.9);
         expect(timeline.isDone(0.9), isFalse);
+      });
+    });
+
+    group('Timeline reset behavior', () {
+      test('reset resets progress and clears repeat config', () {
+        final motion = CueMotion.linear(0.3);
+        final config = TrackConfig(motion: motion, reverseMotion: motion);
+        final timeline = CueTimelineImpl(config);
+
+        timeline.setProgress(0.7, forward: true);
+        expect(timeline.progress, equals(0.7));
+
+        timeline.reset();
+
+        expect(timeline.progress, equals(0.0));
+        expect(timeline.status, equals(AnimationStatus.forward));
+      });
+
+      test('reset does not remove additional tracks', () {
+        final mainMotion = CueMotion.linear(0.3);
+        final mainConfig = TrackConfig(motion: mainMotion, reverseMotion: mainMotion);
+        final timeline = CueTimelineImpl(mainConfig);
+
+        final newMotion = CueMotion.linear(0.5);
+        final newConfig = TrackConfig(motion: newMotion, reverseMotion: newMotion);
+        timeline.trackFor(newConfig);
+
+        expect(timeline.tracks.length, equals(2));
+
+        timeline.reset();
+
+        expect(timeline.tracks.length, equals(2));
+      });
+    });
+
+    group('Timeline resetTracks behavior', () {
+      test('resetTracks replaces all tracks with new main track', () {
+        final oldMotion = CueMotion.linear(0.3);
+        final oldConfig = TrackConfig(motion: oldMotion, reverseMotion: oldMotion);
+        final timeline = CueTimelineImpl(oldConfig);
+
+        final extraMotion = CueMotion.linear(0.5);
+        final extraConfig = TrackConfig(motion: extraMotion, reverseMotion: extraMotion);
+        timeline.trackFor(extraConfig);
+
+        expect(timeline.tracks.length, equals(2));
+
+        final newMotion = CueMotion.linear(0.4);
+        final newConfig = TrackConfig(motion: newMotion, reverseMotion: newMotion);
+        timeline.resetTracks(newConfig);
+
+        expect(timeline.tracks.length, equals(1));
+        expect(timeline.mainTrackConfig, equals(newConfig));
+        expect(timeline.forwardDuration, equals(0.4));
+      });
+    });
+
+    group('Timeline progress getter', () {
+      test('progress returns the progress of the longest track in forward direction', () {
+        final shortMotion = CueMotion.linear(0.2);
+        final longMotion = CueMotion.linear(0.4);
+
+        final shortConfig = TrackConfig(motion: shortMotion, reverseMotion: shortMotion);
+        final timeline = CueTimelineImpl(shortConfig);
+
+        final longConfig = TrackConfig(motion: longMotion, reverseMotion: longMotion);
+        final (longTrack, _) = timeline.trackFor(longConfig);
+
+        timeline.setProgress(0.5, forward: true);
+
+        expect(timeline.progress, equals(longTrack.progress));
+        expect(timeline.progress, equals(0.5));
+      });
+
+      test('progress returns the progress of the longest track in reverse direction', () {
+        final shortMotion = CueMotion.linear(0.2);
+        final longMotion = CueMotion.linear(0.4);
+
+        final shortConfig = TrackConfig(motion: shortMotion, reverseMotion: shortMotion);
+        final timeline = CueTimelineImpl(shortConfig);
+
+        final longConfig = TrackConfig(motion: longMotion, reverseMotion: longMotion);
+        final (longTrack, _) = timeline.trackFor(longConfig);
+
+        timeline.setProgress(0.5, forward: false);
+
+        expect(timeline.progress, equals(longTrack.progress));
+      });
+    });
+
+    group('Timeline prepare behavior', () {
+      test('prepare with forward=true sets all tracks to forward', () {
+        final motion = CueMotion.linear(0.3);
+        final config = TrackConfig(motion: motion, reverseMotion: motion);
+        final timeline = CueTimelineImpl(config);
+
+        final secondConfig = TrackConfig(motion: motion, reverseMotion: motion);
+        final (secondTrack, _) = timeline.trackFor(secondConfig);
+
+        timeline.prepare(forward: true);
+
+        expect(timeline.mainTrack.status, equals(AnimationStatus.forward));
+        expect(secondTrack.status, equals(AnimationStatus.forward));
+      });
+
+      test('prepare with forward=false sets all tracks to reverse', () {
+        final motion = CueMotion.linear(0.3);
+        final config = TrackConfig(motion: motion, reverseMotion: motion);
+        final timeline = CueTimelineImpl(config);
+
+        final secondConfig = TrackConfig(motion: motion, reverseMotion: motion);
+        final (secondTrack, _) = timeline.trackFor(secondConfig);
+
+        timeline.setProgress(1.0, forward: true);
+        timeline.prepare(forward: false);
+
+        expect(timeline.mainTrack.status, equals(AnimationStatus.reverse));
+        expect(secondTrack.status, equals(AnimationStatus.reverse));
+      });
+
+      test('prepare with from parameter sets starting progress', () {
+        final motion = CueMotion.linear(0.3);
+        final config = TrackConfig(motion: motion, reverseMotion: motion);
+        final timeline = CueTimelineImpl(config);
+
+        timeline.prepare(forward: true, from: 0.5);
+
+        expect(timeline.mainTrack.progress, equals(0.5));
+      });
+
+      test('prepare with target parameter sets target progress', () {
+        final motion = CueMotion.linear(0.3);
+        final config = TrackConfig(motion: motion, reverseMotion: motion);
+        final timeline = CueTimelineImpl(config);
+
+        timeline.prepare(forward: true, from: 0.0, target: 0.7);
+        timeline.x(0.3);
+
+        expect(timeline.mainTrack.progress, lessThanOrEqualTo(0.7));
+      });
+    });
+
+    group('Timeline x and dx methods', () {
+      test('x returns progress after ticking', () {
+        final motion = CueMotion.linear(0.3);
+        final config = TrackConfig(motion: motion, reverseMotion: motion);
+        final timeline = CueTimelineImpl(config);
+
+        timeline.prepare(forward: true);
+
+        final progress = timeline.x(0.15);
+
+        expect(progress, greaterThanOrEqualTo(0.0));
+        expect(progress, lessThanOrEqualTo(1.0));
+      });
+
+      test('dx returns main track velocity', () {
+        final motion = CueMotion.linear(0.3);
+        final config = TrackConfig(motion: motion, reverseMotion: motion);
+        final timeline = CueTimelineImpl(config);
+
+        timeline.prepare(forward: true);
+        timeline.x(0.1);
+
+        final velocity = timeline.dx(0.1);
+
+        expect(velocity, isA<double>());
+      });
+
+      test('x updates all tracks', () {
+        final motion1 = CueMotion.linear(0.3);
+        final motion2 = CueMotion.linear(0.5);
+
+        final config1 = TrackConfig(motion: motion1, reverseMotion: motion1);
+        final timeline = CueTimelineImpl(config1);
+
+        final config2 = TrackConfig(motion: motion2, reverseMotion: motion2);
+        final (track2, _) = timeline.trackFor(config2);
+
+        timeline.prepare(forward: true);
+        timeline.x(0.3);
+
+        expect(timeline.mainTrack.progress, greaterThan(0.0));
+        expect(track2.progress, greaterThan(0.0));
+      });
+    });
+
+    group('Timeline edge cases', () {
+      test('single track timeline works correctly', () {
+        final motion = CueMotion.linear(0.3);
+        final config = TrackConfig(motion: motion, reverseMotion: motion);
+        final timeline = CueTimelineImpl(config);
+
+        expect(timeline.forwardDuration, equals(0.3));
+        expect(timeline.reverseDuration, equals(0.3));
+
+        timeline.setProgress(0.5, forward: true);
+        expect(timeline.progress, equals(0.5));
+
+        timeline.setProgress(1.0, forward: true);
+        expect(timeline.status, equals(AnimationStatus.completed));
+      });
+
+      test('timeline with zero duration tracks', () {
+        final zeroMotion = CueMotion.linear(0.0);
+        final normalMotion = CueMotion.linear(0.3);
+
+        final zeroConfig = TrackConfig(motion: zeroMotion, reverseMotion: zeroMotion);
+        final timeline = CueTimelineImpl(zeroConfig);
+
+        final normalConfig = TrackConfig(motion: normalMotion, reverseMotion: normalMotion);
+        timeline.trackFor(normalConfig);
+
+        expect(timeline.forwardDuration, equals(0.3));
+      });
+
+      test('adding many tracks updates duration correctly', () {
+        final mainMotion = CueMotion.linear(0.2);
+        final mainConfig = TrackConfig(motion: mainMotion, reverseMotion: mainMotion);
+        final timeline = CueTimelineImpl(mainConfig);
+
+        for (var i = 1; i <= 5; i++) {
+          final motion = CueMotion.linear(0.2 + i * 0.1);
+          final config = TrackConfig(motion: motion, reverseMotion: motion);
+          timeline.trackFor(config);
+
+          expect(timeline.forwardDuration, equals(0.2 + i * 0.1));
+        }
+      });
+
+      test('releasing all additional tracks returns to initial state', () {
+        final mainMotion = CueMotion.linear(0.3);
+        final mainConfig = TrackConfig(motion: mainMotion, reverseMotion: mainMotion);
+        final timeline = CueTimelineImpl(mainConfig);
+
+        final tokens = <ReleaseToken>[];
+        for (var i = 1; i <= 3; i++) {
+          final motion = CueMotion.linear(0.3 + i * 0.1);
+          final config = TrackConfig(motion: motion, reverseMotion: motion);
+          final (_, token) = timeline.trackFor(config);
+          tokens.add(token);
+        }
+
+        expect(timeline.tracks.length, equals(4));
+
+        for (final token in tokens) {
+          timeline.release(token);
+        }
+
+        expect(timeline.tracks.length, equals(1));
+        expect(timeline.forwardDuration, equals(0.3));
+      });
+    });
+
+    group('RepeatConfig', () {
+      test('updateCount returns new config with updated count', () {
+        final config = RepeatConfig(count: 3, reverse: true);
+
+        final updated = config.updateCount(2);
+
+        expect(updated.count, equals(2));
+        expect(updated.reverse, isTrue);
+      });
+
+      test('RepeatConfig with null count represents infinite repeat', () {
+        final config = RepeatConfig(count: null, reverse: false);
+
+        expect(config.count, isNull);
+      });
+
+      test('RepeatConfig with from and target parameters', () {
+        final config = RepeatConfig(
+          count: 2,
+          reverse: true,
+          from: 0.2,
+          target: 0.8,
+        );
+
+        expect(config.from, equals(0.2));
+        expect(config.target, equals(0.8));
       });
     });
   });
