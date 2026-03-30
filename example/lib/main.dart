@@ -138,7 +138,7 @@ class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProvider
                       child: Box(
                         size: Size(80, 80),
                         color: Colors.blue,
-                      ),
+                      )
                     ),
                     Actor(
                       acts: [

@@ -59,7 +59,6 @@ class ActorState extends State<Actor> {
     final acts = _acts.map((e) => e.$1);
     final actKeys = acts.map((e) => e.key).toSet();
 
-
     for (final entry in List.of(_animations.entries)) {
       if (!actKeys.contains(entry.key)) {
         if (_animations.remove(entry.key) case final cacheEntry?) {
@@ -137,7 +136,7 @@ class ActorState extends State<Actor> {
       _eventsDisposer?.call();
       _eventsDisposer = scope.timeline.addEventListener<TimelineEvent>((_) => _onWillAnimate());
     }
-    if ( _cachedScope?.timeline != scope.timeline ||_cachedScope?.mainConfig != scope.mainConfig) {
+    if (_cachedScope?.timeline != scope.timeline || _cachedScope?.mainConfig != scope.mainConfig) {
       _resolveActs(scope.mainConfig);
       _clearCache(scope);
       _setupAnimations(scope);
@@ -232,6 +231,25 @@ abstract class SingleActorBase<T> extends StatelessWidget {
       reverseDelay: reverseDelay,
       acts: [act],
       child: child,
+    );
+  }
+}
+
+extension ActorExtenstion on Widget {
+  Widget act(
+    List<Act> acts, {
+    CueMotion? motion,
+    CueMotion? reverseMotion,
+    double delay = 0.0,
+    double reverseDelay = 0.0,
+  }) {
+    return Actor(
+      motion: motion,
+      reverseMotion: reverseMotion,
+      delay: delay,
+      reverseDelay: reverseDelay,
+      acts: acts,
+      child: this,
     );
   }
 }
