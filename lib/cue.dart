@@ -1,6 +1,5 @@
 export 'src/widgets/cue_model_transition.dart';
 export 'src/cue/cue.dart';
-export 'src/core/core.dart';
 export 'src/motion/animations.dart';
 export 'src/core/phase.dart';
 export 'src/cue/cue_debug_provider.dart';

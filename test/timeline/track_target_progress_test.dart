@@ -97,7 +97,7 @@ void main() {
     });
 
     test('progress interpolates correctly during animation', () {
-      final motion = CueMotion.linear(200.ms);
+      final motion = CueMotion.linear(100.ms);
       final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
 
       track.prepare(forward: true, from: 0.2, target: 0.7);
