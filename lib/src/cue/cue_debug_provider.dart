@@ -229,6 +229,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: SafeArea(
+                  minimum: .only(top: 16),
                   child: IconTheme(
                     data: theme.iconTheme.copyWith(color: theme.primaryColor, size: 20),
                     child: Padding(

@@ -1,8 +1,4 @@
-import 'dart:math';
-
 import 'package:cue/cue.dart';
-import 'package:example/examples/horizinally_expanding_cards.dart';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -17,19 +13,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Cue Demo',
-      // showPerformanceOverlay: true,
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: const Color(0xFF6C63FF),
           brightness: Brightness.dark,
         ),
       ),
       themeMode: .light,
       theme: ThemeData(
         splashFactory: NoSplash.splashFactory,
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: .fromSeed(seedColor: const Color(0xFF6C63FF)),
       ),
-      home: _OnChangeDemo(),
+      home: const DemoPage(),
       builder: (context, child) {
         if (kDebugMode) {
           return CueDebugTools(child: child!);
@@ -40,130 +35,60 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class _OnChangeDemo extends StatefulWidget {
-  const _OnChangeDemo({super.key});
+class DemoPage extends StatefulWidget {
+  const DemoPage({super.key});
 
   @override
-  State<_OnChangeDemo> createState() => __OnChangeDemoState();
+  State<DemoPage> createState() => _DemoPageState();
 }
 
-class __OnChangeDemoState extends State<_OnChangeDemo> with SingleTickerProviderStateMixin {
-  Offset offset = Offset.zero;
-  late final _controller = CueController(vsync: this, motion: .defaultTime);
-  bool _checked = false;
-
+class _DemoPageState extends State<DemoPage> {
+  final _sheetController = DraggableScrollableController();
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      backgroundColor: theme.colorScheme.surfaceContainer,
-      appBar: AppBar(),
-      body: SizedBox.expand(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              //  SlackStyleFab(),
-              //  DeleteConfirmationDialog(),
-              // if(false)
-              // IndicatorToButton(),
-              //   GestureDetector(
-              //     behavior: HitTestBehavior.translucent,
-              //     onVerticalDragUpdate: (details) {
-              //       setState(() {
-              //         offset += details.delta;
-              //       });
-              //        _animation.setAnimatable(null);
-              //     },
-              //     onVerticalDragEnd: (details) async{
-              //       final animtable = TweenAnimtable(Tween(begin: offset, end: Offset.zero));
-              //       _animation.setAnimatable(animtable);
-              //         _controller.value = 0;
-              //        await _controller.forward();
-              //       offset = Offset.zero;
-              //     },
-              //     child: ListenableBuilder(
-              //       listenable: _animation,
-              //       builder: (context, _) {
-              //         print('build with offset ${_animation.hasAnimatable ? _animation.value : offset}');
-              //         return Transform.translate(
-              //           offset: _animation.hasAnimatable ? _animation.value : offset,
-              //           child: FloatingActionButton(
-              //             onPressed: null,
-              //             child: Icon(Icons.abc),
-              //           ),
-              //         );
-              //       },
-              //     ),
-              //   ),
-              // Cue.onMount(
-              //   child: SizedBox(
-              //     width: 300,
-              //     height: 300,
-              //     child: Card(
-              //       clipBehavior: .antiAlias,
-              //       child: Actor(
-              //         acts: [
-              //           ParallaxAct(slide: .8),
-              //         ],
-              //         child: Image.network(
-              //           'https://picsum.photos/400/300?random=1',
-              //           fit: BoxFit.cover,
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              HorizontallyExpandingCards(),
-              if (false)
-                for (var i = 0; i < 20; i++)
-                  Cue.onScrollVisible(
-                    child: Actor(
-                      acts: [
-                        .rotate3D(
-                          from: Rotation3D(x: -30, y: 0, z: 0),
-                          to: Rotation3D(x: 0, y: 0, z: 0),
-                          alignment: .center,
-                          perspective: .002,
-                        ),
-                      ],
-                      child: Container(
-                        height: 180,
-                        width: 400,
-                        clipBehavior: .antiAlias,
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        alignment: .center,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        child: Text(
-                          'Item $i',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ),
-            ],
+      appBar: AppBar(
+        title: const Text('Cue Demo'),
+      ),
+      body: Center(
+        child: Cue.onHover(
+          motion: .defaultTime,
+          child: Actor(
+            acts: [.scale(to: 1.5), .rotate(to: 15)],
+            child: Container(
+              width: 200,
+              height: 200,
+              color: Colors.blue,
+            ),
           ),
         ),
+      ),
+      bottomSheet: DraggableScrollableSheet(
+        controller: _sheetController,
+        minChildSize: .2,
+        builder: (context, scrollController) {
+          return Container(
+            color: Colors.grey,
+            child: Cue.onProgress(
+              listenable: _sheetController,
+              min: 0.2,
+              progress: ()=> _sheetController.isAttached ? _sheetController.size : 0.0,
+              child: ListView.builder(
+                controller: scrollController,
+                itemCount: 50,
+                itemBuilder: (context, index) {
+                  return Actor(
+                    acts: [ .slideX(from: -.5)],
+                    child: ListTile(
+                      title: Text('Item $index'),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 }
-
-class Box extends StatelessWidget {
-  const Box({super.key, required this.color, required this.size});
-  final Color color;
-  final Size size;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: size.height,
-      width: size.width,
-      color: color,
-    );
-  }
-}
- 

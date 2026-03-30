@@ -22,7 +22,7 @@ class _ProgressCue extends Cue {
 }
 
 class _ProgressCueState extends _CueState<_ProgressCue> {
-  final _progresstimeline = CueTimelineImpl.fromMotion(.none, progressDriven: true);
+  final _progresstimeline = CueTimelineImpl.fromMotion(.defaultTime, progressDriven: true);
 
   @override
   String get debugName => 'ProgressCue';
@@ -43,13 +43,7 @@ class _ProgressCueState extends _CueState<_ProgressCue> {
   void _updateAnimation() {
     final progress = widget.progress();
     final value = ((progress - widget.min) / (widget.max - widget.min)).clamp(0.0, 1.0);
-    final forward = switch (value) {
-      1.0 => true,
-      0.0 => false,
-      _ => value > _progresstimeline.progress ? true : false,
-    };
-
-    _progresstimeline.setProgress(value, forward: forward);
+    _progresstimeline.setProgress(value, forward: true);
   }
 
   @override
