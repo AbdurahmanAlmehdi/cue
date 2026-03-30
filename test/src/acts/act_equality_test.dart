@@ -957,8 +957,8 @@ void main() {
     });
 
     test('different clipGeometry are not equal', () {
-      const a = SizedClipAct(clipGeometry: const ClipGeometry.rect());
-      const b = SizedClipAct(clipGeometry: const ClipGeometry.rrect(BorderRadius.all(Radius.circular(10))));
+      const a = SizedClipAct(clipGeometry:  ClipGeometry.rect());
+      const b = SizedClipAct(clipGeometry:  ClipGeometry.rrect(BorderRadius.all(Radius.circular(10))));
       expect(a, isNot(equals(b)));
     });
 

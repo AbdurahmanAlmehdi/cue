@@ -9,7 +9,6 @@
 
 import 'package:cue/cue.dart';
 import 'package:cue/src/motion/simulation.dart';
-import 'package:cue/src/motion/utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

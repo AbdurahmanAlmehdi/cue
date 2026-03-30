@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:math' as math;
 
-import 'package:flutter/scheduler.dart';
 part 'indexed_cue.dart';
 part 'on_change_cue.dart';
 part 'self_animated_cue.dart';
