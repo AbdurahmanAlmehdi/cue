@@ -234,9 +234,9 @@ class CueSpringSimulation extends SpringSimulation with CueSimulation {
   }) : _end = end,
        _start = start,
        _spring = spring;
+
   final double samplingStepSize;
   final SpringDescription _spring;
-  SpringDescription get spring => _spring;
   final double _start;
   final double _end;
 
