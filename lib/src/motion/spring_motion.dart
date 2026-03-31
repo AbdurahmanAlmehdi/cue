@@ -44,10 +44,6 @@ final class Spring extends SimulationMotion<CueSpringSimulation> {
     return Object.hash(mass, stiffness, dampingRatio, tolerance, snapToEnd, _rawDesc);
   }
 
-  @override
-  String toString() {
-    return 'Spring(mass: $mass, stiffness: $stiffness, dampingRatio: $dampingRatio, tolerance: $tolerance, snapToEnd: $snapToEnd)';
-  }
 
   SpringDescription get springDescription {
     if (_rawDesc != null) {

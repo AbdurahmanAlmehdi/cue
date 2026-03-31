@@ -18,9 +18,6 @@ abstract class CueMotion {
     false => build(SimulationBuildData.reverse(phase: phase ?? totalPhases - 1)),
   };
 
-  bool get isTimed => this is TimedMotion;
-
-  bool get isSimulation => this is SimulationMotion;
 
   CueMotion delayed(Duration delay) => DelayedMotion(this, delay);
 
@@ -158,14 +155,6 @@ class TimedMotion extends CueMotion {
     );
   }
 
-  @override
-  String toString() {
-    if (curve == null) {
-      return 'TimedMotion(duration: $baseDuration)';
-    } else {
-      return 'TimedMotion(duration: $baseDuration, curve: $curve)';
-    }
-  }
 }
 
 abstract class SimulationMotion<S extends CueSimulation> extends CueMotion {
@@ -239,8 +228,6 @@ class DelayedMotion extends CueMotion {
   @override
   int get hashCode => Object.hash(base, delay);
 
-  @override
-  String toString() => 'DelayedMotion(base: $base, delay: $delay)';
 }
 
 class SimulationBuildData {
