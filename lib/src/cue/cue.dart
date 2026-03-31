@@ -17,6 +17,7 @@ part 'controlled_cue.dart';
 part 'cue_scope.dart';
 part 'progress_cue.dart';
 part 'on_scroll_cue.dart';
+part 'on_focus_cue.dart';
 
 abstract class Cue extends StatefulWidget {
   const Cue._({
@@ -60,6 +61,16 @@ abstract class Cue extends StatefulWidget {
     List<Act>? acts,
     required Widget child,
   }) = _OnHoverCue;
+
+  const factory Cue.onFocus({
+    Key? key,
+    String? debugLabel,
+    CueMotion motion,
+    CueMotion? reverseMotion,
+    FocusNode? focusNode,
+    List<Act>? acts,
+    required Widget child,
+  }) = _OnFocusCue;
 
   const factory Cue.onToggle({
     Key? key,
