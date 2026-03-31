@@ -12,8 +12,7 @@ class SlackStyleFab extends StatelessWidget {
       barrierColor: Colors.transparent,
       alignment: .bottomRight,
       barrierDismissible: true,
-      motion: .smooth(damping: 18),
-      reverseMotion: .iosDefaultSpring(),
+      motion: .smooth(),
       hideTriggerOnTransition: true,
       triggerBuilder: (_, showModal) {
         return CueModalTransition(

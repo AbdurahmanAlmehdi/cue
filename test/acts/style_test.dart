@@ -84,6 +84,71 @@ void main() {
     });
   });
 
+  group('apply', () {
+    testWidgets('wraps child in DefaultTextStyleTransition', (tester) async {
+      final act = TextStyleAct(
+        from: TextStyle(fontSize: 14),
+        to: TextStyle(fontSize: 28),
+      );
+      final ctx = createActContext();
+      final (animtable, _) = act.buildTweens(ctx);
+
+      final track = createTrack();
+      track.setProgress(0.5);
+
+      final animation = CueAnimationImpl<TextStyle>(
+        parent: track,
+        token: ReleaseToken(track.config),
+        animtable: animtable,
+      );
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Builder(
+            builder: (context) {
+              return act.apply(context, animation, const Text('Styled'));
+            },
+          ),
+        ),
+      );
+
+      expect(find.text('Styled'), findsOneWidget);
+    });
+
+    testWidgets('renders at progress 0', (tester) async {
+      final act = TextStyleAct(
+        from: TextStyle(fontSize: 14),
+        to: TextStyle(fontSize: 28),
+      );
+      final ctx = createActContext();
+      final (animtable, _) = act.buildTweens(ctx);
+
+      final track = createTrack();
+      track.setProgress(0);
+
+      final animation = CueAnimationImpl<TextStyle>(
+        parent: track,
+        token: ReleaseToken(track.config),
+        animtable: animtable,
+      );
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Builder(
+            builder: (context) {
+              return act.apply(context, animation, const Text('At Start'));
+            },
+          ),
+        ),
+      );
+
+      await tester.pump();
+      expect(find.text('At Start'), findsOneWidget);
+    });
+  });
+
   group('IconThemeAct', () {
     group('key', () {
       test('has correct key name', () {
@@ -132,6 +197,79 @@ void main() {
         ]);
         final act = IconThemeAct.keyframed(frames: frames);
         expect(act.frames, frames);
+      });
+    });
+
+    group('apply', () {
+      testWidgets('wraps child in IconTheme', (tester) async {
+        final act = IconThemeAct(
+          from: IconThemeData(size: 24),
+          to: IconThemeData(size: 48),
+        );
+        final ctx = createActContext();
+        final (animtable, _) = act.buildTweens(ctx);
+
+        final track = createTrack();
+        track.setProgress(0.5);
+
+        final animation = CueAnimationImpl<IconThemeData>(
+          parent: track,
+          token: ReleaseToken(track.config),
+          animtable: animtable,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(
+                  context,
+                  animation,
+                  const Icon(Icons.star),
+                );
+              },
+            ),
+          ),
+        );
+
+        expect(find.byIcon(Icons.star), findsOneWidget);
+      });
+
+      testWidgets('renders at progress 0', (tester) async {
+        final act = IconThemeAct(
+          from: IconThemeData(size: 24),
+          to: IconThemeData(size: 48),
+        );
+        final ctx = createActContext();
+        final (animtable, _) = act.buildTweens(ctx);
+
+        final track = createTrack();
+        track.setProgress(0);
+
+        final animation = CueAnimationImpl<IconThemeData>(
+          parent: track,
+          token: ReleaseToken(track.config),
+          animtable: animtable,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(
+                  context,
+                  animation,
+                  const Icon(Icons.star),
+                );
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.byIcon(Icons.star), findsOneWidget);
       });
     });
 

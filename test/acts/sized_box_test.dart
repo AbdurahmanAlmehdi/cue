@@ -1,6 +1,7 @@
 import 'package:cue/cue.dart';
 import 'package:cue/src/timeline/track/track.dart';
 import 'package:cue/src/timeline/track/track_config.dart';
+import 'package:cue/src/motion/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,10 +13,18 @@ void main() {
     return ActContext(motion: motion, reverseMotion: motion);
   }
 
-  CueTrack createTrack() {
+  CueTrackImpl createTrack() {
     final motion = CueMotion.linear(300.ms);
     final config = TrackConfig(motion: motion, reverseMotion: motion);
     return CueTrackImpl(config);
+  }
+
+  DeferredCueAnimation<Size> createDeferredAnimation(CueTrackImpl track, ActContext ctx) {
+    return DeferredCueAnimation<Size>(
+      parent: track,
+      token: ReleaseToken(track.config),
+      context: ctx,
+    );
   }
 
   group('SizedBoxAct', () {
@@ -67,6 +76,12 @@ void main() {
         final act = SizedBoxAct(delay: const Duration(milliseconds: 100));
         expect(act.delay, const Duration(milliseconds: 100));
       });
+
+      test('accepts reverse', () {
+        const reverse = ReverseBehavior<Size>.none();
+        final act = SizedBoxAct(reverse: reverse);
+        expect(act.reverse, reverse);
+      });
     });
 
     group('keyframed constructor', () {
@@ -86,6 +101,14 @@ void main() {
         final act = SizedBoxAct.keyframed(frames: frames, alignment: Alignment.bottomRight);
         expect(act.alignment, Alignment.bottomRight);
       });
+
+      test('accepts delay', () {
+        final frames = Keyframes<Size>([
+          Keyframe(const Size(100, 100), motion: CueMotion.linear(100.ms)),
+        ]);
+        final act = SizedBoxAct.keyframed(frames: frames, delay: 100.ms);
+        expect(act.delay, 100.ms);
+      });
     });
 
     group('resolve', () {
@@ -98,13 +121,160 @@ void main() {
       });
     });
 
+    group('apply', () {
+      testWidgets('renders with width animation', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(width: width);
+        final ctx = createActContext();
+        final track = createTrack();
+        track.setProgress(0);
+        final animation = createDeferredAnimation(track, ctx);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Center(
+              child: Builder(
+                builder: (context) {
+                  return act.apply(context, animation, const Text('Width Test'));
+                },
+              ),
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Width Test'), findsOneWidget);
+      });
+
+      testWidgets('renders with height animation', (tester) async {
+        final height = AnimatableValue(from: 50.0, to: 150.0);
+        final act = SizedBoxAct(height: height);
+        final ctx = createActContext();
+        final track = createTrack();
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, ctx);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Center(
+              child: Builder(
+                builder: (context) {
+                  return act.apply(context, animation, const Text('Height Test'));
+                },
+              ),
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Height Test'), findsOneWidget);
+      });
+
+      testWidgets('renders with both width and height', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final height = AnimatableValue(from: 50.0, to: 150.0);
+        final act = SizedBoxAct(width: width, height: height);
+        final ctx = createActContext();
+        final track = createTrack();
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, ctx);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Center(
+              child: Builder(
+                builder: (context) {
+                  return act.apply(context, animation, const Text('Both'));
+                },
+              ),
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Both'), findsOneWidget);
+      });
+
+      testWidgets('renders with alignment', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(width: width, alignment: Alignment.topLeft);
+        final ctx = createActContext();
+        final track = createTrack();
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, ctx);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Aligned'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Aligned'), findsOneWidget);
+      });
+
+      testWidgets('renders with progress at 0', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(width: width);
+        final ctx = createActContext();
+        final track = createTrack();
+        track.setProgress(0);
+        final animation = createDeferredAnimation(track, ctx);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('At Zero'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('At Zero'), findsOneWidget);
+      });
+
+      testWidgets('renders with progress at 1', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(width: width);
+        final ctx = createActContext();
+        final track = createTrack();
+        track.setProgress(1);
+        final animation = createDeferredAnimation(track, ctx);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('At One'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('At One'), findsOneWidget);
+      });
+    });
+
     group('equality', () {
       test('equal acts have same hashCode', () {
         final width = AnimatableValue(from: 100.0, to: 200.0);
         final act1 = SizedBoxAct(width: width);
         final act2 = SizedBoxAct(width: width);
         expect(act1, act2);
-        expect(act1.hashCode, act2.hashCode);
+        expect(act1.hashCode, equals(act2.hashCode));
       });
 
       test('different widths are not equal', () {
@@ -123,6 +293,31 @@ void main() {
         final act1 = SizedBoxAct(alignment: Alignment.center);
         final act2 = SizedBoxAct(alignment: Alignment.topLeft);
         expect(act1, isNot(act2));
+      });
+
+      test('different motion values are not equal', () {
+        final motion1 = CueMotion.linear(300.ms);
+        final motion2 = CueMotion.linear(500.ms);
+        final act1 = SizedBoxAct(motion: motion1);
+        final act2 = SizedBoxAct(motion: motion2);
+        expect(act1, isNot(act2));
+      });
+
+      test('different delay values are not equal', () {
+        final act1 = SizedBoxAct(delay: 100.ms);
+        final act2 = SizedBoxAct(delay: 200.ms);
+        expect(act1, isNot(act2));
+      });
+
+      test('different reverse values are not equal', () {
+        const act1 = SizedBoxAct(reverse: ReverseBehavior<Size>.none());
+        const act2 = SizedBoxAct(reverse: ReverseBehavior<Size>.exclusive());
+        expect(act1, isNot(act2));
+      });
+
+      test('identical act is equal to itself', () {
+        final act = SizedBoxAct();
+        expect(act, same(act));
       });
     });
   });

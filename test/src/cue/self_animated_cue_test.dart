@@ -15,7 +15,7 @@ void main() {
     });
 
     testWidgets('forwards on mount if not looping', (tester) async {
-      final widget = Cue.onMount(loop: false, child: const SizedBox());
+      final widget = Cue.onMount(repeat: false, child: const SizedBox());
       await tester.pumpWidget(MaterialApp(home: widget));
       final state = tester.state<SelfAnimatedCueState>(find.byType(SelfAnimatedCue));
       // Should have called controller.forward()
@@ -24,7 +24,7 @@ void main() {
     });
 
     testWidgets('repeats on mount if looping', (tester) async {
-      final widget = Cue.onMount(loop: true, loopCount: 2, reverseOnLoop: true, child: const SizedBox());
+      final widget = Cue.onMount(repeat: true, repeatCount: 2, reverseOnRepeat: true, child: const SizedBox());
       await tester.pumpWidget(MaterialApp(home: widget));
       final state = tester.state<SelfAnimatedCueState>(find.byType(SelfAnimatedCue));
       expect(state.widget.repeat, isTrue);

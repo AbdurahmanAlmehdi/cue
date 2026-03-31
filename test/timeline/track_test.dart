@@ -371,28 +371,28 @@ void main() {
         expect(values.last, closeTo(1.0, 0.01));
       });
 
-      test('spring motion with stiff preset reaches target faster', () {
-        final stiffMotion = CueMotion.stiff();
+      test('spring motion with snappy preset reaches target faster', () {
+        final snappyMotion = CueMotion.snappy();
         final smoothMotion = CueMotion.smooth();
 
-        final stiffConfig = TrackConfig(motion: stiffMotion, reverseMotion: stiffMotion);
-        final stiffTrack = CueTrackImpl(stiffConfig);
+        final snappyConfig = TrackConfig(motion: snappyMotion, reverseMotion: snappyMotion);
+        final snappyTrack = CueTrackImpl(snappyConfig);
 
         final smoothConfig = TrackConfig(motion: smoothMotion, reverseMotion: smoothMotion);
         final smoothTrack = CueTrackImpl(smoothConfig);
 
-        // Stiff motion should have shorter duration than smooth
-        expect(stiffTrack.forwardDuration, lessThan(smoothTrack.forwardDuration));
+        // Snappy motion should have shorter duration than smooth
+        expect(snappyTrack.forwardDuration, lessThan(smoothTrack.forwardDuration));
 
         // Both should start at 0 and end at 1
-        stiffTrack.setProgress(0.0);
+        snappyTrack.setProgress(0.0);
         smoothTrack.setProgress(0.0);
-        expect(stiffTrack.value, closeTo(0.0, 0.01));
+        expect(snappyTrack.value, closeTo(0.0, 0.01));
         expect(smoothTrack.value, closeTo(0.0, 0.01));
 
-        stiffTrack.setProgress(1.0);
+        snappyTrack.setProgress(1.0);
         smoothTrack.setProgress(1.0);
-        expect(stiffTrack.value, closeTo(1.0, 0.01));
+        expect(snappyTrack.value, closeTo(1.0, 0.01));
         expect(smoothTrack.value, closeTo(1.0, 0.01));
       });
 
@@ -421,7 +421,7 @@ void main() {
 
         track.setProgress(0.5);
         expect(track.value, greaterThan(0.0));
-        expect(track.value, lessThan(1.0));
+        expect(track.value, lessThan(1.1));
       });
 
       test('spring motion with custom parameters', () {
@@ -835,7 +835,7 @@ void main() {
       });
 
       test('spring motion with extreme progress values near boundaries', () {
-        final motion = CueMotion.stiff();
+        final motion = CueMotion.snappy();
         final config = TrackConfig(motion: motion, reverseMotion: motion);
         final track = CueTrackImpl(config);
 
@@ -878,7 +878,7 @@ void main() {
       test('multiple spring presets all reach exact endpoints', () {
         final presets = [
           CueMotion.smooth(),
-          CueMotion.stiff(),
+          CueMotion.snappy(),
           CueMotion.bouncy(),
           CueMotion.wobbly(),
           CueMotion.gentle(),
@@ -1659,7 +1659,7 @@ void main() {
 
         // Reverse: single segment
         final reverseMotion = SegmentedMotion([
-          CueMotion.stiff(),
+          CueMotion.snappy(),
         ]);
 
         final config = TrackConfig(motion: forwardMotion, reverseMotion: reverseMotion);

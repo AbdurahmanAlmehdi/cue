@@ -1,6 +1,5 @@
 import 'package:cue/cue.dart';
-import 'package:example/examples/horizinally_expanding_cards.dart';
-import 'package:example/examples/smooth_toggle.dart';
+import 'package:example/examples/delete_confirmation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -53,20 +52,22 @@ class _DemoPageState extends State<DemoPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Cue.onMount(
-              repeat: true,
-              acts: [
-                PathMotionAct.circular(radius: 80)
-              ],
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
+        
+            DeleteConfirmationDialog(),
+            // Cue.onMount(
+            //   motion: .spatialSlow(),
+            //   acts: [
+            //     PathMotionAct.circular(radius: 80)
+            //   ],
+            //   child: Container(
+            //     width: 80,
+            //     height: 80,
+            //     decoration: BoxDecoration(
+            //       color: Colors.blue,
+            //       shape: BoxShape.circle,
+            //     ),
+            //   ),
+            // ),
 
             CueModalTransition(
               triggerBuilder: (context, open) {
@@ -90,7 +91,7 @@ class _DemoPageState extends State<DemoPage> {
               },
               alignment: .center,
               hideTriggerOnTransition: true,
-              motion: .smooth(),
+              motion: .gentle(),
               builder: (context, rect) {
                 return Actor(
                   acts: [

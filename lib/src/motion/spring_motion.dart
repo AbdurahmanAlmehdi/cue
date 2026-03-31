@@ -2,32 +2,15 @@ import 'package:cue/src/motion/cue_motion.dart';
 import 'package:cue/src/motion/simulation.dart';
 import 'package:flutter/widgets.dart';
 
-// holds default values for spring simulation
-const double _kStandardIosStiffness = 522.35;
-const double _kStandardIosDamping = 45.7099552;
-const Tolerance _kStandardIosTolerance = Tolerance(velocity: 0.03);
 const Tolerance _kDefaultTolerance = Tolerance(distance: 0.01, velocity: 0.03);
 
 final class Spring extends SimulationMotion<CueSpringSimulation> {
-  final double mass;
-  final double stiffness;
-  final double damping;
+  final double? mass;
+  final double? stiffness;
+  final double? dampingRatio;
   final Tolerance tolerance;
   final bool snapToEnd;
-
-  const Spring.custom({
-    this.mass = 1.0,
-    required this.stiffness,
-    required this.damping,
-    this.tolerance = _kDefaultTolerance,
-    this.snapToEnd = true,
-  });
-
-  SpringDescription get springDescription => SpringDescription(
-    mass: mass,
-    stiffness: stiffness,
-    damping: damping,
-  );
+  final SpringDescription? _rawDesc;
 
   @override
   CueSpringSimulation build(SimulationBuildData data) {
@@ -50,100 +33,165 @@ final class Spring extends SimulationMotion<CueSpringSimulation> {
     return other is Spring &&
         other.mass == mass &&
         other.stiffness == stiffness &&
-        other.damping == damping &&
+        other.dampingRatio == dampingRatio &&
         other.tolerance == tolerance &&
+        other._rawDesc == _rawDesc &&
         other.snapToEnd == snapToEnd;
   }
 
   @override
   int get hashCode {
-    return Object.hash(mass, stiffness, damping, tolerance, snapToEnd);
+    return Object.hash(mass, stiffness, dampingRatio, tolerance, snapToEnd, _rawDesc);
   }
 
   @override
   String toString() {
-    return 'Spring(mass: $mass, stiffness: $stiffness, damping: $damping, tolerance: $tolerance, snapToEnd: $snapToEnd)';
+    return 'Spring(mass: $mass, stiffness: $stiffness, dampingRatio: $dampingRatio, tolerance: $tolerance, snapToEnd: $snapToEnd)';
   }
 
-  const Spring.iosDefault({
-    this.mass = 1.0,
-    this.stiffness = _kStandardIosStiffness,
-    this.damping = _kStandardIosDamping,
-    this.tolerance = _kStandardIosTolerance,
+  SpringDescription get springDescription {
+    if (_rawDesc != null) {
+      return _rawDesc;
+    }
+    assert(
+      mass != null && stiffness != null && dampingRatio != null,
+      'Either provide a raw SpringDescription or specify mass, stiffness, and dampingRatio',
+    );
+    return SpringDescription.withDampingRatio(
+      mass: mass!,
+      stiffness: stiffness!,
+      ratio: dampingRatio!,
+    );
+  }
+
+  const Spring.custom({
+    required SpringDescription desc,
+    this.tolerance = _kDefaultTolerance,
     this.snapToEnd = true,
-  });
+  }) : _rawDesc = desc,
+       mass = null,
+       stiffness = null,
+       dampingRatio = null;
+
+  const Spring.withDampingRatio({
+    this.mass = 1.0,
+    required this.stiffness,
+    required double ratio,
+    this.tolerance = _kDefaultTolerance,
+    this.snapToEnd = true,
+  }) : _rawDesc = null,
+       dampingRatio = ratio;
 
   const Spring.smooth({
-    this.mass = 1.0,
-    this.stiffness = 157.91,
-    this.damping = 25.13,
+    double this.mass = 1.1,
+    double this.stiffness = 522.35,
+    double this.dampingRatio = 1.0,
     this.tolerance = _kDefaultTolerance,
     this.snapToEnd = true,
-  });
-
-  const Spring.stiff({
-    this.mass = 1.0,
-    this.stiffness = 438.65,
-    this.damping = 41.89,
-    this.tolerance = _kDefaultTolerance,
-    this.snapToEnd = true,
-  });
-
-  const Spring.soft({
-    this.mass = 1.0,
-    this.stiffness = 100.0,
-    this.damping = 10.0,
-    this.tolerance = _kDefaultTolerance,
-    this.snapToEnd = true,
-  });
-
-  const Spring.interactive({
-    this.mass = 1.0,
-    this.stiffness = 1754.17,
-    this.damping = 72.11,
-    this.tolerance = _kDefaultTolerance,
-    this.snapToEnd = true,
-  });
+  }) : _rawDesc = null;
 
   const Spring.bouncy({
-    this.mass = 1.0,
-    this.stiffness = 157.91,
-    this.damping = 15.08,
+    double this.mass = 1.0,
+    double this.stiffness = 325.0,
+    double this.dampingRatio = 0.7,
     this.tolerance = _kDefaultTolerance,
     this.snapToEnd = true,
-  });
+  }) : _rawDesc = null;
+
+  const Spring.interactive({
+    double this.mass = 1.0,
+    double this.stiffness = 522.35,
+    double this.dampingRatio = 0.86,
+    this.tolerance = _kDefaultTolerance,
+    this.snapToEnd = true,
+  }) : _rawDesc = null;
+
+  const Spring.snappy({
+    double this.mass = 1.0,
+    double this.stiffness = 1754.6,
+    double this.dampingRatio = 1.0,
+    this.tolerance = _kDefaultTolerance,
+    this.snapToEnd = true,
+  }) : _rawDesc = null;
 
   const Spring.wobbly({
-    this.mass = 1.0,
-    this.stiffness = 180.0,
-    this.damping = 12.0,
+    double this.mass = 1.0,
+    double this.stiffness = 200.0,
+    double this.dampingRatio = 0.4,
     this.tolerance = _kDefaultTolerance,
     this.snapToEnd = true,
-  });
+  }) : _rawDesc = null;
 
   const Spring.gentle({
-    this.mass = 1.0,
-    this.stiffness = 61.69,
-    this.damping = 15.71,
+    double this.mass = 1.0,
+    double this.stiffness = 61.69,
+    double this.dampingRatio = 0.7,
     this.tolerance = _kDefaultTolerance,
     this.snapToEnd = true,
-  });
+  }) : _rawDesc = null;
+
+  // Material
+  const Spring.spatialFast({
+    double this.mass = 1.0,
+    double this.stiffness = 1400.0,
+    double this.dampingRatio = 0.7,
+    this.tolerance = _kDefaultTolerance,
+    this.snapToEnd = true,
+  }) : _rawDesc = null;
+
+  const Spring.spatial({
+    double this.mass = 1.0,
+    double this.stiffness = 700.0,
+    double this.dampingRatio = 0.8,
+    this.snapToEnd = false,
+    this.tolerance = _kDefaultTolerance,
+  }) : _rawDesc = null;
+
+  const Spring.spatialSlow({
+    double this.mass = 1.0,
+    double this.stiffness = 300.0,
+    double this.dampingRatio = 0.8,
+    this.tolerance = _kDefaultTolerance,
+    this.snapToEnd = true,
+  }) : _rawDesc = null;
+
+  const Spring.effectFast({
+    double this.mass = 1.0,
+    double this.stiffness = 1400.0,
+    double this.dampingRatio = 0.7,
+    this.tolerance = _kDefaultTolerance,
+    this.snapToEnd = true,
+  }) : _rawDesc = null;
+
+  const Spring.effect({
+    double this.mass = 1.0,
+    double this.stiffness = 700.0,
+    double this.dampingRatio = 1.0,
+    this.tolerance = _kDefaultTolerance,
+    this.snapToEnd = true,
+  }) : _rawDesc = null;
+
+  const Spring.effectSlow({
+    double this.mass = 1.0,
+    double this.stiffness = 300.0,
+    double this.dampingRatio = 1.0,
+    this.tolerance = _kDefaultTolerance,
+    this.snapToEnd = true,
+  }) : _rawDesc = null;
 
   factory Spring({
     Duration duration = const Duration(milliseconds: 500),
     double bounce = 0,
+    bool snapToEnd = true,
   }) {
-    final desc = SpringDescription.withDurationAndBounce(
-      duration: duration,
-      bounce: bounce,
-    );
     return Spring.custom(
-      mass: desc.mass,
-      stiffness: desc.stiffness,
-      damping: desc.damping,
+      desc: SpringDescription.withDurationAndBounce(
+        duration: duration,
+        bounce: bounce,
+      ),
+      snapToEnd: snapToEnd,
     );
   }
-
   @override
   Duration get baseDuration => Duration(milliseconds: (buildBase().duration * 1000).round());
 }

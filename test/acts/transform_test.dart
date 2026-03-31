@@ -88,6 +88,71 @@ void main() {
       });
     });
 
+    group('apply', () {
+      testWidgets('wraps child in AnimatedBuilder with Transform', (tester) async {
+        final to = Matrix4.translationValues(100, 0, 0);
+        final act = TransformAct(to: to);
+        final ctx = createActContext();
+        final (animtable, _) = act.buildTweens(ctx);
+
+        final track = createTrack();
+        track.setProgress(0.5);
+
+        final animation = CueAnimationImpl<Matrix4>(
+          parent: track,
+          token: ReleaseToken(track.config),
+          animtable: animtable,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Transform'));
+              },
+            ),
+          ),
+        );
+
+        expect(find.text('Transform'), findsOneWidget);
+      });
+
+      testWidgets('renders with alignment and origin', (tester) async {
+        final to = Matrix4.translationValues(50, 50, 0);
+        final act = TransformAct(
+          to: to,
+          alignment: Alignment.center,
+          origin: const Offset(10, 10),
+        );
+        final ctx = createActContext();
+        final (animtable, _) = act.buildTweens(ctx);
+
+        final track = createTrack();
+        track.setProgress(0);
+
+        final animation = CueAnimationImpl<Matrix4>(
+          parent: track,
+          token: ReleaseToken(track.config),
+          animtable: animtable,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Aligned'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Aligned'), findsOneWidget);
+      });
+    });
+
     group('equality', () {
       test('equal acts have same hashCode', () {
         final to = Matrix4.translationValues(100, 0, 0);
@@ -167,6 +232,36 @@ void main() {
         ]);
         final act = SkewAct.keyframed(frames: frames);
         expect(act.frames, frames);
+      });
+    });
+
+    group('apply', () {
+      testWidgets('wraps child in AnimatedBuilder with Transform', (tester) async {
+        final act = SkewAct(from: Skew.zero, to: Skew(x: 0.1, y: 0.1));
+        final ctx = createActContext();
+        final (animtable, _) = act.buildTweens(ctx);
+
+        final track = createTrack();
+        track.setProgress(0.5);
+
+        final animation = CueAnimationImpl<Matrix4>(
+          parent: track,
+          token: ReleaseToken(track.config),
+          animtable: animtable,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Skew'));
+              },
+            ),
+          ),
+        );
+
+        expect(find.text('Skew'), findsOneWidget);
       });
     });
 

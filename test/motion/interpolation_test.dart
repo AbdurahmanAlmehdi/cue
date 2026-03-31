@@ -219,13 +219,13 @@ void main() {
       );
     });
 
-    test('Spring.stiff forward 0→1', () {
-      final motion = const Spring.stiff();
+    test('Spring.snappy forward 0→1', () {
+      final motion = const Spring.snappy();
       _assertInterpolation(
         motion,
         const SimulationBuildData.forward(startValue: 0.0),
         tolerance: springTolerance,
-        label: 'Spring.stiff forward 0→1',
+        label: 'Spring.snappy forward 0→1',
       );
     });
 
@@ -280,15 +280,7 @@ void main() {
       );
     });
 
-    test('Spring.iosDefault forward 0→1', () {
-      final motion = const Spring.iosDefault();
-      _assertInterpolation(
-        motion,
-        const SimulationBuildData.forward(startValue: 0.0),
-        tolerance: springTolerance,
-        label: 'Spring.iosDefault forward 0→1',
-      );
-    });
+ 
 
     test('Spring.interactive forward 0→1', () {
       final motion = const Spring.interactive();
@@ -300,15 +292,6 @@ void main() {
       );
     });
 
-    test('Spring.soft forward 0→1', () {
-      final motion = const Spring.soft();
-      _assertInterpolation(
-        motion,
-        const SimulationBuildData.forward(startValue: 0.0),
-        tolerance: springTolerance,
-        label: 'Spring.soft forward 0→1',
-      );
-    });
 
     test('Spring (duration/bounce factory) forward 0→1 with bounce', () {
       final motion = Spring(duration: 500.ms, bounce: 0.3);

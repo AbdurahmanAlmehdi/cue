@@ -7,7 +7,7 @@ void main() {
     test('equal instances with same duration', () {
       const a = TimedMotion(Duration(milliseconds: 300));
       const b = TimedMotion(Duration(milliseconds: 300));
-      expect(a, equals(b)); 
+      expect(a, equals(b));
       expect(a.hashCode, equals(b.hashCode));
     });
 
@@ -48,45 +48,45 @@ void main() {
 
   group('Spring equality', () {
     test('equal custom springs', () {
-      const a = Spring.custom(stiffness: 100, damping: 10);
-      const b = Spring.custom(stiffness: 100, damping: 10);
+      const a = Spring.withDampingRatio(stiffness: 100, ratio: 0.5);
+      const b = Spring.withDampingRatio(stiffness: 100, ratio: 0.5);
       expect(a, equals(b));
       expect(a.hashCode, equals(b.hashCode));
     });
 
     test('unequal springs with different stiffness', () {
-      const a = Spring.custom(stiffness: 100, damping: 10);
-      const b = Spring.custom(stiffness: 200, damping: 10);
+      const a = Spring.withDampingRatio(stiffness: 100, ratio: 0.5);
+      const b = Spring.withDampingRatio(stiffness: 200, ratio: 0.5);
       expect(a, isNot(equals(b)));
     });
 
-    test('unequal springs with different damping', () {
-      const a = Spring.custom(stiffness: 100, damping: 10);
-      const b = Spring.custom(stiffness: 100, damping: 20);
+    test('unequal springs with different dampingRatio', () {
+      const a = Spring.withDampingRatio(stiffness: 100, ratio: 0.5);
+      const b = Spring.withDampingRatio(stiffness: 100, ratio: 0.8);
       expect(a, isNot(equals(b)));
     });
 
     test('unequal springs with different mass', () {
-      const a = Spring.custom(mass: 1.0, stiffness: 100, damping: 10);
-      const b = Spring.custom(mass: 2.0, stiffness: 100, damping: 10);
+      const a = Spring.withDampingRatio(mass: 1.0, stiffness: 100, ratio: 0.5);
+      const b = Spring.withDampingRatio(mass: 2.0, stiffness: 100, ratio: 0.5);
       expect(a, isNot(equals(b)));
     });
 
     test('unequal springs with different snapToEnd', () {
-      const a = Spring.custom(stiffness: 100, damping: 10, snapToEnd: true);
-      const b = Spring.custom(stiffness: 100, damping: 10, snapToEnd: false);
+      const a = Spring.withDampingRatio(stiffness: 100, ratio: 0.5, snapToEnd: true);
+      const b = Spring.withDampingRatio(stiffness: 100, ratio: 0.5, snapToEnd: false);
       expect(a, isNot(equals(b)));
     });
 
     test('unequal springs with different tolerance', () {
-      const a = Spring.custom(
+      const a = Spring.withDampingRatio(
         stiffness: 100,
-        damping: 10,
-        tolerance: Tolerance(distance: 0.01), 
+        ratio: 0.5,
+        tolerance: Tolerance(distance: 0.01),
       );
-      const b = Spring.custom(
+      const b = Spring.withDampingRatio(
         stiffness: 100,
-        damping: 10,
+        ratio: 0.5,
         tolerance: Tolerance(distance: 0.02),
       );
       expect(a, isNot(equals(b)));
@@ -101,9 +101,9 @@ void main() {
 
     test('different presets are not equal', () {
       expect(const Spring.smooth(), isNot(equals(const Spring.gentle())));
-      expect(const Spring.smooth(), isNot(equals(const Spring.stiff())));
+      expect(const Spring.smooth(), isNot(equals(const Spring.snappy())));
       expect(const Spring.bouncy(), isNot(equals(const Spring.wobbly())));
-      expect(const Spring.iosDefault(), isNot(equals(const Spring.interactive())));
+      expect(const Spring.spatialSlow(), isNot(equals(const Spring.interactive())));
     });
 
     test('identical spring is equal', () {

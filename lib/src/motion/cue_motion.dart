@@ -43,7 +43,7 @@ abstract class CueMotion {
   const factory CueMotion.smooth({
     double mass,
     double stiffness,
-    double damping,
+    double dampingRatio,
     Tolerance tolerance,
     bool snapToEnd,
   }) = Spring.smooth;
@@ -51,23 +51,15 @@ abstract class CueMotion {
   const factory CueMotion.gentle({
     double mass,
     double stiffness,
-    double damping,
+    double dampingRatio,
     Tolerance tolerance,
     bool snapToEnd,
   }) = Spring.gentle;
 
-  const factory CueMotion.iosDefaultSpring({
-    double mass,
-    double stiffness,
-    double damping,
-    Tolerance tolerance,
-    bool snapToEnd,
-  }) = Spring.iosDefault;
-
   const factory CueMotion.bouncy({
     double mass,
     double stiffness,
-    double damping,
+    double dampingRatio,
     Tolerance tolerance,
     bool snapToEnd,
   }) = Spring.bouncy;
@@ -75,18 +67,66 @@ abstract class CueMotion {
   const factory CueMotion.wobbly({
     double mass,
     double stiffness,
-    double damping,
+    double dampingRatio,
     Tolerance tolerance,
     bool snapToEnd,
   }) = Spring.wobbly;
 
-  const factory CueMotion.stiff({
+  const factory CueMotion.snappy({
     double mass,
     double stiffness,
-    double damping,
+    double dampingRatio,
     Tolerance tolerance,
     bool snapToEnd,
-  }) = Spring.stiff;
+  }) = Spring.snappy;
+
+  const factory CueMotion.spatial({
+    double mass,
+    double stiffness,
+    double dampingRatio,
+    Tolerance tolerance,
+    bool snapToEnd,
+  }) = Spring.spatial;
+
+  const factory CueMotion.spatialSlow({
+    double mass,
+    double stiffness,
+    double dampingRatio,
+    Tolerance tolerance,
+    bool snapToEnd,
+  }) = Spring.spatialSlow;
+
+  const factory CueMotion.spatialFast({
+    double mass,
+    double stiffness,
+    double dampingRatio,
+    Tolerance tolerance,
+    bool snapToEnd,
+  }) = Spring.spatialFast;
+
+  const factory CueMotion.effect({
+    double mass,
+    double stiffness,
+    double dampingRatio,
+    Tolerance tolerance,
+    bool snapToEnd,
+  }) = Spring.effect;
+
+   const factory CueMotion.effectSlow({
+    double mass,
+    double stiffness,
+    double dampingRatio,
+    Tolerance tolerance,
+    bool snapToEnd,
+  }) = Spring.effectSlow;
+
+  const factory CueMotion.effectFast({
+    double mass,
+    double stiffness,
+    double dampingRatio,
+    Tolerance tolerance,
+    bool snapToEnd,
+  }) = Spring.effectFast;
 }
 
 class TimedMotion extends CueMotion {

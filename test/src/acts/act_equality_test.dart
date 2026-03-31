@@ -348,12 +348,7 @@ void main() {
       const b = CueMotion.gentle();
       expect(a, equals(b));
     });
-
-    test('Spring.iosDefault with same defaults are equal', () {
-      const a = CueMotion.iosDefaultSpring();
-      const b = CueMotion.iosDefaultSpring();
-      expect(a, equals(b));
-    });
+ 
 
     test('Spring.bouncy with same defaults are equal', () {
       const a = CueMotion.bouncy();
@@ -367,39 +362,39 @@ void main() {
       expect(a, equals(b));
     });
 
-    test('Spring.stiff with same defaults are equal', () {
-      const a = CueMotion.stiff();
-      const b = CueMotion.stiff();
+    test('Spring.snappy with same defaults are equal', () {
+      const a = CueMotion.snappy();
+      const b = CueMotion.snappy();
       expect(a, equals(b));
     });
 
     test('Spring.custom with same parameters are equal', () {
-      const a = Spring.custom(mass: 1.0, stiffness: 100.0, damping: 10.0);
-      const b = Spring.custom(mass: 1.0, stiffness: 100.0, damping: 10.0);
+      const a = Spring.withDampingRatio(mass: 1.0, stiffness: 100.0, ratio: 0.1);
+      const b = Spring.withDampingRatio(mass: 1.0, stiffness: 100.0, ratio: 0.1);
       expect(a, equals(b));
     });
 
     test('Spring.custom with different mass are not equal', () {
-      const a = Spring.custom(mass: 1.0, stiffness: 100.0, damping: 10.0);
-      const b = Spring.custom(mass: 2.0, stiffness: 100.0, damping: 10.0);
+      const a = Spring.withDampingRatio(mass: 1.0, stiffness: 100.0, ratio: 0.1);
+      const b = Spring.withDampingRatio(mass: 2.0, stiffness: 100.0, ratio: 0.1);
       expect(a, isNot(equals(b)));
     });
 
     test('Spring.custom with different stiffness are not equal', () {
-      const a = Spring.custom(mass: 1.0, stiffness: 100.0, damping: 10.0);
-      const b = Spring.custom(mass: 1.0, stiffness: 200.0, damping: 10.0);
+      const a = Spring.withDampingRatio(mass: 1.0, stiffness: 100.0, ratio: 0.1);
+      const b = Spring.withDampingRatio(mass: 1.0, stiffness: 200.0, ratio: 0.1);
       expect(a, isNot(equals(b)));
     });
 
     test('Spring.custom with different damping are not equal', () {
-      const a = Spring.custom(mass: 1.0, stiffness: 100.0, damping: 10.0);
-      const b = Spring.custom(mass: 1.0, stiffness: 100.0, damping: 20.0);
+      const a = Spring.withDampingRatio(mass: 1.0, stiffness: 100.0, ratio: 0.1);
+      const b = Spring.withDampingRatio(mass: 1.0, stiffness: 100.0, ratio: 0.2);
       expect(a, isNot(equals(b)));
     });
 
     test('Spring.custom with different snapToEnd are not equal', () {
-      const a = Spring.custom(mass: 1.0, stiffness: 100.0, damping: 10.0, snapToEnd: true);
-      const b = Spring.custom(mass: 1.0, stiffness: 100.0, damping: 10.0, snapToEnd: false);
+      const a = Spring.withDampingRatio(mass: 1.0, stiffness: 100.0, ratio: 0.1, snapToEnd: true);
+      const b = Spring.withDampingRatio(mass: 1.0, stiffness: 100.0, ratio: 0.1, snapToEnd: false);
       expect(a, isNot(equals(b)));
     });
 
@@ -467,8 +462,8 @@ void main() {
     });
 
     test('equal Springs have same hashCode', () {
-      const a = Spring.custom(mass: 1.0, stiffness: 100.0, damping: 10.0);
-      const b = Spring.custom(mass: 1.0, stiffness: 100.0, damping: 10.0);
+      const a = Spring.withDampingRatio(mass: 1.0, stiffness: 100.0, ratio: 0.1);
+      const b = Spring.withDampingRatio(mass: 1.0, stiffness: 100.0, ratio: 0.1);
       expect(a.hashCode, equals(b.hashCode));
     });
 

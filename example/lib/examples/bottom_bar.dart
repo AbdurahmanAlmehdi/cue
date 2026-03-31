@@ -63,7 +63,7 @@ class _BottomBarState extends State<BottomBar> {
                               },
                               child: Cue.onToggle(
                                 toggled: _activeTab == i,
-                                motion: Spring.smooth(damping: 30),
+                                motion: Spring.smooth(),
                                 child: Actor(
                                   acts: [
                                     .sizedClip(from: .width(collapsedWidth), to: .width(expandedWidth)),

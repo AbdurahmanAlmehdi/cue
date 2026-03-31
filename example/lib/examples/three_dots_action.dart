@@ -9,7 +9,7 @@ class ThreeDotsAction extends StatelessWidget {
     return CueModalTransition(
       barrierColor: Colors.black12,
       motion: .smooth(),
-      reverseMotion: .iosDefaultSpring(),
+      reverseMotion: .snappy(),
       alignment: Alignment.bottomCenter,
       triggerBuilder: (context, showModal) => FloatingActionButton(
         shape: CircleBorder(),

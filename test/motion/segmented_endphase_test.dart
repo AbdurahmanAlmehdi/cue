@@ -425,7 +425,7 @@ void main() {
       final motions = [
         const Spring.smooth(),
         const Spring.bouncy(),
-        const Spring.stiff(),
+        const Spring.snappy(),
       ];
 
       final sim = SegmentedSimulation(

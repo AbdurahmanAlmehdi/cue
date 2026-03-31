@@ -169,6 +169,123 @@ void main() {
       });
     });
 
+    group('apply', () {
+      testWidgets('wraps child in widget', (tester) async {
+        final act = RotateLayoutAct.degrees(from: 0, to: 90);
+        final ctx = createActContext();
+        final (animtable, _) = act.buildTweens(ctx);
+
+        final track = createTrack();
+        track.setProgress(0.5);
+
+        final animation = CueAnimationImpl<double>(
+          parent: track,
+          token: ReleaseToken(track.config),
+          animtable: animtable,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Rotate Layout'));
+              },
+            ),
+          ),
+        );
+
+        expect(find.text('Rotate Layout'), findsOneWidget);
+      });
+
+      testWidgets('renders with degrees unit', (tester) async {
+        final act = RotateLayoutAct.degrees(from: 0, to: 180);
+        final ctx = createActContext();
+        final (animtable, _) = act.buildTweens(ctx);
+
+        final track = createTrack();
+        track.setProgress(0);
+
+        final animation = CueAnimationImpl<double>(
+          parent: track,
+          token: ReleaseToken(track.config),
+          animtable: animtable,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Degrees'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Degrees'), findsOneWidget);
+      });
+
+      testWidgets('renders with turns unit', (tester) async {
+        final act = RotateLayoutAct.turns(from: 0, to: 1);
+        final ctx = createActContext();
+        final (animtable, _) = act.buildTweens(ctx);
+
+        final track = createTrack();
+        track.setProgress(0.5);
+
+        final animation = CueAnimationImpl<double>(
+          parent: track,
+          token: ReleaseToken(track.config),
+          animtable: animtable,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Turns'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Turns'), findsOneWidget);
+      });
+
+      testWidgets('renders with radians unit', (tester) async {
+        final act = RotateLayoutAct(from: 0, to: pi, unit: RotateUnit.radians);
+        final ctx = createActContext();
+        final (animtable, _) = act.buildTweens(ctx);
+
+        final track = createTrack();
+        track.setProgress(0.5);
+
+        final animation = CueAnimationImpl<double>(
+          parent: track,
+          token: ReleaseToken(track.config),
+          animtable: animtable,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Radians'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Radians'), findsOneWidget);
+      });
+    });
+
     group('equality', () {
       test('equal acts have same hashCode', () {
         final act1 = RotateLayoutAct(from: 0, to: 90);
