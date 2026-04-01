@@ -40,7 +40,7 @@ abstract class Act {
 
   const factory Act.scale({
     double from,
-    required double to,
+     double to,
     CueMotion? motion,
     ReverseBehavior<double> reverse,
     Duration delay,

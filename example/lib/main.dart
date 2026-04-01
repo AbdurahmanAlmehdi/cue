@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cue/cue.dart';
 import 'package:example/examples/delete_confirmation.dart';
 import 'package:example/examples/slack_style_fab.dart';
@@ -45,15 +47,54 @@ class DemoPage extends StatefulWidget {
 }
 
 class _DemoPageState extends State<DemoPage> with TickerProviderStateMixin {
- 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Cue Demo')),
       body: Row(
         children: [
-        
+          ElevatedButton(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) {
+                  return Builder(
+                    builder: (context) {
+                      return Cue.onMount(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (int i = 0; i < 5; i++)
+                              Actor(
+                                motion: .smooth(),
+                                acts: [
+                                  .slideX(
+                                    from: -1,
+                                    delay: 20.ms * i,
+                                  ),
+                                ],
+                                child: ListTile(
+                                  leading: const Icon(Icons.delete),
+                                  title: const Text('Delete'),
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => const DeleteConfirmationDialog(),
+                                    );
+                                  },
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            },
+            child: Text("Navigate"),
+          ),
         ],
       ),
     );

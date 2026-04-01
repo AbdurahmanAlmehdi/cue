@@ -63,29 +63,4 @@ mixin CueModalRouteMixin<T extends Object?> on ModalRoute<T> {
   }
 }
 
-mixin CuePageRouteMixin<T extends Object?> on PageRoute<T> {
-  CueMotion get motion;
-  CueMotion? get reverseMotion;
-
-  @override
-  AnimationController createAnimationController() {
-    return CueController(
-      motion: motion,
-      reverseMotion: reverseMotion,
-      vsync: navigator!,
-    );
-  }
-
-  @override
-  Simulation? createSimulation({required bool forward}) {
-    return null;
-  }
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-    return Cue(
-      timeline: (controller as CueController).timeline,
-      child: super.buildPage(context, animation, secondaryAnimation),
-    );
-  }
-}
+ 
