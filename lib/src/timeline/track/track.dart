@@ -98,6 +98,7 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
       return;
     }
 
+
     final active = forward ? motion : reverseMotion;
 
     if (from != null) {
@@ -121,9 +122,9 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
       _value = sim.x(_localT);
       _phase = sim.phase;
     }
+   
 
     final (targetValue, targetPhase) = target == null ? (null, null) : _valueAtProgress(target, forward);
-
     _activeSim = active.build(
       SimulationBuildData(
         forward: forward,

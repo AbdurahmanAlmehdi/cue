@@ -33,7 +33,7 @@ class ParallaxAct extends DeferredTweenAct<Offset> {
       reverseMotion: context.reverseMotion,
       reverseType: reverse.type,
     );
-    final (track, token) = timline.trackFor(trackConfig);
+    final (track, token) = timline.obtainTrack(trackConfig);
     return DeferredCueAnimation<Offset>(parent: track, token: token, context: context);
   }
 

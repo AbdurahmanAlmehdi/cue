@@ -14,7 +14,7 @@ abstract class AnimtableAct<T extends Object?, R extends Object?> extends Act {
   @override
   CueAnimation<R> buildAnimation(CueTimeline timline, ActContext context) {
     final (animtable, reverseAnimtable) = buildTweens(context);
-    final (track, token) = timline.trackFor(
+    final (track, token) = timline.obtainTrack(
       TrackConfig(
         motion: context.motion,
         reverseMotion: context.reverseMotion,

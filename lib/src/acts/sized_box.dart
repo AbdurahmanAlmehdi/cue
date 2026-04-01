@@ -44,7 +44,7 @@ class SizedBoxAct extends DeferredTweenAct<Size> {
       reverseMotion: context.reverseMotion,
       reverseType: reverse.type,
     );
-    final (track, token) = timline.trackFor(trackConfig);
+    final (track, token) = timline.obtainTrack(trackConfig);
     return DeferredCueAnimation<Size>(parent: track, token: token, context: context);
   }
 

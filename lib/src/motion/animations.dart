@@ -28,6 +28,8 @@ abstract class CueAnimation<T> extends Animation<T> with AnimationWithParentMixi
 
   @override
   T get value => animtable.evaluate(parent);
+
+  void release() => token.release();
 }
 
 class CueAnimationImpl<T> extends CueAnimation<T> {
@@ -78,5 +80,34 @@ class DeferredCueAnimation<T> extends CueAnimation<T> {
 
   void setAnimatable(CueAnimtable<T>? animatable) {
     _animatable = animatable;
+  }
+}
+
+class RetargetableCueAnimation<T> extends CueAnimation<T> {
+  @override
+  final ReleaseToken token;
+
+  final CueController controller;
+
+  RetargetableCueAnimation({
+    required super.parent,
+    required this.controller,
+    required T initialValue,
+    required this.token,
+  }) : _animatable = TweenAnimtable<T>(ConstantTween(initialValue));
+
+  late TweenAnimtable<T> _animatable;
+
+  @override
+  CueAnimtable<T> get animtable => _animatable;
+
+  void retarget(T newTarget, {bool forward = true}) {
+    final currentValue = _animatable.evaluate(parent);
+    _animatable = TweenAnimtable<T>(Tween(begin: currentValue, end: newTarget));
+    if (forward) {
+      controller.forward(from: 0.0);
+    } else {
+      controller.reverse(from: 1.0);
+    }
   }
 }

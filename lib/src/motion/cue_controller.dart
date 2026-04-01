@@ -1,5 +1,5 @@
-import 'package:cue/src/motion/cue_motion.dart';
-import 'package:cue/src/timeline/timeline.dart';
+import 'package:cue/cue.dart';
+import 'package:cue/src/timeline/track/track.dart';
 import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/material.dart';
 
@@ -28,6 +28,58 @@ class CueController extends AnimationController {
     if (newMotion != mainTrack.motion || reverseMotion != mainTrack.reverseMotion) {
       timeline.resetTracks(TrackConfig(motion: newMotion, reverseMotion: reverseMotion ?? newMotion));
     }
+  }
+
+  (CueTrack, ReleaseToken) obtainTrack({
+    CueMotion? motion,
+    CueMotion? reverseMotion,
+    ReverseBehaviorType reverseType = ReverseBehaviorType.mirror,
+  }) {
+    final mainConfig = timeline.mainTrack.config;
+    return timeline.obtainTrack(
+      TrackConfig(
+        motion: motion ?? mainConfig.motion,
+        reverseMotion: reverseMotion ?? mainConfig.reverseMotion,
+        reverseType: reverseType,
+      ),
+    );
+  }
+
+  CueAnimation<T> createAnimation<T>({
+    CueMotion? motion,
+    CueMotion? reverseMotion,
+    ReverseBehaviorType reverseType = ReverseBehaviorType.mirror,
+    required Animatable<T> animtable,
+  }) {
+    final (track, token) = obtainTrack(
+      motion: motion,
+      reverseMotion: reverseMotion,
+      reverseType: reverseType,
+    );
+    return CueAnimationImpl<T>(
+      parent: track,
+      token: token,
+      animtable: TweenAnimtable<T>(animtable),
+    );
+  }
+
+  RetargetableCueAnimation<T> createRetargetable<T>({
+    CueMotion? motion,
+    CueMotion? reverseMotion,
+    ReverseBehaviorType reverseType = ReverseBehaviorType.mirror,
+    required T initialValue,
+  }) {
+    final (track, token) = obtainTrack(
+      motion: motion,
+      reverseMotion: reverseMotion,
+      reverseType: reverseType,
+    );
+    return RetargetableCueAnimation<T>(
+      parent: track,
+      token: token,
+      controller: this,
+      initialValue: initialValue,
+    );
   }
 
   @override
@@ -64,13 +116,16 @@ class CueController extends AnimationController {
   Animation<double> get view => _timeline.mainTrack;
 
   @override
+  @override
   TickerFuture forward({double? from}) {
     _timeline.willAnimate(forward: true);
     if (from != null) {
       assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0. Received: $from');
-      value = from;
     }
     _timeline.prepare(forward: true, from: from);
+    if (from != null) {
+      super.value = from;
+    }
     return super.animateWith(_timeline);
   }
 
@@ -79,20 +134,22 @@ class CueController extends AnimationController {
     _timeline.willAnimate(forward: false);
     if (from != null) {
       assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0. Received: $from');
-      value = from;
     }
     _timeline.prepare(forward: false, from: from);
+    if (from != null) {
+      super.value = from;
+    }
     return super.animateBackWith(_timeline);
   }
 
   @override
   TickerFuture animateWith(Simulation simulation) {
-    throw UnsupportedError('animateWith is not supported by CueAnimationController. Use forward instead.');
+    throw UnsupportedError('animateWith is not supported by CueController. Use forward instead.');
   }
 
   @override
   TickerFuture animateBackWith(Simulation simulation) {
-    throw UnsupportedError('animateBackWith is not supported by CueAnimationController. Use reverse instead.');
+    throw UnsupportedError('animateBackWith is not supported by CueController. Use reverse instead.');
   }
 
   @override
@@ -131,7 +188,7 @@ class CueController extends AnimationController {
       return TickerFuture.complete();
     }
 
-     forward ??= target > value;
+    forward ??= target > value;
     _timeline.willAnimate(forward: forward);
     _timeline.prepare(forward: forward, target: target);
     if (forward) {

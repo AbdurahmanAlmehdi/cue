@@ -73,7 +73,7 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
   }
 
   @override
-  (CueTrack track, ReleaseToken token) trackFor(TrackConfig config) {
+  (CueTrack track, ReleaseToken token) obtainTrack(TrackConfig config) {
     if (config == mainTrackConfig) return (mainTrack, ReleaseToken(config, this));
 
     final entry = tracks.putIfAbsent(
@@ -280,7 +280,7 @@ abstract class CueTimeline extends Simulation with EventNotifier<TimelineEvent> 
 
   void reset();
 
-  (CueTrack, ReleaseToken) trackFor(TrackConfig config);
+  (CueTrack, ReleaseToken) obtainTrack(TrackConfig config);
 
   void release(ReleaseToken token);
 

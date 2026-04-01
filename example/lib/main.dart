@@ -1,5 +1,6 @@
 import 'package:cue/cue.dart';
-import 'package:example/examples/indicator_to_button.dart';
+import 'package:example/examples/delete_confirmation.dart';
+import 'package:example/examples/slack_style_fab.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -43,35 +44,43 @@ class DemoPage extends StatefulWidget {
   State<DemoPage> createState() => _DemoPageState();
 }
 
-class _DemoPageState extends State<DemoPage> {
-  bool toggled = false;
-  final focuseNode = FocusNode();
+class _DemoPageState extends State<DemoPage> with SingleTickerProviderStateMixin {
+
+  late final _controller = CueController(vsync: this, motion: .wobbly());
+  late final _animation = _controller.createRetargetable(initialValue: Offset(50, 50));
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cue Demo'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              setState(() {
-                toggled = !toggled;
-              });
-            },
-            icon: const Icon(Icons.toggle_on),
-          ),
-        ],
-      ),
-      body: SizedBox.expand(
-        child: Padding(
-          padding: const EdgeInsets.all(0.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-                IndicatorToButton(),
-            ],
-          ),
+      appBar: AppBar(title: const Text('Cue Demo')),
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (details) {
+          _animation.retarget(details.localPosition);
+        },
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+
+            AnimatedBuilder(
+              animation: _animation,
+              builder: (context, _) {
+                final offset = _animation.value;
+                return Positioned(
+                  left: offset.dx - 25,
+                  top: offset.dy - 25,
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
