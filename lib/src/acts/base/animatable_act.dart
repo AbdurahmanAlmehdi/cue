@@ -11,6 +11,15 @@ abstract class AnimtableAct<T extends Object?, R extends Object?> extends Act {
 
   (CueAnimtable<R>, CueAnimtable<R>?) buildTweens(ActContext context);
 
+  CueAnimtable<R> buildAnimtable(ActContext context) {
+    final (animtable, reverseAnimatable) = buildTweens(context);
+    if (reverseAnimatable != null) {
+      return DualAnimatable(forward: animtable, reverse: reverseAnimatable);
+    } else {
+      return animtable;
+    }
+  }
+
   @override
   CueAnimation<R> buildAnimation(CueTimeline timline, ActContext context) {
     final (animtable, reverseAnimtable) = buildTweens(context);

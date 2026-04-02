@@ -1,8 +1,4 @@
-import 'dart:developer';
-
 import 'package:cue/cue.dart';
-import 'package:example/examples/delete_confirmation.dart';
-import 'package:example/examples/slack_style_fab.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -47,47 +43,55 @@ class DemoPage extends StatefulWidget {
 }
 
 class _DemoPageState extends State<DemoPage> with TickerProviderStateMixin {
+
+  late final _controller = CueController(vsync: this, motion: .smooth());
+  late final opacity = _controller.tweenTrack(from: 0.0, to: 1.1);
+
+  late final translate = _controller.keyframedTrack(
+    frames: Keyframes([
+      Keyframe(Offset.zero, motion: .none),
+      Keyframe(const Offset(200, 0), motion: .linear(300.ms)),
+      Keyframe(const Offset(200, 200), motion: .linear(300.ms)),
+      Keyframe(const Offset(0, 200), motion: .linear(300.ms)),
+    ]),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Cue Demo')),
-      body: Row(
+      body: Column(
         children: [
-         Cue.onMount(
-          motion: .wobbly(),
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                children: [
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.baseline,
-                    baseline: TextBaseline.alphabetic,
-                    child: Actor(
-                      acts: [
-                        .fadeIn(),
-                        .translateY(from: 16),
-                      ],
-                      delay: 0.ms,
-                      child: Text("Hello", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+          ElevatedButton(
+            onPressed: () {
+              _controller.forward(from: 0.0);
+            },
+            child: const Text('Animate'),
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                AnimatedBuilder(
+                  animation: translate,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  TextSpan(text: " "),
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.baseline,
-                    baseline: TextBaseline.alphabetic,
-                    child: Actor(
-                      acts: [
-                        .fadeIn(),
-                        .translateY(from: 16),
-                      ],
-                      delay: 50.ms,
-                      child: Text("World", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ],
-              ),
+                  builder: (context, child) {
+                    return Positioned(
+                      left: translate.value.dx,
+                      top: translate.value.dy,
+                      height: 50,
+                      width: 50,
+                      child: child!,
+                    );
+                  },
+                ),
+              ],
             ),
-          )
+          ),
         ],
       ),
     );

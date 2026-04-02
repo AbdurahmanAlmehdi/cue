@@ -56,7 +56,7 @@ class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
       gradient: gradient?.to,
       shape: shape,
     );
-    final builder = TweensBuildHelper<Decoration>(
+    final builder = CueTweenBuildHelper<Decoration>(
       from: from,
       to: to,
       frames: frames,

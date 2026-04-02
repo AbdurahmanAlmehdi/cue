@@ -1,6 +1,5 @@
 import 'package:cue/cue.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _TestSimulation extends Simulation {
@@ -213,13 +212,14 @@ void main() {
       });
     });
 
-    group('createAnimation', () {
+    group('tweenTrack', () {
       test('creates CueAnimation with tween', () {
         final motion = CueMotion.linear(300.ms);
         final controller = _createController(motion: motion);
 
-        final animation = controller.createAnimation<double>(
-          tween: Tween(begin: 0.0, end: 100.0),
+        final animation = controller.tweenTrack<double>(
+          from: 0.0,
+          to: 100.0,
         );
 
         expect(animation, isNotNull);
@@ -231,8 +231,9 @@ void main() {
         final motion = CueMotion.linear(300.ms);
         final controller = _createController(motion: motion);
 
-        final animation = controller.createAnimation<double>(
-          tween: Tween(begin: 0.0, end: 100.0),
+        final animation = controller.tweenTrack<double>(
+          from: 0.0,
+          to: 100.0,
         );
 
         controller.setProgress(0.5);
@@ -247,51 +248,39 @@ void main() {
         final controller = _createController(motion: motion);
 
         final customMotion = CueMotion.linear(500.ms);
-        final animation = controller.createAnimation<double>(
+        final animation = controller.tweenTrack<double>(
           motion: customMotion,
-          tween: Tween(begin: 0.0, end: 1.0),
+          from: 0.0,
+          to: 1.0,
         );
 
         expect(animation.trackConfig.motion, equals(customMotion));
       });
 
-      test('creates animation with custom reverseType', () {
+      test('creates animation with custom reverse type', () {
         final motion = CueMotion.linear(300.ms);
         final controller = _createController(motion: motion);
 
-        final animation = controller.createAnimation<double>(
-          reverseType: ReverseBehaviorType.exclusive,
-          tween: Tween(begin: 0.0, end: 1.0),
+        final animation = controller.tweenTrack<double>(
+          reverse: const ReverseBehavior.exclusive(),
+          from: 0.0,
+          to: 1.0,
         );
 
         expect(animation.trackConfig.reverseType, equals(ReverseBehaviorType.exclusive));
       });
-    });
 
-    group('createRetargetable', () {
-      test('creates RetargetableCueAnimation', () {
+      test('creates animation with reverseTo behavior', () {
         final motion = CueMotion.linear(300.ms);
         final controller = _createController(motion: motion);
 
-        final animation = controller.createRetargetable<double>(
-          initialValue: 0.0,
+        final animation = controller.tweenTrack<double>(
+          reverse: const ReverseBehavior.to(0.5),
+          from: 0.0,
+          to: 1.0,
         );
 
         expect(animation, isNotNull);
-        expect(animation.value, equals(0.0));
-        expect(animation.controller, same(controller));
-      });
-
-      test('setValue stops controller and sets value', () {
-        final motion = CueMotion.linear(300.ms);
-        final controller = _createController(motion: motion);
-
-        final animation = controller.createRetargetable<double>(
-          initialValue: 0.0,
-        );
-
-        animation.setValue(42.0);
-        expect(animation.value, equals(42.0));
       });
     });
 
@@ -721,8 +710,9 @@ void main() {
       test('animation drives tween correctly through full lifecycle', () {
         final controller = _createController(motion: CueMotion.linear(100.ms));
 
-        final animation = controller.createAnimation<double>(
-          tween: Tween(begin: 0.0, end: 200.0),
+        final animation = controller.tweenTrack<double>(
+          from: 0.0,
+          to: 200.0,
         );
 
         controller.setProgress(0.0);

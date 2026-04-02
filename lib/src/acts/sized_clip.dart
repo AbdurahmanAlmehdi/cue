@@ -318,7 +318,7 @@ class _RenderAnimatedSizeClip extends RenderAligningShiftedBox {
     );
   }
 
-  Size _calculateMaxSize(TweensBuildHelper<Size?> builder) {
+  Size _calculateMaxSize(CueTweenBuildHelper<Size?> builder) {
     final allValues = [
       builder.from,
       builder.to,
@@ -352,7 +352,7 @@ class _RenderAnimatedSizeClip extends RenderAligningShiftedBox {
     final tween = SizeTween(begin: from, end: to);
 
     // // Build the tween from phases
-    final builder = TweensBuildHelper<Size?>(
+    final builder = CueTweenBuildHelper<Size?>(
       from: _resolveSize(_from, maxConstrains, childSize),
       to: _resolveSize(_to, maxConstrains, childSize),
       frames: _frames?.mapValues((v) => _resolveSize(v, maxConstrains, childSize)),

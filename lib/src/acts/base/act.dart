@@ -33,7 +33,7 @@ part '../card.dart';
 part '../paint.dart';
 part '../path_motion.dart';
 
-typedef TweenBuilder<T> = Animatable<T> Function(T from, T to);
+
 
 abstract class Act {
   const Act();

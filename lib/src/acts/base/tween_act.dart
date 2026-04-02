@@ -136,6 +136,8 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animta
     }
   }
 
+
+
   @override
   (CueAnimtable<R> animtable, CueAnimtable<R>? reverseAnimtable) buildTweens(ActContext context) {
     if (reverse.type == ReverseBehaviorType.exclusive) {
@@ -328,8 +330,8 @@ class AnimatableValue<T> {
 }
 
 @internal
-class TweensBuildHelper<T extends Object?> extends TweenAct<T> {
-  TweensBuildHelper({super.reverse, super.from, super.to, super.frames, required this.tweenBuilder});
+class CueTweenBuildHelper<T extends Object?> extends TweenAct<T> {
+  CueTweenBuildHelper({super.reverse, super.from, super.to, super.frames, required this.tweenBuilder});
 
   final Animatable<T> Function(T from, T to) tweenBuilder;
 

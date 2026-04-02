@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixin {
   CueTimelineImpl(TrackConfig config) : super({config: TrackEntry(CueTrackImpl(config))});
 
-
   factory CueTimelineImpl.fromMotion(CueMotion motion, {CueMotion? reverseMotion}) {
     final config = TrackConfig(motion: motion, reverseMotion: reverseMotion ?? motion);
     return CueTimelineImpl(config);
@@ -125,7 +124,7 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     final timelineDuration = forwardDuration;
     for (final entry in tracks.entries) {
       final track = entry.value.track;
-      final normalized =(value * timelineDuration / track.forwardDuration).clamp(0.0, 1.0);
+      final normalized = (value * timelineDuration / track.forwardDuration).clamp(0.0, 1.0);
       track.setProgress(normalized, forward: true);
     }
   }
@@ -177,17 +176,22 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
   }
 
   @override
-  void prepare({required bool forward, double? from, double? target}) {
+  void prepare({required bool forward, double? from, double? target, double? velocity}) {
     _repeatConfig = null;
     _cycleOffset = 0.0;
     fireEvent(TimelinePrepareEvent(forward));
     _lastT = 0.0;
-    _prepareInternal(forward, from, target);
+    _prepareInternal(forward, from, target, velocity);
   }
 
-  void _prepareInternal(bool forward, [double? from, double? target]) {
+  void _prepareInternal(bool forward, [double? from, double? target, double? velocity]) {
     for (final entry in tracks.values) {
-      entry.track.prepare(forward: forward, from: from, target: target);
+      entry.track.prepare(
+        forward: forward,
+        from: from,
+        target: target,
+        exteranlVelocity: velocity,
+      );
     }
     _updateStatus();
   }
@@ -271,7 +275,7 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
 }
 
 abstract class CueTimeline extends Simulation with EventNotifier<TimelineEvent> {
-  void prepare({required bool forward, double? from, double? target});
+  void prepare({required bool forward, double? from, double? target, double? velocity});
   void prepareForRepeat(RepeatConfig config);
 
   void willAnimate({required bool forward});

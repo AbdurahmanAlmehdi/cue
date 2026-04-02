@@ -84,7 +84,7 @@ class CardAct extends AnimtableAct<CardProps, CardProps> {
       shape: shape?.to,
       margin: margin?.to,
     );
-    final builder = TweensBuildHelper(
+    final builder = CueTweenBuildHelper(
       from: from,
       to: to,
       frames: frames,

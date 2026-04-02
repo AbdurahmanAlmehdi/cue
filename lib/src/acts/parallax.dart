@@ -179,7 +179,7 @@ class _ParallaxRenderTransform extends RenderProxyBox {
       return _axis == Axis.horizontal ? Offset(offset, 0) : Offset(0, offset);
     }
 
-    final builder = TweensBuildHelper<Offset>(
+    final builder = CueTweenBuildHelper<Offset>(
       from: buildOffset(0),
       to: buildOffset(1.0),
       reverse: _reverse.mapValues(buildOffset),

@@ -45,7 +45,7 @@ class FractionalSizeAct extends AnimtableAct<FractionalSize, FractionalSize> {
 
   @override
   (CueAnimtable<FractionalSize>, CueAnimtable<FractionalSize>?) buildTweens(ActContext context) {
-    final builder = TweensBuildHelper<FractionalSize>(
+    final builder = CueTweenBuildHelper<FractionalSize>(
       from: FractionalSize(
         widthFactor: widthFactor?.from,
         heightFactor: heightFactor?.from,

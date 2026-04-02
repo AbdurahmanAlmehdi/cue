@@ -227,7 +227,7 @@ class _AnimtableRenderConstrainedBox extends RenderConstrainedBox {
       );
     }
 
-    final builder = TweensBuildHelper<Size>(
+    final builder = CueTweenBuildHelper<Size>(
       from: from,
       to: to,
       frames: _keyframes?.mapValues((v) => _normalizeSize(v, constraints)),

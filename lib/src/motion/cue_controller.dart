@@ -1,4 +1,5 @@
 import 'package:cue/cue.dart';
+import 'package:cue/src/acts/base/tween_act.dart';
 import 'package:cue/src/timeline/track/track.dart';
 import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/material.dart';
@@ -47,40 +48,88 @@ class CueController extends AnimationController {
     );
   }
 
-  CueAnimation<T> createAnimation<T>({
+  CueAnimation<T> tweenTrack<T>({
     CueMotion? motion,
     CueMotion? reverseMotion,
-    ReverseBehaviorType reverseType = ReverseBehaviorType.mirror,
-    required Animatable<T> tween,
+    ReverseBehavior<T> reverse = const ReverseBehavior.mirror(),
+    required T from,
+    required T to,
+    Duration delay = Duration.zero,
+    TweenBuilder<T>? tweenBuilder,
   }) {
-    final (track, token) = obtainTrack(
-      motion: motion,
-      reverseMotion: reverseMotion,
-      reverseType: reverseType,
+    final mainConfig = timeline.mainTrack.config;
+
+    final context = TweenActBase.resolveMotion(
+      ActContext(
+        motion: motion ?? mainConfig.motion,
+        reverseMotion: reverseMotion ?? mainConfig.reverseMotion,
+      ),
+      delay: delay,
+      reverse: reverse,
     );
+
+    final (track, token) = timeline.obtainTrack(
+      TrackConfig(
+        motion: context.motion,
+        reverseMotion: context.reverseMotion,
+        reverseType: reverse.type,
+      ),
+    );
+
+    final builder = CueTweenBuildHelper(
+      from: from,
+      to: to,
+      reverse: reverse,
+      tweenBuilder: (from, to) {
+        return tweenBuilder?.call(begin: from, end: to) ?? Tween(begin: from, end: to);
+      },
+    );
+
     return CueAnimationImpl<T>(
       parent: track,
       token: token,
-      animtable: TweenAnimtable<T>(tween),
+      animtable: builder.buildAnimtable(context),
     );
   }
 
-  RetargetableCueAnimation<T> createRetargetable<T>({
-    CueMotion? motion,
-    CueMotion? reverseMotion,
-    ReverseBehaviorType reverseType = ReverseBehaviorType.mirror,
-    required T initialValue,
+  CueAnimation<T> keyframedTrack<T>({
+    KFReverseBehavior<T> reverse = const KFReverseBehavior.mirror(),
+    required Keyframes<T> frames,
+    Duration delay = Duration.zero,
+    TweenBuilder<T>? tweenBuilder,
   }) {
-    final (track, token) = obtainTrack(
-      motion: motion,
-      reverseMotion: reverseMotion,
-      reverseType: reverseType,
+    final mainConfig = timeline.mainTrack.config;
+
+    final context = TweenActBase.resolveMotion(
+      ActContext(
+        motion: mainConfig.motion,
+        reverseMotion: mainConfig.reverseMotion,
+      ),
+      delay: delay,
+      reverse: reverse,
+      frames: frames,
     );
-    return RetargetableCueAnimation<T>(
+
+    final (track, token) = timeline.obtainTrack(
+      TrackConfig(
+        motion: context.motion,
+        reverseMotion: context.reverseMotion,
+        reverseType: reverse.type,
+      ),
+    );
+
+    final builder = CueTweenBuildHelper(
+      frames: frames,
+      reverse: reverse,
+      tweenBuilder: (from, to) {
+        return tweenBuilder?.call(begin: from, end: to) ?? Tween(begin: from, end: to);
+      },
+    );
+
+    return CueAnimationImpl<T>(
       parent: track,
       token: token,
-      controller: this,
-      initialValue: initialValue,
+      animtable: builder.buildAnimtable(context),
     );
   }
 
@@ -144,13 +193,12 @@ class CueController extends AnimationController {
   Animation<double> get view => _timeline.mainTrack;
 
   @override
-  @override
-  TickerFuture forward({double? from}) {
+  TickerFuture forward({double? from, double? velocity}) {
     _timeline.willAnimate(forward: true);
     if (from != null) {
       assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0. Received: $from');
     }
-    _timeline.prepare(forward: true, from: from);
+    _timeline.prepare(forward: true, from: from, velocity: velocity);
     if (from != null) {
       super.value = from;
     }
@@ -158,7 +206,7 @@ class CueController extends AnimationController {
   }
 
   @override
-  TickerFuture reverse({double? from}) {
+  TickerFuture reverse({double? from, double? velocity}) {
     _timeline.willAnimate(forward: false);
     if (from != null) {
       assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0. Received: $from');
