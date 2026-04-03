@@ -1,6 +1,4 @@
 import 'package:cue/cue.dart';
-import 'package:cue/src/timeline/track/track.dart';
-import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -19,10 +17,10 @@ class CueDebugTools extends StatefulWidget {
   static VoidCallback? attachDebugTarget(
     BuildContext context, {
     required String id,
-    required CueTrack track,
+    required CueController controller,
   }) {
     final provider = context.findAncestorStateOfType<_CueDebugToolsState>();
-    return provider?.attachDebugTarget(context, id: id, track: track);
+    return provider?.attachDebugTarget(context, id: id, controller: controller);
   }
 
   static DebugDataProvider of(BuildContext context) {
@@ -39,8 +37,6 @@ class CueDebugTools extends StatefulWidget {
 }
 
 class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProviderStateMixin {
-  late final CueController _controller;
-
   final _overlayData = ValueNotifier<_OverlayData>(
     _OverlayData(
       isLooping: false,
@@ -53,52 +49,39 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
 
   OverlayEntry? _entry;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = CueController(vsync: this, motion: .linear(300.ms));
-  }
+  CueController? get _controller => _overlayData.value.controller;
 
   void _startAutoPlay() {
     if (_overlayData.value.isLooping) {
-      _controller.repeat(reverse: true);
+      _controller?.repeat(reverse: true);
     } else {
-      double startValue = _controller.value;
+      double startValue = _controller?.value ?? 0.0;
       if (_overlayData.value.forward) {
         if (startValue == 1.0) {
           startValue = 0.0;
         }
-        _controller.forward(from: startValue);
+        _controller?.forward(from: startValue);
       } else {
         if (startValue == 0.0) {
           startValue = 1.0;
         }
-        _controller.reverse(from: startValue);
+        _controller?.reverse(from: startValue);
       }
     }
   }
 
-  VoidCallback attachDebugTarget(BuildContext context, {required String id, required CueTrack track}) {
-    _overlayData.value = _overlayData.value.copyWith(activeTargetId: id);
-
-    if (_controller.timeline.mainTrackConfig != track.config) {
-      _controller.timeline.resetTracks(
-        TrackConfig(
-          motion: track.motion,
-          reverseMotion: track.reverseMotion,
-        ),
-      );
-    }
-
-    _controller.setProgress(0.0, forward: _overlayData.value.forward);
-
+  VoidCallback attachDebugTarget(BuildContext context, {required String id, required CueController controller}) {
+    _overlayData.value = _overlayData.value.copyWith(
+      activeTargetId: id,
+      controller: controller,
+    );
     void deattachCallback() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _controller.setProgress(0, forward: _overlayData.value.forward);
         timeDilation = 1.0;
         _overlayData.value = _overlayData.value.copyWith(
           activeTargetId: '',
           isMinimized: true,
+          controller: null,
           isSlowMode: timeDilation != 1.0,
         );
       });
@@ -110,11 +93,10 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
   }
 
   void openOverlay(BuildContext context) {
-    if (_entry != null) return;
+    if (_entry != null || _controller == null) return;
     _entry = OverlayEntry(
       builder: (context) {
         return _DebugOverlay(
-          controller: _controller,
           onPlay: _startAutoPlay,
           overlayData: _overlayData,
           baseDuration: const Duration(milliseconds: 500),
@@ -126,7 +108,6 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
 
   @override
   void dispose() {
-    _controller.dispose();
     _entry?.remove();
     super.dispose();
   }
@@ -138,7 +119,6 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
       builder: (context, _) {
         return DebugDataProvider(
           activeTargetId: _overlayData.value.activeTargetId,
-          timeline: _controller.timeline,
           isMinimized: _overlayData.value.isMinimized,
           child: widget.child,
         );
@@ -149,7 +129,6 @@ class _CueDebugToolsState extends State<CueDebugTools> with SingleTickerProvider
 
 class _DebugOverlay extends StatefulWidget {
   const _DebugOverlay({
-    required this.controller,
     required this.onPlay,
     required this.baseDuration,
     required this.overlayData,
@@ -157,7 +136,6 @@ class _DebugOverlay extends StatefulWidget {
 
   final ValueNotifier<_OverlayData> overlayData;
 
-  final CueController controller;
   final VoidCallback onPlay;
   final Duration baseDuration;
 
@@ -166,29 +144,29 @@ class _DebugOverlay extends StatefulWidget {
 }
 
 class _DebugOverlayState extends State<_DebugOverlay> {
-  CueController get _controller => widget.controller;
+  CueController? get _controller => widget.overlayData.value.controller!;
   ValueNotifier<_OverlayData> get _dataNotifier => widget.overlayData;
 
   _OverlayData get _data => widget.overlayData.value;
 
   void _togglePlayPause() {
-    if (_controller.isAnimating) {
-      _controller.stop();
+    if (_controller?.isAnimating ?? false) {
+      _controller?.stop();
     } else {
       widget.onPlay();
     }
   }
 
   void _onSliderChanged(double value) {
-    if (_controller.isAnimating) {
-      _controller.stop();
+    if (_controller?.isAnimating ?? false) {
+      _controller?.stop();
     }
-    _controller.setProgress(value, forward: _data.forward);
+    _controller?.setProgress(value, forward: _data.forward);
   }
 
   void _toggleLoop() {
     _dataNotifier.value = _data.copyWith(isLooping: !_data.isLooping);
-    _controller.stop();
+    _controller?.stop();
     widget.onPlay();
   }
 
@@ -255,7 +233,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                             duration: const Duration(milliseconds: 200),
                             alignment: .topLeft,
                             child: ListenableBuilder(
-                              listenable: _controller,
+                              listenable: Listenable.merge([_controller]),
                               builder: (context, _) {
                                 if (_data.isMinimized) {
                                   return IconButton(
@@ -285,7 +263,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                         children: [
                                           IconButton(
                                             icon: Icon(
-                                              widget.controller.isAnimating && _data.forward
+                                              (_controller?.isAnimating ?? false) && _data.forward
                                                   ? Icons.pause_circle_outline_rounded
                                                   : Icons.play_circle_outline_rounded,
                                             ),
@@ -305,7 +283,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                             child: Row(
                                               children: [
                                                 Text(
-                                                  '${widget.controller.value.toStringAsFixed(2)} ',
+                                                  '${_controller?.value.toStringAsFixed(2) ?? '0.00'} ',
                                                   style: const TextStyle(
                                                     fontSize: 12,
                                                     fontFamily: 'monospace',
@@ -325,12 +303,12 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                                 Builder(
                                                   builder: (context) {
                                                     final duration = _data.forward
-                                                        ? widget.controller.timeline.forwardDuration
-                                                        : widget.controller.timeline.reverseDuration;
+                                                        ? _controller?.timeline.forwardDuration ?? 0
+                                                        : _controller?.timeline.reverseDuration ?? 0;
 
                                                     final progress = _data.forward
-                                                        ? widget.controller.value
-                                                        : 1 - widget.controller.value;
+                                                        ? _controller?.value ?? 0
+                                                        : 1 - (_controller?.value ?? 0);
                                                     final durationInSeconds = duration * progress;
                                                     final durationInMs = durationInSeconds * 1000;
                                                     final maxChars = (duration * 1000).toStringAsFixed(0).length;
@@ -406,7 +384,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                             icon: Transform.flip(
                                               flipX: true,
                                               child: Icon(
-                                                widget.controller.isAnimating && !_data.forward
+                                                (_controller?.isAnimating ?? false) && !_data.forward
                                                     ? Icons.pause_circle_outline_rounded
                                                     : Icons.play_circle_outline_rounded,
                                               ),
@@ -443,7 +421,7 @@ class _DebugOverlayState extends State<_DebugOverlay> {
                                           ),
                                           child: Slider(
                                             padding: EdgeInsets.zero,
-                                            value: _controller.value,
+                                            value: _controller?.value ?? 0,
                                             activeColor: Colors.transparent,
                                             thumbColor: theme.colorScheme.primary,
                                             overlayColor: WidgetStatePropertyAll(Colors.transparent),
@@ -624,6 +602,7 @@ class _OverlayData {
   final double verticalOffset;
   final String? activeTargetId;
   final bool forward;
+  final CueController? controller;
 
   _OverlayData({
     required this.isSlowMode,
@@ -631,6 +610,7 @@ class _OverlayData {
     required this.isMinimized,
     required this.verticalOffset,
     required this.activeTargetId,
+    this.controller,
     this.forward = true,
   });
 
@@ -643,6 +623,7 @@ class _OverlayData {
           isLooping == other.isLooping &&
           isMinimized == other.isMinimized &&
           verticalOffset == other.verticalOffset &&
+          controller == other.controller &&
           forward == other.forward &&
           activeTargetId == other.activeTargetId;
 
@@ -654,6 +635,7 @@ class _OverlayData {
     verticalOffset,
     activeTargetId,
     forward,
+    controller,
   );
 
   _OverlayData copyWith({
@@ -663,6 +645,7 @@ class _OverlayData {
     String? activeTargetId,
     bool? forward,
     bool? isSlowMode,
+    CueController? controller,
   }) {
     return _OverlayData(
       isSlowMode: isSlowMode ?? this.isSlowMode,
@@ -671,6 +654,7 @@ class _OverlayData {
       verticalOffset: verticalOffset ?? this.verticalOffset,
       forward: forward ?? this.forward,
       activeTargetId: activeTargetId ?? this.activeTargetId,
+      controller: controller ?? this.controller,
     );
   }
 }
@@ -678,19 +662,15 @@ class _OverlayData {
 class DebugDataProvider extends InheritedWidget {
   const DebugDataProvider({
     super.key,
-    required this.timeline,
     required this.isMinimized,
     required this.activeTargetId,
     required super.child,
   });
 
-  final CueTimeline timeline;
   final bool isMinimized;
   final String? activeTargetId;
   @override
   bool updateShouldNotify(covariant DebugDataProvider oldWidget) {
-    return timeline != oldWidget.timeline ||
-        isMinimized != oldWidget.isMinimized ||
-        activeTargetId != oldWidget.activeTargetId;
+    return isMinimized != oldWidget.isMinimized || activeTargetId != oldWidget.activeTargetId;
   }
 }

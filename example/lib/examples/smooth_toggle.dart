@@ -21,84 +21,83 @@ class _SmoothSwitchState extends State<SmoothSwitch> {
     return Cue.onToggle(
       toggled: _toggled,
       motion: .linear(duration),
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _toggled = !_toggled;
-          });
-        },
-        onHorizontalDragUpdate: (details) {
-          setState(() {
-            _toggled = details.localPosition.dx > width / 2;
-          });
-        },
-        child: Actor(
-          acts: [
-            ScaleAct.keyframed(
-              frames: .fractional([
-                .key(1.1, at: .4),
-                .key(1.1, at: .6),
-                .key(1.0, at: 1.0),
-              ]),
-            ),
-          ],
-          child: Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(
-              color: trackColor,
-              borderRadius: .circular(32),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: .1),
-                  blurRadius: 12,
-                  offset: Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Stack(
-              fit: .expand,
-              children: [
-                PositionActor.keyframed(
-                  frames: .fractional([
-                    .key(Position.fill(end: .5), at: .0),
-                    .key(Position.fill(end: 0, top: .15, bottom: .15), at: .45),
-                    .key(Position.fill(end: 0, top: .15, bottom: .15), at: .55),
-                    .key(Position.fill(start: .5), at: 1.0),
-                  ]),
-                  relativeTo: Size(width, height),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: thumbColor,
-                      borderRadius: .circular(32),
+      child: CueDragScrubber(
+        axis: .horizontal,
+        distance: width,
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              _toggled = !_toggled;
+            });
+          },
+          child: Actor(
+            acts: [
+              ScaleAct.keyframed(
+                frames: .fractional([
+                  .key(1.1, at: .4),
+                  .key(1.1, at: .6),
+                  .key(1.0, at: 1.0),
+                ]),
+              ),
+            ],
+            child: Container(
+              width: width,
+              height: height,
+              decoration: BoxDecoration(
+                color: trackColor,
+                borderRadius: .circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.shadow.withValues(alpha: .1),
+                    blurRadius: 12,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Stack(
+                fit: .expand,
+                children: [
+                  PositionActor.keyframed(
+                    frames: .fractional([
+                      .key(Position.fill(end: .5), at: .0),
+                      .key(Position.fill(end: 0, top: .15, bottom: .15), at: .45),
+                      .key(Position.fill(end: 0, top: .15, bottom: .15), at: .55),
+                      .key(Position.fill(start: .5), at: 1.0),
+                    ]),
+                    relativeTo: Size(width, height),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: thumbColor,
+                        borderRadius: .circular(32),
+                      ),
                     ),
                   ),
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DecoratedBoxActor(
-                        shape: .circle,
-                        color: .tween(from: trackColor, to: thumbColor),
-                        motion: .linear(duration * .5),
-                        reverse: .mirror(delay: duration * .5),
-                        child: SizedBox.square(dimension: width * .16),
-                      ),
-                    ),
-                    Expanded(
-                      child: Center(
+                  Row(
+                    children: [
+                      Expanded(
                         child: DecoratedBoxActor(
-                          color: .tween(from: thumbColor, to: trackColor),
-                          borderRadius: .tween(from: .circular(width * .2), to: .circular(width * .2)),
+                          shape: .circle,
+                          color: .tween(trackColor,thumbColor),
                           motion: .linear(duration * .5),
-                          delay: duration * .5,
-                          child: SizedBox(width: width * .08, height: width * .22),
+                          reverse: .mirror(delay: duration * .5),
+                          child: SizedBox.square(dimension: width * .16),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      Expanded(
+                        child: Center(
+                          child: DecoratedBoxActor(
+                            color: .tween(thumbColor, trackColor),
+                            borderRadius: .tween(.circular(width * .2), .circular(width * .2)),
+                            motion: .linear(duration * .5),
+                            delay: duration * .5,
+                            child: SizedBox(width: width * .08, height: width * .22),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

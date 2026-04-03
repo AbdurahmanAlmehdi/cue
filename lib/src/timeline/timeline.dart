@@ -110,33 +110,33 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
   AnimationStatus _status = AnimationStatus.dismissed;
 
   @override
-  void setProgress(double value, {bool forward = true}) {
+  void setProgress(double value, {bool forward = true , bool forceLinear = false}) {
     _repeatConfig = null;
     if (forward) {
-      _setForwardProgress(value);
+      _setForwardProgress(value, forceLinear: forceLinear);
     } else {
-      _setReverseProgress(value);
+      _setReverseProgress(value, forceLinear: forceLinear);
     }
     _updateStatus();
   }
 
-  void _setForwardProgress(double value) {
+  void _setForwardProgress(double value, {bool forceLinear = false}) {
     final timelineDuration = forwardDuration;
     for (final entry in tracks.entries) {
       final track = entry.value.track;
       final normalized = (value * timelineDuration / track.forwardDuration).clamp(0.0, 1.0);
-      track.setProgress(normalized, forward: true);
+      track.setProgress(normalized, forward: true, forceLinear: forceLinear);
     }
   }
 
-  void _setReverseProgress(double value) {
+  void _setReverseProgress(double value, {bool forceLinear = false}) {
     final timelineDuration = reverseDuration;
     for (final entry in tracks.entries) {
       final track = entry.value.track;
       final idleRatio = (1.0 - (track.reverseDuration / timelineDuration));
       final adjustedValue = (value - idleRatio);
       final normalized = (adjustedValue / (track.reverseDuration / timelineDuration)).clamp(0.0, 1.0);
-      track.setProgress(normalized, forward: false);
+      track.setProgress(normalized, forward: false, forceLinear: forceLinear);
     }
   }
 
@@ -280,7 +280,7 @@ abstract class CueTimeline extends Simulation with EventNotifier<TimelineEvent> 
 
   void willAnimate({required bool forward});
 
-  void setProgress(double value, {bool forward = true});
+  void setProgress(double value, {bool forward = true , bool forceLinear = false});
 
   void reset();
 
@@ -303,7 +303,7 @@ abstract class CueTimeline extends Simulation with EventNotifier<TimelineEvent> 
         longest = entry;
       }
     }
-    return longest.track.progress;
+    return longest.track.progress.clamp(0.0, 1.0);
   }
 
   final Map<TrackConfig, TrackEntry> tracks;

@@ -15,7 +15,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Cue(
-            timeline: timeline,
+            controller: timeline,
             child: Builder(
               builder: (context) {
                 scope = CueScope.of(context);
@@ -26,7 +26,7 @@ void main() {
         ),
       );
 
-      expect(scope.timeline, same(timeline));
+      expect(scope.controller, same(timeline));
       expect(scope.mainConfig, equals(timeline.mainTrackConfig));
     });
 
@@ -51,13 +51,13 @@ void main() {
       final timeline2 = CueTimelineImpl.fromMotion(CueMotion.linear(500.ms));
 
       final scope1 = CueScope(
-        timeline: timeline1,
+        controller: timeline1,
         mainConfig: timeline1.mainTrackConfig,
         reanimateFromCurrent: false,
         child: const SizedBox(),
       );
       final scope2 = CueScope(
-        timeline: timeline2,
+        controller: timeline2,
         mainConfig: timeline2.mainTrackConfig,
         reanimateFromCurrent: false,
         child: const SizedBox(),
@@ -70,13 +70,13 @@ void main() {
       final timeline = CueTimelineImpl.fromMotion(CueMotion.linear(300.ms));
 
       final scope1 = CueScope(
-        timeline: timeline,
+        controller: timeline,
         mainConfig: timeline.mainTrackConfig,
         reanimateFromCurrent: false,
         child: const SizedBox(),
       );
       final scope2 = CueScope(
-        timeline: timeline,
+        controller: timeline,
         mainConfig: timeline.mainTrackConfig,
         reanimateFromCurrent: true,
         child: const SizedBox(),
@@ -98,13 +98,13 @@ void main() {
       final timeline = CueTimelineImpl.fromMotion(CueMotion.linear(300.ms));
 
       final scope1 = CueScope(
-        timeline: timeline,
+        controller: timeline,
         mainConfig: config1,
         reanimateFromCurrent: false,
         child: const SizedBox(),
       );
       final scope2 = CueScope(
-        timeline: timeline,
+        controller: timeline,
         mainConfig: config2,
         reanimateFromCurrent: false,
         child: const SizedBox(),
@@ -118,13 +118,13 @@ void main() {
       final config = timeline.mainTrackConfig;
 
       final scope1 = CueScope(
-        timeline: timeline,
+        controller: timeline,
         mainConfig: config,
         reanimateFromCurrent: false,
         child: const SizedBox(),
       );
       final scope2 = CueScope(
-        timeline: timeline,
+        controller: timeline,
         mainConfig: config,
         reanimateFromCurrent: false,
         child: const SizedBox(),
@@ -136,7 +136,7 @@ void main() {
     testWidgets('reanimateFromCurrent is accessible', (tester) async {
       final timeline = CueTimelineImpl.fromMotion(CueMotion.linear(300.ms));
       final scope = CueScope(
-        timeline: timeline,
+        controller: timeline,
         mainConfig: timeline.mainTrackConfig,
         reanimateFromCurrent: true,
         child: const SizedBox(),

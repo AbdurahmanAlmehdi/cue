@@ -21,7 +21,7 @@ class OnScrollVisibleCueState extends CueState<OnScrollVisibleCue> with SingleTi
   String get debugName => 'OnScrollVisibleCue';
 
   @override
-  CueTimeline get timeline => _controller.timeline;
+  CueController get controller => _controller;
 
   late final CueController _controller = CueController(vsync: this, motion: .linear(Duration(milliseconds: 500)));
   ScrollPosition? _scrollPosition;

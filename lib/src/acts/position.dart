@@ -1,10 +1,9 @@
 part of 'base/act.dart';
 
 class PositionAct extends TweenAct<Position> {
-
   @override
   final ActKey key = const ActKey('Position');
-  
+
   final Size? _relativeTo;
 
   const PositionAct({
@@ -75,8 +74,7 @@ class PositionAct extends TweenAct<Position> {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
-    return other is PositionAct && super == other
-        && other._relativeTo == _relativeTo;
+    return other is PositionAct && super == other && other._relativeTo == _relativeTo;
   }
 
   @override
@@ -108,6 +106,28 @@ class Position {
     this.bottom = 0,
   }) : width = null,
        height = null;
+
+  const Position.fromSTEB(this.start, this.top, this.end, this.bottom) : width = null, height = null;
+
+  const Position.topStart({
+    double top = 0,
+    double start = 0,
+  }) : this(top: top, start: start);
+
+  const Position.topEnd({
+    double top = 0,
+    double end = 0,
+  }) : this(top: top, end: end);
+
+  const Position.bottomStart({
+    double bottom = 0,
+    double start = 0,
+  }) : this(bottom: bottom, start: start);
+
+  const Position.bottomEnd({
+    double bottom = 0,
+    double end = 0,
+  }) : this(bottom: bottom, end: end);
 
   Position _relative(Size size) {
     return Position(

@@ -62,7 +62,7 @@ class ActorState extends State<Actor> {
     for (final entry in List.of(_animations.entries)) {
       if (!actKeys.contains(entry.key)) {
         if (_animations.remove(entry.key) case final cacheEntry?) {
-          scope.timeline.release(cacheEntry.releaseToken);
+          cacheEntry.animation.release();
         }
       }
     }
@@ -74,14 +74,14 @@ class ActorState extends State<Actor> {
       if (existing?.act == act) continue;
       final implicitFrom = scope.reanimateFromCurrent ? _animationSnapshots[act.key] : null;
       final animation = act.buildAnimation(
-        scope.timeline,
+        scope.controller.timeline,
         actContext.copyWith(
           textDirection: textDirection,
           implicitFrom: implicitFrom,
         ),
       );
-      if (existing?.releaseToken case final trackConfig?) {
-        scope.timeline.release(trackConfig);
+      if (existing?.animation case final animation?) {
+        animation.release();
       }
       _animations[act.key] = _CacheEntry(act, animation);
     }
@@ -96,7 +96,7 @@ class ActorState extends State<Actor> {
         widget.motion != oldWidget.motion ||
         widget.reverseMotion != oldWidget.reverseMotion) {
       final scope = CueScope.of(context);
-      _resolveActs(scope.mainConfig);
+      _resolveActs(scope.controller.timeline.mainTrackConfig);
       _setupAnimations(scope);
     }
   }
@@ -120,7 +120,7 @@ class ActorState extends State<Actor> {
 
   void _clearCache(CueScope scope) {
     for (final entry in _animations.values) {
-      scope.timeline.release(entry.releaseToken);
+      entry.animation.release();
     }
     _animations.clear();
     _animationSnapshots.clear();
@@ -132,12 +132,12 @@ class ActorState extends State<Actor> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final scope = CueScope.of(context);
-    if (_cachedScope?.timeline != scope.timeline) {
+    if (_cachedScope?.controller != scope.controller) {
       _eventsDisposer?.call();
-      _eventsDisposer = scope.timeline.addEventListener<TimelineEvent>((_) => _onWillAnimate());
+      _eventsDisposer = scope.controller.addEventListener<TimelineEvent>((_) => _onWillAnimate());
     }
-    if (_cachedScope?.timeline != scope.timeline || _cachedScope?.mainConfig != scope.mainConfig) {
-      _resolveActs(scope.mainConfig);
+    if (_cachedScope?.controller != scope.controller ) {
+      _resolveActs(scope.controller.timeline.mainTrackConfig);
       _clearCache(scope);
       _setupAnimations(scope);
     }
@@ -175,7 +175,6 @@ class _CacheEntry {
   final Act act;
   final CueAnimation<Object?> animation;
   _CacheEntry(this.act, this.animation);
-  ReleaseToken get releaseToken => animation.token;
   Object? get value => animation.value;
 }
 

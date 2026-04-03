@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
+typedef EventDisposer = void Function();
+
 /// A ChangeNotifier that allows listeners to receive data when notified
 mixin class EventNotifier<T> {
   final List<void Function(T)> _eventListeners = [];
 
   bool _disposed = false;
 
-  VoidCallback addEventListener<E extends T>(void Function(E) listener) {
+  EventDisposer addEventListener<E extends T>(void Function(E) listener) {
     assert(!_disposed, 'Cannot add event listener to a disposed EventNotifier');
     void wrapper(T event) {
       if (event is E) listener(event);

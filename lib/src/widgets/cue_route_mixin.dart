@@ -30,7 +30,7 @@ mixin CueModalRouteMixin<T extends Object?> on ModalRoute<T> {
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
     return Cue(
-      timeline: (controller as CueController).timeline,
+      controller: (controller as CueController),
       child: ListenableBuilder(
         listenable: _isCurrentNotifer,
         child: super.buildPage(context, animation, secondaryAnimation),

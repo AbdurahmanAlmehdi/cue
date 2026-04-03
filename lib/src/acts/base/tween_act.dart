@@ -136,8 +136,6 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animta
     }
   }
 
-
-
   @override
   (CueAnimtable<R> animtable, CueAnimtable<R>? reverseAnimtable) buildTweens(ActContext context) {
     if (reverse.type == ReverseBehaviorType.exclusive) {
@@ -314,7 +312,7 @@ class AnimatableValue<T> {
 
   const AnimatableValue.fixed(T value) : from = value, to = value;
 
-  const AnimatableValue.tween({required this.from, required this.to});
+  const AnimatableValue.tween(this.from, this.to);
 
   bool get isConstant => from == to;
 

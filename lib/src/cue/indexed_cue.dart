@@ -17,8 +17,9 @@ class IndexedCue extends Cue {
   State<StatefulWidget> createState() => _IndexedCueState();
 }
 
-class _IndexedCueState extends CueState<IndexedCue> {
-  final _progressTimeline = CueTimelineImpl.fromMotion(.linear(500.ms));
+class _IndexedCueState extends CueState<IndexedCue> with SingleTickerProviderStateMixin {
+  
+  late final _controller = CueController(vsync: this, motion: const .linear(Duration(milliseconds: 500)));
 
   @override
   String get debugName => 'IndexedCue';
@@ -27,6 +28,7 @@ class _IndexedCueState extends CueState<IndexedCue> {
   String get _debugId => '$debugName-${widget.controller.hashCode}-${widget.index}';
 
   Listenable get listenable => widget.controller.tickListenable;
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +45,7 @@ class _IndexedCueState extends CueState<IndexedCue> {
   void _updateAnimation() {
     final forward = widget.controller.globalOffset < widget.index;
     final value = widget.controller.valueFor(widget.index);
-    _progressTimeline.setProgress(value, forward: forward);
+    _controller.setProgress(value, forward: forward);
   }
 
   @override
@@ -57,7 +59,7 @@ class _IndexedCueState extends CueState<IndexedCue> {
   }
 
   @override
-  CueTimeline get timeline => _progressTimeline;
+  CueController get controller => _controller;
 }
 
 mixin IndexedCueController implements Listenable {

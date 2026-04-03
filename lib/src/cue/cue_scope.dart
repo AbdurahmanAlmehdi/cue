@@ -4,13 +4,11 @@ class CueScope extends InheritedWidget {
   const CueScope({
     super.key,
     required super.child,
-    required this.timeline,
-    required this.mainConfig,
+    required this.controller,
     required this.reanimateFromCurrent,
   });
 
-  final CueTimeline timeline;
-  final TrackConfig mainConfig;
+  final CueController controller;
   final bool reanimateFromCurrent;
 
   static CueScope of(BuildContext context) {
@@ -19,10 +17,13 @@ class CueScope extends InheritedWidget {
     return cue!;
   }
 
+  static CueScope? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<CueScope>();
+  }
+
   @override
   bool updateShouldNotify(covariant CueScope oldWidget) {
-    return timeline != oldWidget.timeline ||
-        mainConfig != oldWidget.mainConfig ||
+    return controller != oldWidget.controller ||
         reanimateFromCurrent != oldWidget.reanimateFromCurrent;
   }
 }

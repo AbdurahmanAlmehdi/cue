@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cue/cue.dart';
-import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -36,7 +35,7 @@ abstract class Cue extends StatefulWidget {
     Key? key,
     String? debugLabel,
     List<Act>? acts,
-    required CueTimeline timeline,
+    required CueController controller,
     required Widget child,
   }) = _ControlledCue;
 
@@ -165,14 +164,13 @@ abstract class CueState<T extends Cue> extends State<Cue> {
               _deattachDebugOverlay = CueDebugTools.attachDebugTarget(
                 context,
                 id: _debugId,
-                track: timeline.mainTrack,
+                controller: controller,
               );
             });
           }
         }
-
-        timeline.removeStatusListener(statusListener);
-        timeline.addStatusListener(statusListener);
+        controller.removeStatusListener(statusListener);
+        controller.addStatusListener(statusListener);
       }
     }
   }
@@ -189,27 +187,12 @@ abstract class CueState<T extends Cue> extends State<Cue> {
     if (widget.acts != null) {
       child = Actor(acts: widget.acts!, child: child);
     }
-    if (kDebugMode) {
-      final debugToolsScope = CueDebugTools.maybeOf(context);
-      if (debugToolsScope != null) {
-        final isActive = debugToolsScope.activeTargetId == _debugId;
-        final useDebugAnimation = !debugToolsScope.isMinimized && isActive;
-        final timeline = useDebugAnimation ? debugToolsScope.timeline : this.timeline;
-        return CueScope(
-          reanimateFromCurrent: reanimateFromCurrent,
-          timeline: timeline,
-          mainConfig: timeline.mainTrackConfig,
-          child: child,
-        );
-      }
-    }
     return CueScope(
-      timeline: timeline,
-      mainConfig: timeline.mainTrackConfig,
+      controller: controller,
       reanimateFromCurrent: reanimateFromCurrent,
       child: child,
     );
   }
 
-  CueTimeline get timeline;
+  CueController get controller;
 }

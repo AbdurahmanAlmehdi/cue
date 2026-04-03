@@ -5,21 +5,21 @@ class _ControlledCue extends Cue {
     super.key,
     required super.child,
     super.debugLabel,
-    required this.timeline,
+    required this.controller,
     super.acts,
   }) : super._();
 
-  final CueTimeline timeline;
+  final CueController controller;
 
   @override
   State<StatefulWidget> createState() => _ControlledCueState();
 }
 
 class _ControlledCueState extends CueState<_ControlledCue> {
-
+  
   @override
   String get debugName => 'ControlledCue';
 
   @override
-  CueTimeline get timeline => widget.timeline;
+  CueController get controller => widget.controller;
 }

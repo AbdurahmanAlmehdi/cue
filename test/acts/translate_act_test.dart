@@ -177,7 +177,7 @@ void main() {
         Directionality(
           textDirection: TextDirection.ltr,
           child: Cue(
-            timeline: timeline,
+            controller: timeline,
             acts: [TranslateAct.fromX(from: 0, to: 100)],
             child: Container(width: 50, height: 50),
           ),
@@ -196,7 +196,7 @@ void main() {
         Directionality(
           textDirection: TextDirection.ltr,
           child: Cue(
-            timeline: timeline,
+            controller: timeline,
             acts: [TranslateAct.y(from: 0, to: 100)],
             child: Container(width: 50, height: 50),
           ),
@@ -256,7 +256,7 @@ void main() {
                 child: SizedBox(width: 50, height: 50),
               ),
               Cue(
-                timeline: timeline,
+                controller: timeline,
                 acts: [TranslateAct.fromGlobal(offset: Offset(100, 100))],
                 child: SizedBox(width: 50, height: 50),
               ),
@@ -277,7 +277,7 @@ void main() {
           child: Stack(
             children: [
               Cue(
-                timeline: timeline,
+                controller: timeline,
                 acts: [TranslateAct.fromGlobalRect(Rect.fromLTWH(100, 100, 200, 200))],
                 child: SizedBox(width: 50, height: 50),
               ),
@@ -305,7 +305,7 @@ void main() {
                 child: SizedBox(width: 50, height: 50),
               ),
               Cue(
-                timeline: timeline,
+                controller: timeline,
                 acts: [TranslateAct.fromGlobalKey(targetKey)],
                 child: SizedBox(width: 50, height: 50),
               ),
@@ -326,7 +326,7 @@ void main() {
         Directionality(
           textDirection: TextDirection.ltr,
           child: Cue(
-            timeline: timeline,
+            controller: timeline,
             acts: [TranslateAct.fromGlobal(offset: Offset(100, 100))],
             child: Container(width: 50, height: 50),
           ),
@@ -340,7 +340,7 @@ void main() {
         Directionality(
           textDirection: TextDirection.ltr,
           child: Cue(
-            timeline: timeline,
+            controller: timeline,
             acts: [TranslateAct.fromGlobal(offset: Offset(200, 200))],
             child: SizedBox(width: 50, height: 50),
           ),
@@ -359,7 +359,7 @@ void main() {
         Directionality(
           textDirection: TextDirection.ltr,
           child: Cue(
-            timeline: timeline,
+            controller: timeline,
             acts: [TranslateAct.fromGlobalRect(Rect.fromLTWH(100, 100, 200, 200))],
             child: SizedBox(width: 50, height: 50),
           ),
@@ -373,7 +373,7 @@ void main() {
         Directionality(
           textDirection: TextDirection.ltr,
           child: Cue(
-            timeline: timeline,
+            controller: timeline,
             acts: [TranslateAct.fromGlobalRect(Rect.fromLTWH(150, 150, 250, 250))],
             child: SizedBox(width: 50, height: 50),
           ),
@@ -400,7 +400,7 @@ void main() {
                 child: SizedBox(width: 50, height: 50),
               ),
               Cue(
-                timeline: timeline,
+                controller: timeline,
                 acts: [TranslateAct.fromGlobalKey(targetKey)],
                 child: SizedBox(width: 50, height: 50),
               ),

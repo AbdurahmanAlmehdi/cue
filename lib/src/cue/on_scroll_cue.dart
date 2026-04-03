@@ -17,7 +17,7 @@ class _OnScrollCueState extends CueState<OnScrollCue> with SingleTickerProviderS
   String get debugName => 'OnScrollCue';
 
   @override
-  CueTimeline get timeline => _controller.timeline;
+  CueController get controller => _controller;
 
   late final _controller = CueController(vsync: this, motion: .linear(500.ms));
 

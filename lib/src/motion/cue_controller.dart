@@ -1,5 +1,6 @@
 import 'package:cue/cue.dart';
 import 'package:cue/src/acts/base/tween_act.dart';
+import 'package:cue/src/timeline/event_notifier.dart';
 import 'package:cue/src/timeline/track/track.dart';
 import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/material.dart';
@@ -170,9 +171,9 @@ class CueController extends AnimationController {
     setProgress(newValue.clamp(0, 1), forward: status.isForwardOrCompleted);
   }
 
-  void setProgress(double newValue, {bool forward = true}) {
+  void setProgress(double newValue, {bool forward = true, bool forceLinear = false}) {
     assert(newValue >= 0.0 && newValue <= 1.0, 'The animation value must be between 0.0 and 1.0. Received: $newValue');
-    timeline.setProgress(newValue, forward: forward);
+    timeline.setProgress(newValue, forward: forward, forceLinear: forceLinear);
     super.value = newValue;
   }
 
@@ -189,6 +190,11 @@ class CueController extends AnimationController {
     timeline.removeStatusListener(listener);
   }
 
+  EventDisposer addEventListener<T extends TimelineEvent>(ValueChanged<T> listener) {
+   return timeline.addEventListener(listener);
+  }
+
+ 
   @override
   Animation<double> get view => _timeline.mainTrack;
 
@@ -212,6 +218,7 @@ class CueController extends AnimationController {
       assert(from >= 0.0 && from <= 1.0, 'The "from" value must be between 0.0 and 1.0. Received: $from');
     }
     _timeline.prepare(forward: false, from: from);
+
     if (from != null) {
       super.value = from;
     }

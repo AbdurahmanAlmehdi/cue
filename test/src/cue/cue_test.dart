@@ -12,7 +12,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Cue(
-            timeline: timeline,
+            controller: timeline,
             child: const Text('hello'),
           ),
         ),
@@ -27,7 +27,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Cue(
-            timeline: timeline,
+            controller: timeline,
             child: Builder(
               builder: (context) {
                 scope = CueScope.of(context);
@@ -38,7 +38,7 @@ void main() {
         ),
       );
 
-      expect(scope.timeline, same(timeline));
+      expect(scope.controller, same(timeline));
       expect(scope.reanimateFromCurrent, isFalse);
     });
   });
@@ -49,7 +49,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Cue(
-            timeline: timeline,
+            controller: timeline,
             acts: const [OpacityAct(from: 0.0, to: 1.0)],
             child: const Text('acted'),
           ),
@@ -65,7 +65,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Cue(
-            timeline: timeline,
+            controller: timeline,
             child: const Text('plain'),
           ),
         ),

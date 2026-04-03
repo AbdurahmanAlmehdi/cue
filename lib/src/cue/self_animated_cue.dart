@@ -1,7 +1,5 @@
 part of 'cue.dart';
 
-
-
 abstract class SelfAnimatedCue extends Cue {
   const SelfAnimatedCue({
     super.key,
@@ -25,15 +23,13 @@ abstract class SelfAnimatedCue extends Cue {
 }
 
 abstract class SelfAnimatedCueState<T extends SelfAnimatedCue> extends CueState<T> with SingleTickerProviderStateMixin {
-
+  
+  @override
   late final CueController controller;
 
   CueMotion get motion => widget.motion;
 
   CueMotion? get reverseMotion => widget.reverseMotion;
-
-  @override
-  CueTimeline get timeline => controller.timeline;
 
   AnimationStatusListener? _statusListener;
 
@@ -41,7 +37,7 @@ abstract class SelfAnimatedCueState<T extends SelfAnimatedCue> extends CueState<
   void initState() {
     super.initState();
     _createController();
-    if(widget.onEnd != null) {
+    if (widget.onEnd != null) {
       _updateStatusListener();
     }
     _updateStatusListener();
@@ -49,14 +45,14 @@ abstract class SelfAnimatedCueState<T extends SelfAnimatedCue> extends CueState<
   }
 
   void _updateStatusListener() {
-    if (_statusListener != null ) {
+    if (_statusListener != null) {
       controller.removeStatusListener(_statusListener!);
     }
     _statusListener = (status) {
       if (status.isCompleted) {
-          widget.onEnd?.call(true);
+        widget.onEnd?.call(true);
       } else if (status.isDismissed) {
-          widget.onEnd?.call(false);
+        widget.onEnd?.call(false);
       }
     };
     controller.addStatusListener(_statusListener!);
@@ -76,17 +72,6 @@ abstract class SelfAnimatedCueState<T extends SelfAnimatedCue> extends CueState<
     super.didUpdateWidget(oldWidget);
     if (oldWidget.motion != motion || oldWidget.reverseMotion != reverseMotion) {
       controller.updateMotion(motion, reverseMotion: reverseMotion);
-      if (kDebugMode) {
-        final debugToolScope = CueDebugTools.maybeOf(context);
-        if (debugToolScope != null) {
-          debugToolScope.timeline.resetTracks(
-            TrackConfig(
-              motion: motion,
-              reverseMotion: reverseMotion ?? motion,
-            ),
-          );
-        }
-      }
     }
     if (oldWidget.onEnd != widget.onEnd) {
       _updateStatusListener();

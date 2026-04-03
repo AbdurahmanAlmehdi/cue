@@ -46,14 +46,14 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
 
   bool _forward = true;
 
-  (double, int) _valueAtProgress(double progress, bool forward) {
+  (double, int) _valueAtProgress(double progress, bool forward, {bool forceLinear = false}) {
     final sim = forward ? _seekableSim : _seekableReverseSim;
     progress = forward ? progress : (1.0 - progress);
-    return sim.valueAtProgress(progress);
+    return sim.valueAtProgress(progress, forceLinear: forceLinear);
   }
 
   @override
-  void setProgress(double t, {bool forward = true, bool alwaysNotify = false}) {
+  void setProgress(double t, {bool forward = true, bool alwaysNotify = false , bool forceLinear = false}) {
     assert(t >= 0.0 && t <= 1.0, 'Progress value must be between 0.0 and 1.0. Received: $t');
     _forward = forward;
     _needsPrepare = true;
@@ -61,10 +61,10 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
     double value = _value;
     int phase = _phase;
     if (forward && !reverseType.isExclusive) {
-      (value, phase) = _valueAtProgress(t, true);
+      (value, phase) = _valueAtProgress(t, true, forceLinear: forceLinear);
       _done = t >= 1.0;
     } else if (!forward && !reverseType.isNone) {
-      (value, phase) = _valueAtProgress(t, false);
+      (value, phase) = _valueAtProgress(t, false, forceLinear: forceLinear);
       _done = t <= 0.0;
     } else {
       _done = true;
@@ -120,6 +120,7 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
       _value = sim.x(_localT);
       _phase = sim.phase;
     }
+
 
     final (targetValue, targetPhase) = target == null ? (null, null) : _valueAtProgress(target, forward);
     _activeSim = active.build(
@@ -219,7 +220,7 @@ abstract class CueTrack extends Animation<double> with AnimationLocalListenersMi
 
   void tick(double td);
 
-  void setProgress(double t, {bool forward = true, bool alwaysNotify = false});
+  void setProgress(double t, {bool forward = true, bool alwaysNotify = false, bool forceLinear = false});
 
   bool get isDone;
 

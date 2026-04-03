@@ -47,7 +47,7 @@ class _IndicatorToButton2State extends State<IndicatorToButton2> {
             listenable: _pageController,
             progress: () => _pageController.page ?? 0.0,
             max: lastIndex,
-            acts: [.fractionalSize(widthFactor: .tween(from: .4, to: 1))],
+            acts: [.fractionalSize(widthFactor: .tween(.4, 1))],
             child: Cue.indexed(
               index: lastIndex.toInt(),
               controller: _pageController,
