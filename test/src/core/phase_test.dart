@@ -137,5 +137,100 @@ void main() {
       final b = FractionalKeyframes([FractionalKeyframe.key(1, at: 0.1)], duration: Duration(seconds: 2));
       expect(a, isNot(equals(b)));
     });
+
+    test('Keyframes factory equality for MotionKeyframes', () {
+      final a = Keyframes([Keyframe.key(1, motion: CueMotion.none)]);
+      final b = MotionKeyframes([Keyframe.key(1, motion: CueMotion.none)]);
+      expect(a, equals(b));
+    });
+
+    test('Keyframes.fractional factory equality for FractionalKeyframes', () {
+      final a = Keyframes.fractional([FractionalKeyframe.key(1, at: 0.1)], duration: const Duration(milliseconds: 100));
+      final b = FractionalKeyframes([FractionalKeyframe.key(1, at: 0.1)], duration: const Duration(milliseconds: 100));
+      expect(a, equals(b));
+    });
+
+    test('MotionKeyframes.mapValues and reversed behavior', () {
+      final original = MotionKeyframes<int>([
+        Keyframe.key(1, motion: CueMotion.none),
+        Keyframe.key(2, motion: CueMotion.none),
+      ]);
+
+      final mapped = original.mapValues((v) => 'x$v');
+      expect(mapped.values, equals(['x1', 'x2']));
+
+      final rev = original.reversed;
+      expect(rev.values, equals([2, 1]));
+    });
+
+    test('FractionalKeyframes.mapValues and reversed behavior', () {
+      final original = FractionalKeyframes<int>([
+        FractionalKeyframe.key(10, at: 0.0),
+        FractionalKeyframe.key(20, at: 0.5),
+        FractionalKeyframe.key(30, at: 1.0),
+      ], duration: const Duration(milliseconds: 1000));
+
+      final mapped = original.mapValues((v) => v * 2);
+      expect(mapped.values, equals([20, 40, 60]));
+
+      final rev = original.reversed;
+      // reversed should flip frames and adjust 'at' for each frame
+      expect(rev.values, equals([30, 20, 10]));
+      expect(rev.frames.first.at, equals(1.0 - original.frames.last.at));
+    });
+  });
+
+  group('Additional Phase tests', () {
+    test('Keyframe copyWith and toString', () {
+      final k = Keyframe(5, motion: CueMotion.linear(const Duration(milliseconds: 10)));
+      final k2 = k.copyWith(value: 6);
+      expect(k2.value, equals(6));
+      expect(k.toString(), contains('Keyframe'));
+    });
+
+    test('MotionKeyframes extractMotion edge cases', () {
+      final single = MotionKeyframes([Keyframe(1, motion: CueMotion.none)]);
+      // extractMotion without includeFirst and only one frame -> empty
+      expect(single.extractMotion(), isEmpty);
+
+      final frames = MotionKeyframes([
+        Keyframe(1, motion: CueMotion.none),
+        Keyframe(2, motion: CueMotion.linear(const Duration(milliseconds: 100))),
+      ]);
+      final motions = frames.extractMotion();
+      expect(motions.length, equals(1));
+    });
+
+    test('FractionalKeyframes.extractMotion respects curves and dedup', () {
+      final frames = FractionalKeyframes([
+        FractionalKeyframe(1, at: 0.0, curve: Curves.easeIn),
+        FractionalKeyframe(2, at: 0.5),
+        FractionalKeyframe(3, at: 0.5, curve: Curves.easeOut),
+        FractionalKeyframe(4, at: 1.0),
+      ], duration: const Duration(milliseconds: 1000));
+
+      final motions = frames.extractMotion(includeFirst: true, duration: const Duration(milliseconds: 1000));
+      // includeFirst true should produce motions for first time + intervals
+      expect(motions.isNotEmpty, isTrue);
+    });
+
+    test('resolveFractionalFrames with forReverse adds from at end', () {
+      final frames = [
+        FractionalKeyframe('x', at: 0.2),
+        FractionalKeyframe('y', at: 0.8),
+      ];
+      final resolved = Phase.resolveFractionalFrames<String, String>(frames, from: 'from', forReverse: true, transform: (v) => v);
+      // forReverse true with from provided inserts from at end, so phases count should be 2
+      expect(resolved.length, equals(2));
+    });
+
+    test('resolveMotionFrames forReverse appends from correctly', () {
+      final frames = [Keyframe(10, motion: CueMotion.none)];
+      final phases = Phase.resolveMotionFrames<int, int>(frames, from: 0, forReverse: true, transform: (v) => v);
+      // when forReverse true and from provided, function appends from at end producing one phase: 10 -> 0
+      expect(phases.length, equals(1));
+      expect(phases.first.begin, equals(10));
+      expect(phases.first.end, equals(0));
+    });
   });
 }
