@@ -73,17 +73,6 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
   }
 
   @override
-  void resetTracks(TrackConfig newDefaultConfig) {
-    // Note: defaultConfig is final so we can't change it.
-    // This implementation clears extra tracks but doesn't change the main track.
-    _tracks.clear();
-    _forwardDuration = null;
-    _reverseDuration = null;
-    // Recreate default track
-    _tracks[defaultConfig] = TrackEntry(buildTrack(defaultConfig));
-  }
-
-  @override
   (CueTrack track, ReleaseToken token) obtainTrack(TrackConfig config) {
     final entry = tracks.putIfAbsent(
       config,
@@ -345,8 +334,6 @@ abstract class CueTimeline extends Simulation with EventNotifier<TimelineEvent> 
   CueTrack buildTrack(TrackConfig config);
 
   TrackConfig get defaultConfig;
-
-  void resetTracks(TrackConfig newDefaultConfig);
 
   @override
   void dispose();
