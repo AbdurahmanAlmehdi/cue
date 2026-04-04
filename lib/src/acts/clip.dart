@@ -7,13 +7,13 @@ abstract class ClipAct extends Act {
     bool useSuperellipse,
     CueMotion? motion,
     Duration delay,
-  }) = _ClipEffect;
+  }) = PathClipAct;
 
   const factory ClipAct.circular({
     AlignmentGeometry alignment,
     CueMotion? motion,
     Duration delay,
-  }) = _ClipEffect.circular;
+  }) = PathClipAct.circular;
 
   const factory ClipAct.width({
     double fromFactor,
@@ -21,7 +21,7 @@ abstract class ClipAct extends Act {
     AlignmentGeometry alignment,
     CueMotion? motion,
     Duration delay,
-  }) = _AxisClipEffect.horizontal;
+  }) = AxisClipAct.horizontal;
 
   const factory ClipAct.height({
     double fromFactor,
@@ -29,17 +29,17 @@ abstract class ClipAct extends Act {
     AlignmentGeometry alignment,
     CueMotion? motion,
     Duration delay,
-  }) = _AxisClipEffect.vertical;
+  }) = AxisClipAct.vertical;
 }
 
-class _AxisClipEffect extends TweenAct<double> implements ClipAct {
+class AxisClipAct extends TweenAct<double> implements ClipAct {
   @override
   ActKey get key => const ActKey('Clip');
 
   final Axis _axis;
   final AlignmentGeometry alignment;
 
-  const _AxisClipEffect.horizontal({
+  const AxisClipAct.horizontal({
     double fromFactor = 0,
     double toFactor = 1,
     this.alignment = AlignmentDirectional.centerStart,
@@ -48,7 +48,7 @@ class _AxisClipEffect extends TweenAct<double> implements ClipAct {
   }) : _axis = Axis.horizontal,
        super.tween(from: fromFactor, to: toFactor);
 
-  const _AxisClipEffect.vertical({
+  const AxisClipAct.vertical({
     double fromFactor = 0,
     double toFactor = 1,
     this.alignment = AlignmentDirectional.topCenter,
@@ -81,7 +81,7 @@ class _AxisClipEffect extends TweenAct<double> implements ClipAct {
   bool operator ==(Object other) {
     return identical(this, other) ||
         super == other &&
-            other is _AxisClipEffect &&
+            other is AxisClipAct &&
             super == other &&
             _axis == other._axis &&
             alignment == other.alignment;
@@ -91,8 +91,7 @@ class _AxisClipEffect extends TweenAct<double> implements ClipAct {
   int get hashCode => Object.hash(super.hashCode, _axis, alignment);
 }
 
-class _ClipEffect extends TweenAct<double> implements ClipAct {
-
+class PathClipAct extends TweenAct<double> implements ClipAct {
 
   @override
   ActKey get key => const ActKey('Clip');
@@ -101,7 +100,7 @@ class _ClipEffect extends TweenAct<double> implements ClipAct {
   final AlignmentGeometry? alignment;
   final bool useSuperellipse;
 
-  const _ClipEffect({
+  const PathClipAct({
     BorderRadiusGeometry this.borderRadius = BorderRadius.zero,
     this.alignment,
     super.motion,
@@ -111,7 +110,7 @@ class _ClipEffect extends TweenAct<double> implements ClipAct {
     super.delay,
   }) : super.tween();
 
-  const _ClipEffect.circular({
+  const PathClipAct.circular({
     this.alignment,
     super.motion,
     super.from = 0,
@@ -158,7 +157,7 @@ class _ClipEffect extends TweenAct<double> implements ClipAct {
   bool operator ==(Object other) {
     return identical(this, other) ||
         super == other &&
-            other is _ClipEffect &&
+            other is PathClipAct &&
             super == other &&
             borderRadius == other.borderRadius &&
             alignment == other.alignment &&

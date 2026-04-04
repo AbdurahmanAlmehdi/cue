@@ -52,6 +52,47 @@ void main() {
       expect(act.from, equals(20.0));
     });
 
+    test('focus constructor with motion', () {
+      final motion = CueMotion.linear(500.ms);
+      final act = BlurAct.focus(motion: motion);
+      expect(act.motion, equals(motion));
+      expect(act.from, equals(10.0));
+      expect(act.to, equals(0.0));
+    });
+
+    test('focus constructor with reverse', () {
+      const reverse = ReverseBehavior<double>.mirror();
+      const act = BlurAct.focus(reverse: reverse);
+      expect(act.reverse, equals(reverse));
+      expect(act.from, equals(10.0));
+      expect(act.to, equals(0.0));
+    });
+
+    test('focus constructor with delay', () {
+      const delay = Duration(milliseconds: 150);
+      const act = BlurAct.focus(delay: delay);
+      expect(act.delay, equals(delay));
+      expect(act.from, equals(10.0));
+      expect(act.to, equals(0.0));
+    });
+
+    test('focus constructor with all parameters', () {
+      final motion = CueMotion.linear(500.ms);
+      const delay = Duration(milliseconds: 150);
+      const reverse = ReverseBehavior<double>.mirror();
+      final act = BlurAct.focus(
+        from: 15.0,
+        motion: motion,
+        reverse: reverse,
+        delay: delay,
+      );
+      expect(act.from, equals(15.0));
+      expect(act.to, equals(0.0));
+      expect(act.motion, equals(motion));
+      expect(act.reverse, equals(reverse));
+      expect(act.delay, equals(delay));
+    });
+
     test('unfocus constructor defaults', () {
       const act = BlurAct.unfocus();
       expect(act.from, equals(0.0));
@@ -61,6 +102,47 @@ void main() {
     test('unfocus constructor with custom values', () {
       const act = BlurAct.unfocus(to: 20.0);
       expect(act.to, equals(20.0));
+    });
+
+    test('unfocus constructor with motion', () {
+      final motion = CueMotion.linear(500.ms);
+      final act = BlurAct.unfocus(motion: motion);
+      expect(act.motion, equals(motion));
+      expect(act.from, equals(0.0));
+      expect(act.to, equals(10.0));
+    });
+
+    test('unfocus constructor with reverse', () {
+      const reverse = ReverseBehavior<double>.mirror();
+      const act = BlurAct.unfocus(reverse: reverse);
+      expect(act.reverse, equals(reverse));
+      expect(act.from, equals(0.0));
+      expect(act.to, equals(10.0));
+    });
+
+    test('unfocus constructor with delay', () {
+      const delay = Duration(milliseconds: 150);
+      const act = BlurAct.unfocus(delay: delay);
+      expect(act.delay, equals(delay));
+      expect(act.from, equals(0.0));
+      expect(act.to, equals(10.0));
+    });
+
+    test('unfocus constructor with all parameters', () {
+      final motion = CueMotion.linear(500.ms);
+      const delay = Duration(milliseconds: 150);
+      const reverse = ReverseBehavior<double>.mirror();
+      final act = BlurAct.unfocus(
+        to: 15.0,
+        motion: motion,
+        reverse: reverse,
+        delay: delay,
+      );
+      expect(act.from, equals(0.0));
+      expect(act.to, equals(15.0));
+      expect(act.motion, equals(motion));
+      expect(act.reverse, equals(reverse));
+      expect(act.delay, equals(delay));
     });
 
     test('keyframed constructor', () {

@@ -1,7 +1,4 @@
 import 'package:cue/cue.dart';
-import 'package:example/examples/bottom_bar.dart';
-import 'package:example/examples/delete_confirmation.dart';
-import 'package:example/examples/draggable_panel.dart';
 import 'package:example/examples/ios_context_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

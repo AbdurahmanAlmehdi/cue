@@ -612,7 +612,7 @@ void main() {
 
 /// Test implementation of ScaleActor for testing SingleActorBase
 class ScaleActor extends SingleActorBase<double> {
-  ScaleActor({
+  const ScaleActor({
     super.key,
     required super.child,
     super.from = 1.0,
@@ -624,7 +624,7 @@ class ScaleActor extends SingleActorBase<double> {
     super.reverse = const ReverseBehavior.mirror(),
   });
 
-  ScaleActor.keyframes({
+  const ScaleActor.keyframes({
     required super.frames,
     super.key,
     required super.child,

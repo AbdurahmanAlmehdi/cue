@@ -5,7 +5,7 @@ export 'src/motion/animations.dart';
 export 'src/core/phase.dart';
 export 'src/cue/cue_debug_provider.dart';
 export 'src/motion/spring_motion.dart';
-export 'src/acts/base/act.dart';
+export 'src/acts/base/act.dart' hide PathClipAct, AxisClipAct;
 export 'src/actor/actor.dart';
 export 'src/motion/cue_motion.dart' hide DelayedMotion, SegmentedMotion;
 export 'src/acts/base/tween_act.dart' hide CueTweenBuildHelper;

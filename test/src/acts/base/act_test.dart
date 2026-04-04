@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cue/cue.dart';
-import 'package:cue/src/acts/base/act.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

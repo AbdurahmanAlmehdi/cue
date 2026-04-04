@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cue/cue.dart';
-import 'package:cue/src/widgets/cue_drag_scrubber.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

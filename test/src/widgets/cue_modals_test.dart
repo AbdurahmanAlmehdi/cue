@@ -210,7 +210,7 @@ class _TestCueModalRoute extends RawDialogRoute<void> with CueModalRouteMixin<vo
   final CueMotion? reverseMotion;
 
   @override
-  final AnimationStatusListener? onAnimationStatusChanged;
+   AnimationStatusListener? get onAnimationStatusChanged => null;
 
   @override
   final bool hideOnPushNext;
@@ -218,7 +218,6 @@ class _TestCueModalRoute extends RawDialogRoute<void> with CueModalRouteMixin<vo
   _TestCueModalRoute({
     required this.motion,
     this.reverseMotion,
-    this.onAnimationStatusChanged,
     this.hideOnPushNext = true,
   }) : super(
          pageBuilder: (context, _, _) => const SizedBox(),
