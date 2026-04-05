@@ -383,4 +383,115 @@ void main() {
       expect(desc.mass, equals(1.0));
     });
   });
+
+  group('Factory Constructors', () {
+    test('CueMotion.linear creates TimedMotion', () {
+      final motion = CueMotion.linear(Duration(milliseconds: 300));
+      expect(motion, isA<TimedMotion>());
+      expect(motion, equals(const TimedMotion(Duration(milliseconds: 300))));
+    });
+
+    test('CueMotion.curved creates TimedMotion with curve', () {
+      final motion = CueMotion.curved(
+        Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
+      expect(motion, isA<TimedMotion>());
+    });
+
+    test('CueMotion.easeIn creates curved motion', () {
+      final motion = CueMotion.easeIn(Duration(milliseconds: 300));
+      expect(motion, isA<TimedMotion>());
+    });
+
+    test('CueMotion.easeOut creates curved motion', () {
+      final motion = CueMotion.easeOut(Duration(milliseconds: 300));
+      expect(motion, isA<TimedMotion>());
+    });
+
+    test('CueMotion.easeInOut creates curved motion', () {
+      final motion = CueMotion.easeInOut(Duration(milliseconds: 300));
+      expect(motion, isA<TimedMotion>());
+    });
+
+    test('CueMotion.easeOutBack creates curved motion', () {
+      final motion = CueMotion.easeOutBack(Duration(milliseconds: 300));
+      expect(motion, isA<TimedMotion>());
+    });
+
+    test('CueMotion.easeInBack creates curved motion', () {
+      final motion = CueMotion.easeInBack(Duration(milliseconds: 300));
+      expect(motion, isA<TimedMotion>());
+    });
+
+    test('CueMotion.fastOutSlowIn creates curved motion', () {
+      final motion = CueMotion.fastOutSlowIn(Duration(milliseconds: 300));
+      expect(motion, isA<TimedMotion>());
+    });
+
+    test('CueMotion.threshold creates threshold motion', () {
+      final motion = TimedMotion.threshold(
+        Duration(milliseconds: 300),
+        breakpoint: 0.5,
+      );
+      expect(motion.curve, isA<Threshold>());
+    });
+
+    test('CueMotion.smooth creates spring', () {
+      final motion = CueMotion.smooth();
+      expect(motion, isA<Spring>());
+    });
+
+    test('CueMotion.gentle creates spring', () {
+      final motion = CueMotion.gentle();
+      expect(motion, isA<Spring>());
+    });
+
+    test('CueMotion.bouncy creates spring', () {
+      final motion = CueMotion.bouncy();
+      expect(motion, isA<Spring>());
+    });
+
+    test('CueMotion.wobbly creates spring', () {
+      final motion = CueMotion.wobbly();
+      expect(motion, isA<Spring>());
+    });
+
+    test('CueMotion.snappy creates spring', () {
+      final motion = CueMotion.snappy();
+      expect(motion, isA<Spring>());
+    });
+
+    test('CueMotion.spatial creates spring', () {
+      final motion = CueMotion.spatial();
+      expect(motion, isA<Spring>());
+    });
+
+    test('CueMotion.spatialSlow creates spring', () {
+      final motion = CueMotion.spatialSlow();
+      expect(motion, isA<Spring>());
+    });
+
+    test('CueMotion.spatialFast creates spring', () {
+      final motion = CueMotion.spatialFast();
+      expect(motion, isA<Spring>());
+    });
+
+    test('CueMotion.spring factory creates spring', () {
+      final motion = CueMotion.spring(
+        duration: Duration(milliseconds: 500),
+        bounce: 0.5,
+      );
+      expect(motion, isA<Spring>());
+    });
+
+    test('factory constructors with custom parameters', () {
+      final motion = CueMotion.smooth(
+        mass: 2.0,
+        stiffness: 200,
+        dampingRatio: 0.3,
+      );
+      expect(motion, isA<Spring>());
+    });
+  });
 }

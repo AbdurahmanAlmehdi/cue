@@ -725,5 +725,173 @@ void main() {
         expect(animation.value, closeTo(200.0, 0.0001));
       });
     });
+
+    group('keyframedTrack', () {
+      test('creates CueAnimation with basic keyframes', () {
+        final controller = _createController();
+
+        final frames = Keyframes<double>([
+          Keyframe<double>(0.0, motion: CueMotion.linear(100.ms)),
+          Keyframe<double>(100.0, motion: CueMotion.linear(100.ms)),
+        ]);
+
+        final animation = controller.keyframedTrack<double>(frames: frames);
+
+        expect(animation, isA<CueAnimation<double>>());
+        expect(animation.value, equals(0.0));
+      });
+
+      test('keyframedTrack animation progresses through frames', () {
+        final controller = _createController(motion: CueMotion.linear(200.ms));
+
+        final frames = Keyframes<double>([
+          Keyframe<double>(0.0, motion: CueMotion.linear(100.ms)),
+          Keyframe<double>(100.0, motion: CueMotion.linear(100.ms)),
+        ]);
+
+        final animation = controller.keyframedTrack<double>(frames: frames);
+
+        controller.setProgress(0.0);
+        expect(animation.value, closeTo(0.0, 0.0001));
+
+        controller.setProgress(0.5);
+        expect(animation.value, isNotNull);
+
+        controller.setProgress(1.0);
+        expect(animation.value, isNotNull);
+      });
+
+      test('keyframedTrack with mirror reverse behavior', () {
+        final controller = _createController(motion: CueMotion.linear(200.ms));
+
+        final frames = Keyframes<double>([
+          Keyframe<double>(0.0, motion: CueMotion.linear(100.ms)),
+          Keyframe<double>(100.0, motion: CueMotion.linear(100.ms)),
+        ]);
+
+        final animation = controller.keyframedTrack<double>(
+          frames: frames,
+          reverse: const KFReverseBehavior.mirror(),
+        );
+
+        expect(animation, isA<CueAnimation<double>>());
+      });
+
+      test('keyframedTrack with exclusive reverse behavior', () {
+        final controller = _createController(motion: CueMotion.linear(200.ms));
+
+        final frames = Keyframes<double>([
+          Keyframe<double>(0.0, motion: CueMotion.linear(100.ms)),
+          Keyframe<double>(100.0, motion: CueMotion.linear(100.ms)),
+        ]);
+
+        final animation = controller.keyframedTrack<double>(
+          frames: frames,
+          reverse: const KFReverseBehavior.exclusive(),
+        );
+
+        expect(animation, isA<CueAnimation<double>>());
+      });
+
+      test('keyframedTrack with none reverse behavior', () {
+        final controller = _createController(motion: CueMotion.linear(200.ms));
+
+        final frames = Keyframes<double>([
+          Keyframe<double>(0.0, motion: CueMotion.linear(100.ms)),
+          Keyframe<double>(100.0, motion: CueMotion.linear(100.ms)),
+        ]);
+
+        final animation = controller.keyframedTrack<double>(
+          frames: frames,
+          reverse: const KFReverseBehavior.none(),
+        );
+
+        expect(animation, isA<CueAnimation<double>>());
+      });
+
+      test('keyframedTrack with delay parameter', () {
+        final controller = _createController(motion: CueMotion.linear(200.ms));
+
+        final frames = Keyframes<double>([
+          Keyframe<double>(0.0, motion: CueMotion.linear(100.ms)),
+          Keyframe<double>(100.0, motion: CueMotion.linear(100.ms)),
+        ]);
+
+        final animation = controller.keyframedTrack<double>(
+          frames: frames,
+          delay: Duration(milliseconds: 50),
+        );
+
+        expect(animation, isA<CueAnimation<double>>());
+      });
+
+      test('keyframedTrack with custom tween builder', () {
+        final controller = _createController(motion: CueMotion.linear(200.ms));
+
+        final frames = Keyframes<double>([
+          Keyframe<double>(0.0, motion: CueMotion.linear(100.ms)),
+          Keyframe<double>(100.0, motion: CueMotion.linear(100.ms)),
+        ]);
+
+        final animation = controller.keyframedTrack<double>(
+          frames: frames,
+          tweenBuilder: ({double? begin, double? end}) => Tween<double>(begin: begin ?? 0, end: end ?? 100),
+        );
+
+        expect(animation, isA<CueAnimation<double>>());
+      });
+
+      test('keyframedTrack with string keyframes', () {
+        final controller = _createController(motion: CueMotion.linear(200.ms));
+
+        final frames = Keyframes<String>([
+          Keyframe<String>('start', motion: CueMotion.linear(100.ms)),
+          Keyframe<String>('end', motion: CueMotion.linear(100.ms)),
+        ]);
+
+        final animation = controller.keyframedTrack<String>(frames: frames);
+
+        expect(animation, isA<CueAnimation<String>>());
+        expect(animation.value, equals('start'));
+      });
+
+      test('keyframedTrack with color keyframes', () {
+        final controller = _createController(motion: CueMotion.linear(200.ms));
+
+        final frames = Keyframes<Color>([
+          Keyframe<Color>(Colors.red, motion: CueMotion.linear(100.ms)),
+          Keyframe<Color>(Colors.blue, motion: CueMotion.linear(100.ms)),
+        ]);
+
+        final animation = controller.keyframedTrack<Color>(frames: frames);
+
+        expect(animation, isA<CueAnimation<Color>>());
+        expect(animation.value, equals(Colors.red));
+      });
+
+      test('keyframedTrack with multiple keyframes', () {
+        final controller = _createController(motion: CueMotion.linear(300.ms));
+
+        final frames = Keyframes<double>([
+          Keyframe<double>(0.0, motion: CueMotion.linear(100.ms)),
+          Keyframe<double>(50.0, motion: CueMotion.linear(100.ms)),
+          Keyframe<double>(100.0, motion: CueMotion.linear(100.ms)),
+        ]);
+
+        final animation = controller.keyframedTrack<double>(frames: frames);
+
+        controller.setProgress(0.0);
+        expect(animation.value, isNotNull);
+
+        controller.setProgress(0.33);
+        expect(animation.value, isNotNull);
+
+        controller.setProgress(0.66);
+        expect(animation.value, isNotNull);
+
+        controller.setProgress(1.0);
+        expect(animation.value, isNotNull);
+      });
+    });
   });
 }
