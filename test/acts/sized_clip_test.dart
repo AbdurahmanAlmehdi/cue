@@ -1,4 +1,6 @@
 import 'package:cue/cue.dart';
+import 'package:cue/src/timeline/track/track.dart';
+import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -248,6 +250,606 @@ void main() {
         clipGeometry: ClipGeometry.rrect(BorderRadius.all(Radius.circular(10))),
       );
       expect(act1, isNot(equals(act2)));
+    });
+
+    group('apply with different configurations', () {
+      testWidgets('renders with basic configuration', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 100, height: 100, child: Text('Clip')));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Clip'), findsOneWidget);
+      });
+
+      testWidgets('renders with alignment variations', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        for (final alignment in [
+          Alignment.topLeft,
+          Alignment.center,
+          Alignment.bottomRight,
+        ]) {
+          final act = SizedClipAct(
+            from: NSize.square(100),
+            to: NSize.square(200),
+            alignment: alignment,
+          );
+
+          track.setProgress(0.5);
+          final animation = DeferredCueAnimation<Size?>(
+            parent: track,
+            token: ReleaseToken(track.config, timeline),
+            context: actContext,
+          );
+
+          await tester.pumpWidget(
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: Builder(
+                builder: (context) {
+                  return act.apply(context, animation, const SizedBox(width: 50, height: 50, child: Text('Test')));
+                },
+              ),
+            ),
+          );
+
+          await tester.pump();
+        }
+      });
+
+      testWidgets('renders with different clip behaviors', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        for (final clipBehavior in [Clip.hardEdge, Clip.antiAlias, Clip.antiAliasWithSaveLayer]) {
+          final act = SizedClipAct(
+            from: NSize.square(100),
+            to: NSize.square(200),
+            clipBehavior: clipBehavior,
+          );
+
+          track.setProgress(0.5);
+          final animation = DeferredCueAnimation<Size?>(
+            parent: track,
+            token: ReleaseToken(track.config, timeline),
+            context: actContext,
+          );
+
+          await tester.pumpWidget(
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: Builder(
+                builder: (context) {
+                  return act.apply(context, animation, const SizedBox(width: 100, height: 100));
+                },
+              ),
+            ),
+          );
+
+          await tester.pump();
+        }
+      });
+
+      testWidgets('renders with rect clip geometry', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+          clipGeometry: ClipGeometry.rect(),
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders with rrect clip geometry', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const radius = BorderRadius.all(Radius.circular(12));
+        const act = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+          clipGeometry: ClipGeometry.rrect(radius),
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders with superEllipse clip geometry', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const radius = BorderRadius.all(Radius.circular(12));
+        const act = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+          clipGeometry: ClipGeometry.superEllipse(radius),
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders with keyframed animation', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        final frames = Keyframes<NSize>([
+          Keyframe(NSize.square(100), motion: CueMotion.linear(150.ms)),
+          Keyframe(NSize.square(200), motion: CueMotion.linear(150.ms)),
+        ]);
+        final act = SizedClipAct.keyframed(frames: frames);
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders at progress 0', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+        );
+
+        track.setProgress(0);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders at progress 1', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+        );
+
+        track.setProgress(1.0);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders with NSize.childSize', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act = SizedClipAct(
+          from: NSize.childSize,
+          to: NSize.childSize,
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 150, height: 150));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders with NSize.width only', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act = SizedClipAct(
+          from: NSize.width(100),
+          to: NSize.width(200),
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders with NSize.height only', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act = SizedClipAct(
+          from: NSize.height(100),
+          to: NSize.height(200),
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders with NSize.infinity', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act = SizedClipAct(
+          from: NSize.infinity,
+          to: NSize.infinity,
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: SizedBox(
+              width: 200,
+              height: 200,
+              child: Builder(
+                builder: (context) {
+                  return act.apply(context, animation, const SizedBox(width: 100, height: 100));
+                },
+              ),
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('render object updates on property changes', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act1 = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+          alignment: Alignment.center,
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act1.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        const act2 = SizedClipAct(
+          from: NSize.square(150),
+          to: NSize.square(250),
+          alignment: Alignment.topLeft,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act2.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('render object updates clipGeometry', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act1 = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+          clipGeometry: ClipGeometry.rect(),
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act1.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        const radius = BorderRadius.all(Radius.circular(10));
+        const act2 = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+          clipGeometry: ClipGeometry.rrect(radius),
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act2.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('render object updates clipBehavior', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        const act1 = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+          clipBehavior: Clip.hardEdge,
+        );
+
+        track.setProgress(0.5);
+        final animation = DeferredCueAnimation<Size?>(
+          parent: track,
+          token: ReleaseToken(track.config, timeline),
+          context: actContext,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act1.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        const act2 = SizedClipAct(
+          from: NSize.square(100),
+          to: NSize.square(200),
+          clipBehavior: Clip.antiAlias,
+        );
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act2.apply(context, animation, const SizedBox(width: 100, height: 100));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders with different child sizes', (tester) async {
+        final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
+        final timeline = CueTimelineImpl.fromMotion(motion);
+
+        for (final size in [50.0, 100.0, 200.0, 300.0]) {
+          const act = SizedClipAct(
+            from: NSize.childSize,
+            to: NSize.childSize,
+          );
+
+          track.setProgress(0.5);
+          final animation = DeferredCueAnimation<Size?>(
+            parent: track,
+            token: ReleaseToken(track.config, timeline),
+            context: actContext,
+          );
+
+          await tester.pumpWidget(
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: Builder(
+                builder: (context) {
+                  return act.apply(
+                    context,
+                    animation,
+                    SizedBox(width: size, height: size, child: const Text('Sized')),
+                  );
+                },
+              ),
+            ),
+          );
+
+          await tester.pump();
+        }
+      });
     });
   });
 }

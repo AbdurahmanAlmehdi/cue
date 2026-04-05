@@ -141,6 +141,43 @@ void main() {
       expect(state.widget.reverseOnRepeat, isTrue);
     });
 
+    testWidgets('didUpdateWidget calls forward when repeat changes to false', (tester) async {
+      // Start with repeat=true and reverseOnRepeat=true
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Cue.onMount(
+            repeat: true,
+            reverseOnRepeat: true,
+            repeatCount: 5,
+            child: const SizedBox(),
+          ),
+        ),
+      );
+
+      final state1 = tester.state<OnMountCueState>(find.byType(OnMountCue));
+      expect(state1.widget.repeat, isTrue);
+      expect(state1.widget.reverseOnRepeat, isTrue);
+
+      // Change to repeat=false AND reverseOnRepeat=false to ensure condition triggers
+      // This will cause didUpdateWidget to be called with the condition being true
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Cue.onMount(
+            repeat: false,
+            reverseOnRepeat: false,
+            child: const SizedBox(),
+          ),
+        ),
+      );
+
+      final state2 = tester.state<OnMountCueState>(find.byType(OnMountCue));
+      expect(state2.widget.repeat, isFalse);
+      expect(state2.widget.reverseOnRepeat, isFalse);
+      // The controller should have been stopped and forward called
+      // We can't directly check the forward() call, but verify widget state changed
+      expect(find.byType(OnMountCue), findsOneWidget);
+    });
+
     testWidgets('animation completes after duration', (tester) async {
       await tester.pumpWidget(
         MaterialApp(

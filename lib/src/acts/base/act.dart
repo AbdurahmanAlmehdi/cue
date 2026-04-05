@@ -148,7 +148,7 @@ abstract class Act {
     CueMotion? motion,
     ReverseBehavior<double> reverse,
     Duration delay,
-  }) = SlideAct.fromX;
+  }) = SlideAct.x;
 
   const factory Act.slideY({
     double from,

@@ -235,13 +235,7 @@ class _AnimtableRenderConstrainedBox extends RenderConstrainedBox {
       tweenBuilder: (begin, end) => _SizeTween(begin: begin, end: end),
     );
 
-    final (animtable, reverseAnimtable) = builder.buildTweens(_driver.context);
-
-    final effectiveAnimatable = reverseAnimtable == null
-        ? animtable
-        : DualAnimatable(forward: animtable, reverse: reverseAnimtable);
-
-    _driver.setAnimatable(effectiveAnimatable);
+    _driver.setAnimatable(builder.buildAnimtable(_driver.context));
     _lastConstraints = constraints;
   }
 

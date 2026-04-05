@@ -136,5 +136,32 @@ void main() {
       final track = state.controller.timeline.obtainDefaultTrack().$1;
       expect(track.motion, equals(motion));
     });
+
+    testWidgets('onFocus animation works with widget rebuild', (tester) async {
+      // This test ensures the didUpdateWidget path is covered
+      // by rebuilding the widget
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Cue.onFocus(
+            motion: CueMotion.linear(100.ms),
+            child: const SizedBox(width: 100),
+          ),
+        ),
+      );
+
+      expect(find.byType(OnFocusCue), findsOneWidget);
+
+      // Rebuild with slightly different child - triggers didUpdateWidget
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Cue.onFocus(
+            motion: CueMotion.linear(100.ms),
+            child: const SizedBox(width: 200),
+          ),
+        ),
+      );
+
+      expect(find.byType(OnFocusCue), findsOneWidget);
+    });
   });
 }

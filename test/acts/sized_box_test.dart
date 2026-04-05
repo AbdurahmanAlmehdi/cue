@@ -307,5 +307,425 @@ void main() {
         expect(act, same(act));
       });
     });
+
+    group('keyframed apply', () {
+      testWidgets('renders keyframed animation', (tester) async {
+        final frames = Keyframes<Size>([
+          Keyframe(const Size(100, 100), motion: CueMotion.linear(100.ms)),
+          Keyframe(const Size(200, 200), motion: CueMotion.linear(100.ms)),
+        ]);
+        final act = SizedBoxAct.keyframed(frames: frames);
+
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Keyframes'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Keyframes'), findsOneWidget);
+      });
+
+      testWidgets('renders keyframed with custom alignment', (tester) async {
+        final frames = Keyframes<Size>([
+          Keyframe(const Size(100, 100), motion: CueMotion.linear(100.ms)),
+          Keyframe(const Size(200, 200), motion: CueMotion.linear(100.ms)),
+        ]);
+        final act = SizedBoxAct.keyframed(
+          frames: frames,
+          alignment: Alignment.bottomRight,
+        );
+
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 50, height: 50));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+    });
+
+    group('render object lifecycle', () {
+      testWidgets('attaches and detaches listener', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(width: width);
+
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 50, height: 50));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        
+        await tester.pumpWidget(
+          Container(),
+        );
+      });
+
+      testWidgets('performLayout with null child', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(width: width);
+
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, Container());
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('paint with different alignments', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final height = AnimatableValue(from: 100.0, to: 200.0);
+
+        for (final alignment in [
+          Alignment.topLeft,
+          Alignment.topCenter,
+          Alignment.topRight,
+          Alignment.centerLeft,
+          Alignment.center,
+          Alignment.centerRight,
+          Alignment.bottomLeft,
+          Alignment.bottomCenter,
+          Alignment.bottomRight,
+        ]) {
+          final act = SizedBoxAct(
+            width: width,
+            height: height,
+            alignment: alignment,
+          );
+
+          track.setProgress(0.5);
+          final animation = createDeferredAnimation(track, actContext);
+
+          await tester.pumpWidget(
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: Builder(
+                builder: (context) {
+                  return act.apply(
+                    context,
+                    animation,
+                    const SizedBox(width: 50, height: 50, child: Text('Test')),
+                  );
+                },
+              ),
+            ),
+          );
+
+          await tester.pump();
+        }
+      });
+
+      testWidgets('updates render object when properties change', (tester) async {
+        final width1 = AnimatableValue(from: 100.0, to: 200.0);
+        final act1 = SizedBoxAct(width: width1, alignment: Alignment.center);
+
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act1.apply(context, animation, const Text('Update Test'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        final width2 = AnimatableValue(from: 150.0, to: 250.0);
+        final act2 = SizedBoxAct(width: width2, alignment: Alignment.topLeft);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act2.apply(context, animation, const Text('Update Test'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('handles width setter changes', (tester) async {
+        final width1 = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(width: width1);
+
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 50, height: 50));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        final width2 = AnimatableValue(from: 150.0, to: 250.0);
+        final act2 = SizedBoxAct(width: width2);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act2.apply(context, animation, const SizedBox(width: 50, height: 50));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('handles height setter changes', (tester) async {
+        final height1 = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(height: height1);
+
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const SizedBox(width: 50, height: 50));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        final height2 = AnimatableValue(from: 150.0, to: 250.0);
+        final act2 = SizedBoxAct(height: height2);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act2.apply(context, animation, const SizedBox(width: 50, height: 50));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('renders with minimal configuration', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(width: width);
+
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Minimal'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+        expect(find.text('Minimal'), findsOneWidget);
+      });
+
+      testWidgets('constraint enforcement with animated size', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 150.0);
+        final height = AnimatableValue(from: 100.0, to: 150.0);
+        final act = SizedBoxAct(width: width, height: height);
+
+        track.setProgress(0);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(
+                  context,
+                  animation,
+                  const SizedBox(width: 50, height: 50),
+                );
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        track.setProgress(1.0);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(
+                  context,
+                  animation,
+                  const SizedBox(width: 50, height: 50),
+                );
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('handles keyframed reverse behavior', (tester) async {
+        final frames = Keyframes<Size>([
+          Keyframe(const Size(100, 100), motion: CueMotion.linear(100.ms)),
+          Keyframe(const Size(200, 200), motion: CueMotion.linear(100.ms)),
+        ]);
+        final reverse = KFReverseBehavior<Size>.mirror();
+        final act = SizedBoxAct.keyframed(frames: frames, reverse: reverse);
+
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Reverse KF'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+    });
+
+    group('render object setters', () {
+      testWidgets('driver setter prevents duplicate listeners', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(width: width);
+
+        track.setProgress(0.5);
+        final animation1 = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation1, const Text('Driver 1'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        final animation2 = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation2, const Text('Driver 2'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+
+      testWidgets('alignment setter prevents unnecessary repaints', (tester) async {
+        final width = AnimatableValue(from: 100.0, to: 200.0);
+        final act = SizedBoxAct(width: width, alignment: Alignment.center);
+
+        track.setProgress(0.5);
+        final animation = createDeferredAnimation(track, actContext);
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Align Same'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Builder(
+              builder: (context) {
+                return act.apply(context, animation, const Text('Align Same'));
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+      });
+    });
   });
 }

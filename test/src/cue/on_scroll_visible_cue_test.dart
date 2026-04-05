@@ -189,5 +189,44 @@ void main() {
       expect(state.controller.value, lessThanOrEqualTo(1.0));
       expect(state.controller.value, greaterThanOrEqualTo(0.0));
     });
+
+    testWidgets('enables correctly on didUpdateWidget', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SingleChildScrollView(
+            child: SizedBox(
+              height: 1000,
+              child: Cue.onScrollVisible(
+                enabled: false,
+                child: const SizedBox(height: 100),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      // Re-enable the scroll visibility tracking
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SingleChildScrollView(
+            child: SizedBox(
+              height: 1000,
+              child: Cue.onScrollVisible(
+                enabled: true,
+                child: const SizedBox(height: 100),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      final state = tester.state<OnScrollVisibleCueState>(find.byType(OnScrollVisibleCue));
+      expect(state.controller, isA<CueController>());
+      expect(find.byType(OnScrollVisibleCue), findsOneWidget);
+    });
   });
 }

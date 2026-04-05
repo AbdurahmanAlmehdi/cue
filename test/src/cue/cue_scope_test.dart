@@ -124,5 +124,47 @@ void main() {
 
       expect(scope.reanimateFromCurrent, isTrue);
     });
+
+    testWidgets('maybeOf() returns scope when present', (tester) async {
+      final controller = CueController(
+        vsync: tester,
+        motion: CueMotion.linear(300.ms),
+      );
+      late CueScope? scope;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Cue(
+            controller: controller,
+            child: Builder(
+              builder: (context) {
+                scope = CueScope.maybeOf(context);
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(scope, isNotNull);
+      expect(scope!.controller, same(controller));
+    });
+
+    testWidgets('maybeOf() returns null when no scope', (tester) async {
+      late CueScope? scope;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              scope = CueScope.maybeOf(context);
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(scope, isNull);
+    });
   });
 }

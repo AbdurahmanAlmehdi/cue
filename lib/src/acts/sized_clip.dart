@@ -358,15 +358,8 @@ class _RenderAnimatedSizeClip extends RenderAligningShiftedBox {
       reverse: _reverse.mapValues((v) => _resolveSize(v, maxConstrains, childSize)),
       tweenBuilder: (begin, end) => SizeTween(begin: begin, end: end),
     );
-
-    final (animtable, reverseAnimtable) = builder.buildTweens(_driver.context);
-
-    final effectiveAnimatable = reverseAnimtable == null
-        ? animtable
-        : DualAnimatable(forward: animtable, reverse: reverseAnimtable);
-
-    _driver.setAnimatable(effectiveAnimatable);
-
+    
+    _driver.setAnimatable(builder.buildAnimtable(_driver.context));
     // Build and cache the animation
     _cachedMaxSize = tween.end ?? Size.zero;
     _cachedMaxSize = _calculateMaxSize(builder);
