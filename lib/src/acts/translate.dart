@@ -1,6 +1,100 @@
 part of 'base/act.dart';
 
+/// {@template translate_act}
+/// Animates widget position using absolute pixel distances.
+///
+/// [TranslateAct] moves a widget by pixel amounts. An offset of `Offset(100, 0)`
+/// translates the widget right by 100 pixels. An offset of `Offset(0, -50)` translates
+/// the widget up by 50 pixels.
+///
+/// Use [Act.translate()] factory to create instances. This is the recommended approach
+/// for most translate animations.
+///
+/// Unlike [SlideAct], which uses fractional sizing relative to the widget itself,
+/// [TranslateAct] uses absolute pixel distances.
+///
+/// ## Basic Translation Animation
+///
+/// ```dart
+/// // Translate right by 100 pixels
+/// Actor(
+///   acts: [
+///     .translate(from: Offset(-100, 0)), // to defaults to Offset.zero
+///   ],
+///   child: MyWidget(),
+/// )
+/// ```
+///
+/// ## Single-Axis Translation
+///
+/// For animations where only one axis changes:
+///
+/// ```dart
+/// // Only vertical translation
+/// Actor(
+///   acts: [
+///     .translateY(from: -50),
+///   ],
+///   child: MyWidget(),
+/// )
+///
+/// // Only horizontal translation
+/// Actor(
+///   acts: [
+///     .translateX(from: 100),
+///   ],
+///   child: MyWidget(),
+/// )
+/// ```
+///
+/// ## Global Coordinate Animations
+///
+/// Translate from a widget's global position to a local position within a container:
+/// Useful for hero-type transitions where a widget moves from one part of the screen to another, potentially across different widget trees.
+///
+/// ```dart
+/// // Move from global coordinates
+/// Actor(
+///   acts: [
+///     .translateFromGlobal(offset: globalOffset),
+///     .translateFromGlobalRect(globalRect, alignment: Alignment.center), // Align to center of global rect
+///   ],
+///   child: MyWidget(),
+/// )
+/// ```
+/// {@endtemplate}
 abstract class TranslateAct extends Act {
+  /// {@template act.translate}
+  /// Animates bidirectional translation using absolute pixel offsets.
+  ///
+  /// Both [from] and [to] are [Offset] values representing pixel distances.
+  /// Use [Offset.zero] for no offset.
+  ///
+  /// ## Basic Usage
+  ///
+  /// ```dart
+  /// // Translate from left to center
+  /// Actor(
+  ///   acts: [
+  ///     .translate(from: Offset(-100, 0)), // 'to' defaults to Offset.zero
+  ///   ],
+  ///   motion: .smooth(damping: 23),
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  ///
+  /// ## Diagonal Translation
+  ///
+  /// ```dart
+  /// // Translate diagonally
+  /// Actor(
+  ///   acts: [
+  ///     .translate(from: Offset(-50, 50)), // 'to' defaults to Offset.zero
+  ///   ],
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory TranslateAct({
     Offset from,
     Offset to,
@@ -9,12 +103,63 @@ abstract class TranslateAct extends Act {
     Duration delay,
   }) = _TranslateOffset;
 
+  /// {@template act.translate.keyframed}
+  /// Animates through multiple translation offset keyframes.
+  ///
+  /// [frames] define multiple [Offset] targets (in pixels) at different times.
+  ///
+  /// ## Fractional keyframes with shared duration
+  ///
+  /// ```dart
+  /// Act.translate.keyframed(
+  ///   frames: Keyframes([
+  ///     .key(Offset(-100, 0)),
+  ///     .key(Offset.zero),
+  ///     .key(Offset(50, 0)),
+  ///   ], duration: 800.ms),
+  /// )
+  /// ```
+  ///
+  /// ## Per-keyframe motion with override
+  ///
+  /// ```dart
+  /// Act.translate.keyframed(
+  ///   frames: Keyframes(
+  ///     [
+  ///       .key(Offset(-100, 0)),  // Uses default motion
+  ///       .key(Offset.zero, motion: Spring.bouncy()),  // Overrides default
+  ///       .key(Offset(50, 0), motion: Linear(300.ms)),  // Overrides default
+  ///     ],
+  ///     motion: Spring.smooth(),  // Default motion
+  ///   ),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory TranslateAct.keyframed({
     required Keyframes<Offset> frames,
     KFReverseBehavior<Offset> reverse,
     Duration delay,
   }) = _TranslateOffset.keyframed;
 
+  /// {@template act.translate.x}
+  /// Animates horizontal translation only (X-axis).
+  ///
+  /// [from] and [to] are horizontal offsets in pixels.
+  /// Negative values translate left, positive values translate right.
+  /// Vertical position remains unchanged.
+  ///
+  /// ## Horizontal Translation
+  ///
+  /// ```dart
+  /// Actor(
+  ///   acts: [
+  ///     .translateX(from: -100),
+  ///   ],
+  ///   motion: .smooth(damping: 23),
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory TranslateAct.fromX({
     double from,
     double to,
@@ -23,12 +168,48 @@ abstract class TranslateAct extends Act {
     Duration delay,
   }) = _AxisTranslate.horizontal;
 
+  /// {@template act.translate.keyframedX}
+  /// Animates through multiple horizontal translation keyframes.
+  ///
+  /// [frames] define multiple horizontal offsets (in pixels) at different times.
+  ///
+  /// ## Horizontal Keyframes
+  ///
+  /// ```dart
+  /// TranslateAct.keyframedX(
+  ///   frames: Keyframes([
+  ///     .key(-100),
+  ///     .key(0),
+  ///     .key(50),
+  ///   ], duration: 1000.ms),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory TranslateAct.keyframedX({
     required Keyframes<double> frames,
     KFReverseBehavior<double> reverse,
     Duration delay,
   }) = _AxisTranslate.keyframedX;
 
+  /// {@template act.translate.y}
+  /// Animates vertical translation only (Y-axis).
+  ///
+  /// [from] and [to] are vertical offsets in pixels.
+  /// Negative values translate up, positive values translate down.
+  /// Horizontal position remains unchanged.
+  ///
+  /// ## Vertical Translation
+  ///
+  /// ```dart
+  /// Actor(
+  ///   acts: [
+  ///     .translateY(from: -50), // 'to' defaults to 0
+  ///   ],
+  ///   motion: .smooth(damping: 23),
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory TranslateAct.y({
     double from,
     double to,
@@ -37,12 +218,51 @@ abstract class TranslateAct extends Act {
     Duration delay,
   }) = _AxisTranslate.vertical;
 
+  /// {@template act.translate.keyframedY}
+  /// Animates through multiple vertical translation keyframes.
+  ///
+  /// [frames] define multiple vertical offsets (in pixels) at different times.
+  ///
+  /// ## Vertical Keyframes
+  ///
+  /// ```dart
+  /// TranslateAct.keyframedY(
+  ///   frames: Keyframes([
+  ///     .key(-50),
+  ///     .key(0),
+  ///     .key(25),
+  ///   ], motion: .smooth()),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory TranslateAct.keyframedY({
     required Keyframes<double> frames,
     KFReverseBehavior<double> reverse,
     Duration delay,
   }) = _AxisTranslate.keyframedY;
 
+  /// {@template act.translate.fromGlobal}
+  /// Translates a widget from its current global position to a local position.
+  ///
+  /// Captures the widget's current position in global coordinates and animates
+  /// it to [toLocal] within the local coordinate space of its container.
+  /// Useful for animated transitions of widgets being repositioned.
+  ///
+  /// [offset] is the target global coordinate position.
+  /// [toLocal] is the final local coordinate (defaults to [Offset.zero]).
+  ///
+  /// ## Global Position Animation
+  ///
+  /// ```dart
+  /// Actor(
+  ///   acts: [
+  ///     .translateFromGlobal(offset: Offset(200, 150)),
+  ///   ],
+  ///   motion: .smooth(damping: 23),
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory TranslateAct.fromGlobal({
     required Offset offset,
     Offset toLocal,
@@ -50,6 +270,32 @@ abstract class TranslateAct extends Act {
     Duration delay,
   }) = _TranslateFromGlobalEffect.offset;
 
+  /// {@template act.translate.fromGlobalRect}
+  /// Translates a widget from a global [Rect] to its current local position.
+  ///
+  /// Captures the target position from a global rectangle and animates the widget
+  /// to align with the specified [alignment] point within that rectangle.
+  /// Useful for animating widgets from external coordinate spaces.
+  ///
+  /// [rect] is the target global rectangle.
+  /// [alignment] specifies which point of the rectangle to animate towards (defaults to center).
+  /// [toLocal] is the final local coordinate (defaults to [Offset.zero]).
+  ///
+  /// ## Rectangle-based Global Animation
+  ///
+  /// ```dart
+  /// Actor(
+  ///   acts: [
+  ///     .translateFromGlobalRect(
+  ///       globalRect,
+  ///       alignment: Alignment.center,
+  ///     ),
+  ///   ],
+  ///   motion: .smooth(damping: 23),
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory TranslateAct.fromGlobalRect(
     Rect rect, {
     AlignmentGeometry alignment,
@@ -58,6 +304,37 @@ abstract class TranslateAct extends Act {
     Duration delay,
   }) = _TranslateFromGlobalEffect.fromRect;
 
+  /// {@template act.translate.fromGlobalKey}
+  /// Translates a widget from another widget's global position (identified by key).
+  ///
+  /// Uses a [GlobalKey] to find the target widget's position in global coordinates,
+  /// then animates the current widget to align with the specified [alignment] point
+  /// within that target widget's bounds.
+  ///
+  /// [key] is the [GlobalKey] of the widget to animate from.
+  /// [alignment] specifies which point of the target widget to animate towards (defaults to center).
+  /// [toLocal] is the final local coordinate (defaults to [Offset.zero]).
+  ///
+  /// ## Key-based Global Animation
+  ///
+  /// ```dart
+  /// final targetKey = GlobalKey();
+  ///
+  /// // In build:
+  /// Column(
+  ///   children: [
+  ///     Target(key: targetKey),
+  ///     Actor(
+  ///       acts: [
+  ///         .translateFromGlobalKey(targetKey),
+  ///       ],
+  ///       motion: .smooth(damping: 23),
+  ///       child: MyWidget(),
+  ///     ),
+  ///   ],
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory TranslateAct.fromGlobalKey(
     GlobalKey key, {
     AlignmentGeometry alignment,

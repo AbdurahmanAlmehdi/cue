@@ -343,7 +343,7 @@ void main() {
 
   group('PositionActor', () {
     test('creates PositionAct with correct values', () {
-      const actor = PositionActor(
+      const actor = PositionedActor(
         from: Position(top: 0),
         to: Position(top: 100),
         child: SizedBox(),
@@ -358,7 +358,7 @@ void main() {
         FKeyframe(const Position(top: 0), at: 0),
         FKeyframe(const Position(top: 100), at: 1),
       ]);
-      final actor = PositionActor.keyframed(
+      final actor = PositionedActor.keyframed(
         frames: frames,
         child: const SizedBox(),
       );
@@ -367,7 +367,7 @@ void main() {
     });
 
     test('relative constructor', () {
-      const actor = PositionActor.relative(
+      const actor = PositionedActor.relative(
         from: Position(top: 0),
         to: Position(top: 1),
         size: Size(100, 100),
@@ -383,7 +383,7 @@ void main() {
         FKeyframe(const Position(top: 0), at: 0),
         FKeyframe(const Position(top: 1), at: 1),
       ]);
-      final actor = PositionActor.keyframed(
+      final actor = PositionedActor.keyframed(
         frames: frames,
         relativeTo: const Size(200, 100),
         child: const SizedBox(),
@@ -393,7 +393,7 @@ void main() {
     });
 
     test('passes motion to act', () {
-      final actor = PositionActor(
+      final actor = PositionedActor(
         from: const Position(top: 0),
         to: const Position(top: 100),
         motion: motion,
@@ -405,7 +405,7 @@ void main() {
 
     test('passes delay to act', () {
       const delay = Duration(milliseconds: 100);
-      const actor = PositionActor(
+      const actor = PositionedActor(
         from: Position(top: 0),
         to: Position(top: 100),
         delay: delay,
@@ -416,7 +416,7 @@ void main() {
     });
 
     testWidgets('build renders child in positioned context', (tester) async {
-      final actor = PositionActor(
+      final actor = PositionedActor(
         from: const Position(top: 0, start: 0),
         to: const Position(top: 100, start: 100),
         child: const Text('Positioned Content'),
@@ -444,7 +444,7 @@ void main() {
     });
 
     testWidgets('relative constructor applies scale correctly', (tester) async {
-      final actor = PositionActor.relative(
+      final actor = PositionedActor.relative(
         from: const Position(top: 0, start: 0),
         to: const Position(top: 1, start: 1), // 100% of size
         size: const Size(200, 100),
@@ -479,7 +479,7 @@ void main() {
         FKeyframe(const Position(top: 100, start: 100), at: 1),
       ]);
 
-      final actor = PositionActor.keyframed(
+      final actor = PositionedActor.keyframed(
         frames: frames,
         child: const Text('Keyframed Positioned'),
       );
@@ -512,7 +512,7 @@ void main() {
         FKeyframe(const Position(top: 0.5, start: 0.5), at: 1),
       ]);
 
-      final actor = PositionActor.keyframed(
+      final actor = PositionedActor.keyframed(
         frames: frames,
         relativeTo: const Size(200, 100),
         child: const Text('Keyframed Relative'),
@@ -544,7 +544,7 @@ void main() {
       final motion = CueMotion.linear(500.ms);
       final delay = Duration(milliseconds: 100);
 
-      final actor = PositionActor(
+      final actor = PositionedActor(
         from: const Position(top: 0),
         to: const Position(top: 50),
         motion: motion,
@@ -572,7 +572,7 @@ void main() {
     });
 
     testWidgets('Position.fill constructor animates fill edges', (tester) async {
-      final actor = PositionActor(
+      final actor = PositionedActor(
         from: Position.fill(start: 0, top: 0, end: 0, bottom: 0),
         to: Position.fill(start: 10, top: 10, end: 10, bottom: 10),
         child: const Text('Fill Position'),
@@ -601,7 +601,7 @@ void main() {
     });
 
     testWidgets('Position.fromSTEB constructor animates edges', (tester) async {
-      final actor = PositionActor(
+      final actor = PositionedActor(
         from: const Position.fromSTEB(0, 0, 0, 0),
         to: const Position.fromSTEB(10, 20, 30, 40),
         child: const Text('FromSTEB Position'),
@@ -630,7 +630,7 @@ void main() {
     });
 
     testWidgets('Position.topStart constructor animates top-left corner', (tester) async {
-      final actor = PositionActor(
+      final actor = PositionedActor(
         from: const Position.topStart(top: 0, start: 0),
         to: const Position.topStart(top: 50, start: 50),
         child: const Text('TopStart Position'),
@@ -659,7 +659,7 @@ void main() {
     });
 
     testWidgets('Position.topEnd constructor animates top-right corner', (tester) async {
-      final actor = PositionActor(
+      final actor = PositionedActor(
         from: const Position.topEnd(top: 0, end: 0),
         to: const Position.topEnd(top: 50, end: 50),
         child: const Text('TopEnd Position'),
@@ -688,7 +688,7 @@ void main() {
     });
 
     testWidgets('Position.bottomStart constructor animates bottom-left corner', (tester) async {
-      final actor = PositionActor(
+      final actor = PositionedActor(
         from: const Position.bottomStart(bottom: 0, start: 0),
         to: const Position.bottomStart(bottom: 50, start: 50),
         child: const Text('BottomStart Position'),
@@ -717,7 +717,7 @@ void main() {
     });
 
     testWidgets('Position.bottomEnd constructor animates bottom-right corner', (tester) async {
-      final actor = PositionActor(
+      final actor = PositionedActor(
         from: const Position.bottomEnd(bottom: 0, end: 0),
         to: const Position.bottomEnd(bottom: 50, end: 50),
         child: const Text('BottomEnd Position'),
@@ -747,13 +747,13 @@ void main() {
 
     testWidgets('different Position constructors produce different animations', (tester) async {
       // Test that different Position constructors can be animated independently
-      final actorFill = PositionActor(
+      final actorFill = PositionedActor(
         from: Position.fill(),
         to: Position.fill(start: 20, top: 20, end: 20, bottom: 20),
         child: const Text('Fill'),
       );
 
-      final actorTopStart = PositionActor(
+      final actorTopStart = PositionedActor(
         from: const Position.topStart(),
         to: const Position.topStart(start: 50, top: 50),
         child: const Text('TopStart'),

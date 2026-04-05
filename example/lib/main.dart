@@ -49,6 +49,9 @@ class _DemoPageState extends State<DemoPage> {
           children: [
             Cue.onMount(
               motion: .linear(500.ms),
+              acts: [
+                
+              ],
               child: const Padding(
                 padding: EdgeInsets.all(16.0),
                 child: Text('Hello World'),

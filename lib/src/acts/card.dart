@@ -11,8 +11,10 @@ part of 'base/act.dart';
 /// Use [borderRadius] for the common case of animating rounded corners on a
 /// rectangle. Use [shape] for arbitrary [ShapeBorder] animations (e.g.
 /// [StadiumBorder], [BeveledRectangleBorder]). The two are mutually exclusive.
+///
+/// **Prefer [CardActor] for simple card-only animations** — it provides better
+/// readability than composing [Actor] + [CardAct] directly.
 class CardAct extends AnimtableAct<CardProps, CardProps> {
-  
   @override
   final ActKey key = const ActKey('Card');
 
@@ -28,6 +30,73 @@ class CardAct extends AnimtableAct<CardProps, CardProps> {
   final bool semanticContainer;
   final Keyframes<CardProps>? frames;
 
+  /// {@template act.card}
+  /// Animates card surface properties like elevation, color, radius, and shadow.
+  ///
+  /// Wraps the child in a [PhysicalShape] that renders elevation shadows,
+  /// background color, and an optional border radius or custom shape.
+  ///
+  /// Multiple properties can be animated simultaneously by providing
+  /// [AnimatableValue] (tween) or [Keyframes] (keyframed) for each:
+  /// - [elevation] — shadow depth
+  /// - [color] — background fill color
+  /// - [shadowColor] — shadow tint
+  /// - [surfaceTintColor] — Material 3 surface tint
+  /// - [borderRadius] — corner rounding (mutually exclusive with [shape])
+  /// - [shape] — arbitrary [ShapeBorder]
+  /// - [margin] — spacing around the card
+  ///
+  /// Use `AnimatableValue.tween()` to animate a property, or
+  /// `AnimatableValue.fixed()` to keep it constant (not animated).
+  ///
+  /// ## Basic usage
+  ///
+  /// ```dart
+  /// Actor(
+  ///   acts: [
+  ///     CardAct(
+  ///       elevation: .fixed(2), // this value will not animate, stays at 2
+  ///       color: .tween(Colors.grey[100], Colors.blue[50]),
+  ///       borderRadius: .tween(
+  ///         BorderRadius.circular(4),
+  ///         BorderRadius.circular(12),
+  ///       ),
+  ///     ),
+  ///   ],
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  ///
+  /// ## Elevation only
+  ///
+  /// ```dart
+  /// CardAct(
+  ///   elevation: .tween(2, 12),
+  /// )
+  /// ```
+  ///
+  /// ## Color and shadow tint
+  ///
+  /// ```dart
+  /// CardAct(
+  ///   color: .tween(Colors.white, Colors.blue[50]),
+  ///   shadowColor: .tween(Colors.grey, Colors.blue),
+  /// )
+  /// ```
+  ///
+  /// ## Mixed: animate some, fix others
+  ///
+  /// ```dart
+  /// CardAct(
+  ///   elevation: .tween(2, 8),
+  ///   color: .fixed(Colors.white),  // stays white, does not animate
+  ///   borderRadius: .tween(
+  ///     BorderRadius.circular(8),
+  ///     BorderRadius.circular(16),
+  ///   ),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const CardAct({
     super.motion,
     ReverseBehavior<CardProps> super.reverse = const ReverseBehavior.mirror(),
@@ -49,6 +118,45 @@ class CardAct extends AnimtableAct<CardProps, CardProps> {
          'Use shape for arbitrary ShapeBorder, or borderRadius for rounded rectangles.',
        );
 
+  /// {@template act.card.keyframed}
+  /// Animates card properties through a sequence of keyframes.
+  ///
+  /// Use when the card needs to transition through multiple states, with
+  /// each step having its own motion curve. Pass a [Keyframes] containing
+  /// a sequence of [CardProps] values.
+  ///
+  /// ```dart
+  /// CardAct.keyframed(
+  ///   frames: Keyframes(
+  ///     motion: Spring.smooth(),
+  ///     frames: [
+  ///       KeyFrame(
+  ///         CardProps(
+  ///           elevation: 2,
+  ///           color: Colors.white,
+  ///           borderRadius: BorderRadius.circular(4),
+  ///         ),
+  ///       ),
+  ///       KeyFrame(
+  ///         CardProps(
+  ///           elevation: 8,
+  ///           color: Colors.blue[50],
+  ///           borderRadius: BorderRadius.circular(12),
+  ///         ),
+  ///         motion: Spring.bouncy(),
+  ///       ),
+  ///       KeyFrame(
+  ///         CardProps(
+  ///           elevation: 2,
+  ///           color: Colors.white,
+  ///           borderRadius: BorderRadius.circular(4),
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   ),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const CardAct.keyframed({
     required Keyframes<CardProps> this.frames,
     super.delay,
@@ -216,13 +324,34 @@ class _ShapeBorderPainter extends CustomPainter {
   }
 }
 
+/// A snapshot of card surface properties at a specific point in animation.
+///
+/// [CardProps] holds the current values of [elevation], [color], [shadowColor],
+/// [surfaceTintColor], [borderRadius], [shape], and [margin]. Used internally
+/// by [CardAct] to animate between different card states via tweening and
+/// keyframing.
+///
+/// Values are nullable except [shadowColor], which defaults to opaque black.
 class CardProps {
+  /// Shadow depth. Non-null indicates an elevation value is animating.
   final double? elevation;
+
+  /// Background fill color. Null means use theme default.
   final Color? color;
+
+  /// Color of the elevation shadow. Defaults to [Color(0xFF000000)].
   final Color? shadowColor;
+
+  /// Material 3 surface tint overlay color. Null means no tint.
   final Color? surfaceTintColor;
+
+  /// Border radius for rounded corners. Mutually exclusive with [shape].
   final BorderRadiusGeometry? borderRadius;
+
+  /// Arbitrary shape border (e.g., stadium, beveled). Mutually exclusive with [borderRadius].
   final ShapeBorder? shape;
+
+  /// Spacing around the card. Null means no margin.
   final EdgeInsetsGeometry? margin;
 
   const CardProps({
@@ -285,11 +414,74 @@ class _CardPropsProxyTween extends Tween<CardProps> {
   }
 }
 
-/// A convenience widget that animates card-like surface properties using
-/// [CardAct].
+/// A convenience widget that animates card-like surface properties.
 ///
-/// Wraps an [Actor] with a single [CardAct]. For composing multiple effects,
-/// use [Actor] directly with [CardAct] in the effects list.
+/// [CardActor] is a pre-composed widget that wraps [Actor] + [CardAct] for
+/// simple cases where only card properties (elevation, color, radius, shadow)
+/// need animation.
+///
+/// For more complex animations combining card properties with other acts
+/// (scale, blur, etc.), use [Actor] directly with [CardAct] in the acts list.
+///
+/// ## Usage
+///
+/// ```dart
+/// CardActor(
+///   elevation: .tween(2, 8),
+///   color: .tween(Colors.white, Colors.blue[50]),
+///   borderRadius: .tween(
+///     BorderRadius.circular(4),
+///     BorderRadius.circular(12),
+///   ),
+///   child: MyCard(),
+/// )
+/// ```
+///
+/// ## Animation control
+///
+/// Control animation timing with [motion], [delay], and [reverse]:
+///
+/// ```dart
+/// CardActor(
+///   elevation: .tween(2, 8),
+///   motion: .smooth(),
+///   delay: 100.ms,
+///   reverse: .exclusive(),
+///   child: MyCard(),
+/// )
+/// ```
+///
+/// ## Fixed properties
+///
+/// Use `AnimatableValue.fixed()` for properties that should not animate:
+///
+/// ```dart
+/// CardActor(
+///   elevation: .tween(2, 8),
+///   color: .fixed(Colors.white),  // stays constant
+///   borderRadius: .tween(
+///     BorderRadius.circular(8),
+///     BorderRadius.circular(16),
+///   ),
+///   child: MyCard(),
+/// )
+/// ```
+///
+/// ## Combining with other acts
+///
+/// For card animation + other effects (scale, fade, blur), use [Actor]
+/// directly instead of [CardActor]:
+///
+/// ```dart
+/// Actor(
+///   acts: [
+///     CardAct(elevation: .tween(2, 8)),
+///     .scale(from: 0.9, to: 1.0),
+///     .fadeIn(),
+///   ],
+///   child: MyCard(),
+/// )
+/// ```
 class CardActor extends StatelessWidget {
   final AnimatableValue<Color>? color;
   final AnimatableValue<Color> shadowColor;

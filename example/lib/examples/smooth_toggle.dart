@@ -57,7 +57,7 @@ class _SmoothSwitchState extends State<SmoothSwitch> {
               child: Stack(
                 fit: .expand,
                 children: [
-                  PositionActor.keyframed(
+                  PositionedActor.keyframed(
                     frames: .fractional([
                       .key(Position.fill(end: .5), at: .0),
                       .key(Position.fill(end: 0, top: .15, bottom: .15), at: .45),

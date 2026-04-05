@@ -1,13 +1,87 @@
 part of 'base/act.dart';
 
+/// Animates a parallax effect on child content.
+///
+/// Slides oversized content back and forth during animation while the parent
+/// clips to its normal size. Creates a parallax illusion where content appears
+/// to move more than the animation progress would suggest.
+/// 
+/// The child widget is sized to be larger than the parent container along the
+/// specified [axis], allowing it to slide within the bounds. As the animation
+/// progresses from 0 to 1, the child moves from one edge to the other.
 class ParallaxAct extends DeferredTweenAct<Offset> {
   @override
   ActKey get key => const ActKey('Parallax');
 
+  /// The amount of parallax slide as a fraction of parent size.
+  ///
+  /// Ranges from 0 (no slide) to 1+ (child oversized by that factor).
+  /// At progress 0.5, the child is centered. At 0 and 1, it reaches
+  /// the parallax boundaries.
+  ///
+  /// Must be > 0 for visible parallax effect.
   final double slide;
+
+  /// Direction of parallax sliding.
+  ///
+  /// Defaults to [Axis.horizontal] (left-right motion).
+  /// Set to [Axis.vertical] for up-down motion.
+  ///
+  /// The child widget is expanded along this axis to allow sliding.
   final Axis axis;
+  
   final ReverseBehavior<double> _reverse;
 
+  /// {@template act.parallax}
+  /// Slides content back and forth with parallax effect.
+  ///
+  /// [slide] controls how much the child oversizes (0.5 = 50% larger).
+  /// [axis] controls direction: [Axis.horizontal] or [Axis.vertical].
+  ///
+  /// The child is clipped to parent size while moving within expanded bounds.
+  /// At progress 0.5, the child is centered. Default reverse uses [ReverseBehavior.mirror]
+  /// to animate back from end to start.
+  ///
+  /// ## Basic horizontal parallax
+  ///
+  /// ```dart
+  /// Actor(
+  ///   acts: [
+  ///     .parallax(slide: 0.3),
+  ///   ],
+  ///   child: MyImage(),
+  /// )
+  /// ```
+  ///
+  /// ## Vertical parallax
+  ///
+  /// ```dart
+  /// Actor(
+  ///   acts: [
+  ///     .parallax(slide: 0.5, axis: Axis.vertical),
+  ///   ],
+  ///   child: ScrollableContent(),
+  /// )
+  /// ```
+  ///
+  /// ## Parallax with custom motion
+  ///
+  /// ```dart
+  /// .parallax(
+  ///   slide: 0.4,
+  ///   motion: .smooth(damping: 20),
+  /// )
+  /// ```
+  ///
+  /// ## Parallax that doesn't reverse
+  ///
+  /// ```dart
+  /// .parallax(
+  ///   slide: 0.3,
+  ///   reverse: .none(),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const ParallaxAct({
     super.motion,
     super.delay,

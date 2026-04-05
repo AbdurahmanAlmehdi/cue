@@ -73,7 +73,7 @@ class _DraggablePanelState extends State<DraggablePanel> {
               ),
             ),
 
-            PositionActor(
+            PositionedActor(
               from: .fill(),
               to: .fromSTEB(20, _dragExtent, 20, 24),
               child: CueDragScrubber(

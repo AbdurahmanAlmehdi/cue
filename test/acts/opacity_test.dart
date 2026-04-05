@@ -45,9 +45,9 @@ void main() {
       });
 
       test('fadeIn constructor with custom values', () {
-        const act = OpacityAct.fadeIn(from: 0.2, to: 0.8);
+        const act = OpacityAct.fadeIn(from: 0.2);
         expect(act.from, 0.2);
-        expect(act.to, 0.8);
+        expect(act.to, 1.0);
       });
 
       test('fadeOut constructor', () {
@@ -63,9 +63,9 @@ void main() {
       });
 
       test('fadeOut constructor with custom values', () {
-        const act = OpacityAct.fadeOut(from: 0.9, to: 0.1);
+        const act = OpacityAct.fadeOut(from: 0.9);
         expect(act.from, 0.9);
-        expect(act.to, 0.1);
+        expect(act.to,0.0);
       });
 
       test('constructor with motion', () {

@@ -1,19 +1,90 @@
 part of 'base/act.dart';
 
+/// Animates box decoration properties (color, border, shadow, radius, gradient).
+///
+/// Allows selective animation of individual decoration properties while keeping
+/// others fixed. Each property (color, borderRadius, border, boxShadow, gradient)
+/// can be independently animated or fixed using `AnimatableValue.fixed()`.
 class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
   @override
   final ActKey key = const ActKey('DecoratedBox');
 
+  /// {@template act.decorate}
+  /// Animates box decoration properties.
+  ///
+  /// Each property is optional and can be animated (via `AnimatableValue.tween()`)
+  /// or fixed (via `AnimatableValue.fixed()`). Unspecified properties use defaults.
+  ///
+  /// **Animation Properties** (all optional):
+  /// - [color]: Animate background color
+  /// - [borderRadius]: Animate border radius
+  /// - [border]: Animate border
+  /// - [boxShadow]: Animate shadow
+  /// - [gradient]: Animate gradient overlay
+  ///
+  /// Use `AnimatableValue.tween(from, to)` for animated properties.
+  /// Use `AnimatableValue.fixed(value)` to keep a property constant.
+  ///
+  /// ## Basic color animation
+  ///
+  /// ```dart
+  /// Actor(
+  ///   acts: [
+  ///     .decorate(
+  ///       color: .tween(Colors.red, Colors.blue),
+  ///     ),
+  ///   ],
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  ///
+  /// ## Multi-property animation
+  ///
+  /// ```dart
+  /// .decorate(
+  ///   color: .tween(Colors.red, Colors.blue),
+  ///   borderRadius: .tween(
+  ///     BorderRadius.circular(0),
+  ///     BorderRadius.circular(12),
+  ///   ),
+  ///   boxShadow: .tween(
+  ///     [BoxShadow(blurRadius: 0)],
+  ///     [BoxShadow(blurRadius: 8)],
+  ///   ),
+  /// )
+  /// ```
+  ///
+  /// ## Mixed: animate some, fix others
+  ///
+  /// ```dart
+  /// .decorate(
+  ///   color: .tween(Colors.transparent, Colors.white),
+  ///   borderRadius: .fixed(BorderRadius.circular(12)),
+  ///   boxShadow: .fixed([BoxShadow(blurRadius: 4)]),
+  /// )
+  /// ```
+  /// {@endtemplate}
+
+  /// Animates background color. Use `.tween(from, to)` or `.fixed(value)`.
   final AnimatableValue<Color>? color;
+
+  /// Animates border radius. Use `.tween(from, to)` or `.fixed(value)`.
   final AnimatableValue<BorderRadiusGeometry>? borderRadius;
+
+  /// Animates border. Use `.tween(from, to)` or `.fixed(value)`.
   final AnimatableValue<BoxBorder>? border;
+
+  /// Animates box shadow. Use `.tween(from, to)` or `.fixed(value)`.
   final AnimatableValue<List<BoxShadow>>? boxShadow;
+
+  /// Animates gradient overlay. Use `.tween(from, to)` or `.fixed(value)`.
   final AnimatableValue<Gradient>? gradient;
   final BoxShape shape;
   final DecorationPosition position;
   final Keyframes<Decoration>? frames;
   final DecorationImage? image;
 
+  /// {@macro act.decorate}
   const DecoratedBoxAct({
     this.color,
     this.borderRadius,
@@ -28,6 +99,36 @@ class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
     super.delay,
   }) : frames = null;
 
+  /// {@template act.decorate.keyframed}
+  /// Animates decoration through multiple keyframe states.
+  ///
+  /// [frames] defines the animation keyframes (type `Keyframes<Decoration>`).
+  /// All properties are derived from the keyframe decorations.
+  ///
+  /// ## Fractional keyframes with global duration
+  ///
+  /// ```dart
+  /// .keyframed(
+  ///   frames: Keyframes.fractional([
+  ///     .key(BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(0)), at: 0.0),
+  ///     .key(BoxDecoration(color: Colors.yellow, borderRadius: BorderRadius.circular(6)), at: 0.5),
+  ///     .key(BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(12)), at: 1.0),
+  ///   ], duration: 700.ms, curve: Curves.easeInOut),
+  /// )
+  /// ```
+  ///
+  /// ## Motion per keyframe
+  ///
+  /// ```dart
+  /// .keyframed(
+  ///   frames: Keyframes([
+  ///     .key(BoxDecoration(color: Colors.red)),
+  ///     .key(BoxDecoration(color: Colors.yellow), motion: .easeOut(200.ms)),
+  ///     .key(BoxDecoration(color: Colors.blue), motion: .smooth()),
+  ///   ]),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const DecoratedBoxAct.keyframed({
     required Keyframes<Decoration> this.frames,
     KFReverseBehavior<Decoration> super.reverse = const KFReverseBehavior.mirror(),
@@ -121,7 +222,57 @@ class DecoratedBoxAct extends AnimtableAct<Decoration, Decoration> {
   }
 }
 
+/// Convenience widget for decoration animations.
+///
+/// Pre-composes an [Actor] with a [DecoratedBoxAct], eliminating boilerplate for
+/// simple decoration animations. Use this instead of wrapping [DecoratedBoxAct]
+/// in [Actor] for better readability.
 class DecoratedBoxActor extends StatelessWidget {
+  /// {@template actor.decorate}
+  /// Creates a decoration animation widget.
+  ///
+  /// All properties are optional. Unspecified properties use defaults.
+  /// Use `AnimatableValue.tween()` to animate a property or
+  /// `AnimatableValue.fixed()` to keep it constant.
+  ///
+  /// ## Simple color animation
+  ///
+  /// ```dart
+  /// DecoratedBoxActor(
+  ///   color: .tween(Colors.red, Colors.blue),
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  ///
+  /// ## Multi-property animation
+  ///
+  /// ```dart
+  /// DecoratedBoxActor(
+  ///   color: .tween(Colors.white, Colors.grey[100]),
+  ///   borderRadius: .tween(
+  ///     BorderRadius.circular(0),
+  ///     BorderRadius.circular(16),
+  ///   ),
+  ///   boxShadow: .tween(
+  ///     [BoxShadow(blurRadius: 0)],
+  ///     [BoxShadow(blurRadius: 12, color: Colors.black26)],
+  ///   ),
+  ///   shape: BoxShape.rectangle,
+  ///   child: MyCard(),
+  /// )
+  /// ```
+  ///
+  /// ## Mixed: animate some, fix others
+  ///
+  /// ```dart
+  /// DecoratedBoxActor(
+  ///   color: .tween(Colors.transparent, Colors.blue),
+  ///   borderRadius: .fixed(BorderRadius.circular(12)),
+  ///   boxShadow: .fixed([BoxShadow(blurRadius: 4)]),
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  /// {@endtemplate}
   final AnimatableValue<Color>? color;
   final AnimatableValue<BorderRadiusGeometry>? borderRadius;
   final AnimatableValue<BoxBorder>? border;
@@ -136,6 +287,7 @@ class DecoratedBoxActor extends StatelessWidget {
   final ReverseBehavior<Decoration> reverse;
   final DecorationImage? image;
 
+  /// {@macro actor.decorate}
   const DecoratedBoxActor({
     super.key,
     this.color,

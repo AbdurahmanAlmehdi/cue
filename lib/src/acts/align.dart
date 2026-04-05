@@ -54,16 +54,27 @@ class AlignAct extends TweenActBase<AlignmentGeometry?, Alignment> {
   /// Use [AlignAct.keyframed] when the alignment needs to pass through more
   /// than two positions, or when each step requires its own motion curve.
   ///
+  /// ## Fractional keyframes with global duration
+  ///
   /// ```dart
   /// AlignAct.keyframed(
-  ///   frames: Keyframes(
-  ///     motion: .smooth(),
-  ///     frames: [
-  ///       KeyFrame(.topLeft, motion: .bouncy()),
-  ///       KeyFrame(.bottomRight),
-  ///       KeyFrame(.center),
-  ///     ],
-  ///   ),
+  ///   frames: Keyframes.fractional([
+  ///     .key(Alignment.topLeft, at: 0.0),
+  ///     .key(Alignment.center, at: 0.5),
+  ///     .key(Alignment.bottomRight, at: 1.0),
+  ///   ], duration: 600.ms, curve: Curves.easeInOut),
+  /// )
+  /// ```
+  ///
+  /// ## Motion per keyframe
+  ///
+  /// ```dart
+  /// AlignAct.keyframed(
+  ///   frames: Keyframes([
+  ///     .key(Alignment.topLeft),
+  ///     .key(Alignment.center, motion: .smooth()),
+  ///     .key(Alignment.bottomRight, motion: .easeInOut(300.ms)),
+  ///   ], motion: .smooth()),
   /// )
   /// ```
   /// {@endtemplate}

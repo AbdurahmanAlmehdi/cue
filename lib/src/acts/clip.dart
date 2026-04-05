@@ -1,6 +1,49 @@
 part of 'base/act.dart';
 
+/// Animates clipping regions on a widget.
+///
+/// Provides multiple clipping strategies: expanding/contracting within a border
+/// radius or circular path, or sliding clipping along horizontal/vertical axes.
+/// All variants animate from a factor of 0 (fully clipped) to 1 (fully visible).
 abstract class ClipAct extends Act {
+  /// {@template act.clip}
+  /// Animates an expanding or contracting clip path with optional border radius.
+  ///
+  /// Clips the child using [ClipPath] and [Align], growing from the specified
+  /// alignment point outward. [borderRadius] defaults to `BorderRadius.zero`
+  /// (rectangular clipping). Set [borderRadius] to null for circular clipping,
+  /// or to a custom value for rounded corners. Use [useSuperellipse] for smooth
+  /// super-ellipse clipping curves (optional optimization).
+  ///
+  /// ## Basic usage
+  ///
+  /// ```dart
+  /// Actor(
+  ///   acts: [
+  ///     .clip(borderRadius: BorderRadius.circular(12)),
+  ///     .clipWidth(fromFactor: 0, toFactor: 1),
+  ///     .clipHeight(fromFactor: 0, toFactor: 1),
+  ///   ],
+  ///   child: MyWidget(),
+  /// )
+  /// ```
+  ///
+  /// ## Rectangular clipping
+  ///
+  /// ```dart
+  /// .clip(
+  ///   borderRadius: BorderRadius.circular(0),  // sharp corners
+  /// )
+  /// ```
+  ///
+  /// ## Circular clipping
+  ///
+  /// Use `.circularClip()` shorthand (or set borderRadius to null):
+  ///
+  /// ```dart
+  /// .circularClip()
+  /// ```
+  /// {@endtemplate}
   const factory ClipAct({
     BorderRadiusGeometry borderRadius,
     AlignmentGeometry alignment,
@@ -9,12 +52,59 @@ abstract class ClipAct extends Act {
     Duration delay,
   }) = PathClipAct;
 
+  /// {@template act.clip.circular}
+  /// Animates a circular clip expanding from an alignment point.
+  ///
+  /// Shorthand for `.clip(borderRadius: null)`. Clips the child to an expanding
+  /// circle from the specified [alignment] point.
+  ///
+  /// ## Usage
+  ///
+  /// ```dart
+  /// .circularClip()  // expands from top-left by default
+  ///
+  /// .circularClip(alignment: Alignment.center)  // expands from center
+  /// ```
+  ///
+  /// ## Keyframed circular clip
+  ///
+  /// ```dart
+  /// .keyframed(
+  ///   frames: Keyframes.fractional([
+  ///     .key(0.0, at: 0.0),
+  ///     .key(0.7, at: 0.5),
+  ///     .key(1.0, at: 1.0),
+  ///   ], duration: 400.ms),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory ClipAct.circular({
     AlignmentGeometry alignment,
     CueMotion? motion,
     Duration delay,
   }) = PathClipAct.circular;
 
+  /// {@template act.clip.width}
+  /// Animates a horizontal (left-to-right or right-to-left) sliding clip.
+  ///
+  /// Clips along the horizontal axis from [fromFactor] to [toFactor], where
+  /// 0 = fully clipped (width 0) and 1 = fully visible (full width).
+  ///
+  /// Default [alignment] is `AlignmentDirectional.centerStart` (left-to-right).
+  /// Override to change reveal direction.
+  ///
+  /// ## Usage
+  ///
+  /// ```dart
+  /// .clipWidth(from: 0, to: 1)  // reveal left-to-right
+  ///
+  /// .clipWidth(
+  ///   from: 0,
+  ///   to: 1,
+  ///   alignment: AlignmentDirectional.centerEnd,  // reveal right-to-left
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory ClipAct.width({
     double fromFactor,
     double toFactor,
@@ -23,6 +113,27 @@ abstract class ClipAct extends Act {
     Duration delay,
   }) = AxisClipAct.horizontal;
 
+  /// {@template act.clip.height}
+  /// Animates a vertical (top-to-bottom or bottom-to-top) sliding clip.
+  ///
+  /// Clips along the vertical axis from [fromFactor] to [toFactor], where
+  /// 0 = fully clipped (height 0) and 1 = fully visible (full height).
+  ///
+  /// Default [alignment] is `AlignmentDirectional.topCenter` (top-to-bottom).
+  /// Override to change reveal direction.
+  ///
+  /// ## Usage
+  ///
+  /// ```dart
+  /// .clipHeight(from: 0, to: 1)  // reveal top-to-bottom
+  ///
+  /// .clipHeight(
+  ///   from: 0,
+  ///   to: 1,
+  ///   alignment: Alignment.bottomCenter,  // reveal bottom-to-top
+  /// )
+  /// ```
+  /// {@endtemplate}
   const factory ClipAct.height({
     double fromFactor,
     double toFactor,
@@ -32,6 +143,7 @@ abstract class ClipAct extends Act {
   }) = AxisClipAct.vertical;
 }
 
+/// Animates sliding clip along a single axis (horizontal or vertical).
 class AxisClipAct extends TweenAct<double> implements ClipAct {
   @override
   ActKey get key => const ActKey('Clip');
@@ -39,6 +151,7 @@ class AxisClipAct extends TweenAct<double> implements ClipAct {
   final Axis _axis;
   final AlignmentGeometry alignment;
 
+  /// {@macro act.clip.width}
   const AxisClipAct.horizontal({
     double fromFactor = 0,
     double toFactor = 1,
@@ -48,6 +161,7 @@ class AxisClipAct extends TweenAct<double> implements ClipAct {
   }) : _axis = Axis.horizontal,
        super.tween(from: fromFactor, to: toFactor);
 
+  /// {@macro act.clip.height}
   const AxisClipAct.vertical({
     double fromFactor = 0,
     double toFactor = 1,
@@ -91,6 +205,7 @@ class AxisClipAct extends TweenAct<double> implements ClipAct {
   int get hashCode => Object.hash(super.hashCode, _axis, alignment);
 }
 
+/// Animates clipping from an alignment point along an expanding path or circle.
 class PathClipAct extends TweenAct<double> implements ClipAct {
 
   @override
@@ -100,6 +215,7 @@ class PathClipAct extends TweenAct<double> implements ClipAct {
   final AlignmentGeometry? alignment;
   final bool useSuperellipse;
 
+  /// {@macro act.clip}
   const PathClipAct({
     BorderRadiusGeometry this.borderRadius = BorderRadius.zero,
     this.alignment,
@@ -110,6 +226,7 @@ class PathClipAct extends TweenAct<double> implements ClipAct {
     super.delay,
   }) : super.tween();
 
+  /// {@macro act.clip.circular}
   const PathClipAct.circular({
     this.alignment,
     super.motion,

@@ -342,7 +342,6 @@ abstract class Act {
   /// {@macro act.opacity.fade_in}
   const factory Act.fadeIn({
     double from,
-    double to,
     CueMotion? motion,
     ReverseBehavior<double> reverse,
 
@@ -352,7 +351,6 @@ abstract class Act {
   /// {@macro act.opacity.fade_out}
   const factory Act.fadeOut({
     double from,
-    double to,
     CueMotion? motion,
     ReverseBehavior<double> reverse,
     Duration delay,
@@ -510,17 +508,19 @@ abstract class Act {
     ReverseBehavior<double> reverse,
   }) = RotateLayoutAct;
 
-  /// {@macro act.rotate.flip_x}
+  /// {@macro act.rotate3d.flipX}
   const factory Act.flipX({
     CueMotion? motion,
     Duration delay,
-  }) = RotateAct.flipX;
+    double perspective,
+  }) = Rotate3DAct.flipX;
 
-  /// {@macro act.rotate.flip_y}
+  /// {@macro act.rotate3d.flipY}
   const factory Act.flipY({
     CueMotion? motion,
     Duration delay,
-  }) = RotateAct.flipY;
+    double perspective,
+  }) = Rotate3DAct.flipY;
 
   /// {@macro act.skew}
   const factory Act.skew({

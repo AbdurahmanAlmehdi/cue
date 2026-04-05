@@ -1,14 +1,84 @@
 import 'dart:ui';
 
 import 'package:cue/cue.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+/// Animates custom tween values using a builder function.
+///
+/// Allows you to define arbitrary animation values and render them using a
+/// custom builder. Useful for animating non-standard types, combining multiple
+/// animation properties, or integrating with external animation libraries.
+///
+/// The animation value `T` can be any type that has a tween defined (via
+/// [tweenBuilder]) or implements [Lerpable] for custom interpolation. If neither
+/// is provided and `T` is a [Lerpable], the default interpolation uses
+/// `lerpTo()`.
+@internal
 class CustomTweenAct<T extends Object?> extends TweenAct<T> {
+  
   @override
   final ActKey key = const ActKey('TweenActor');
+
   final Widget Function(BuildContext context, CueAnimation<T> animation) builder;
 
   final Animatable<T>? tweenBuilder;
+
+  /// {@template act.custom_tween}
+  /// Animates custom tween values with a builder.
+  ///
+  /// [builder] receives the current animated value and must return a widget.
+  /// [from] and [to] define the start and end animation values.
+  ///
+  /// The animation uses [tweenBuilder] to create the tween if provided.
+  /// Otherwise, if `T` implements [Lerpable], the default interpolation uses
+  /// `lerpTo()`. For other types, you must provide [tweenBuilder].
+  ///
+  /// ## Single value animation
+  ///
+  /// ```dart
+  /// TweenActor<double>(
+  ///   from: 0,
+  ///   to: 100,
+  ///   builder: (context, animation) => Container(
+  ///     width: animation.value,
+  ///     color: Colors.blue,
+  ///   ),
+  /// )
+  /// ```
+  ///
+  /// ## Multi-value animation with custom type
+  ///
+  /// ```dart
+  /// TweenActor<AnimatedValues>(
+  ///   from: AnimatedValues(scale: 1.0, opacity: 0.5),
+  ///   to: AnimatedValues(scale: 1.2, opacity: 1.0),
+  ///   builder: (context, animation) {
+  ///     final scale = animation.ma((v) => v.scale);
+  ///     final opacity = animation.ma((v) => v.opacity);
+  ///     return ScaleTransition(
+  ///       scale: scale,
+  ///       child: FadeTransition(opacity: opacity, child: MyWidget()),
+  ///     );
+  ///   },
+  /// )
+  /// ```
+  ///
+  /// ## Custom tween builder
+  ///
+  /// For types without built-in [Lerpable] support, provide a [tweenBuilder]:
+  ///
+  /// ```dart
+  /// TweenActor<MyCustomType>(
+  ///   from: MyCustomType(value: 0),
+  ///   to: MyCustomType(value: 100),
+  ///   tweenBuilder: MyCustomTypeTween(), // custom Animatable<MyCustomType>
+  ///   builder: (context, animation) {
+  ///      // build widget using animation<MyCustomType>
+  ///   }
+  /// )
+  /// ```
+  /// {@endtemplate}
   const CustomTweenAct({
     super.from,
     super.to,
@@ -52,10 +122,87 @@ class CustomTweenAct<T extends Object?> extends TweenAct<T> {
   int get hashCode => Object.hash(super.hashCode, builder, tweenBuilder);
 }
 
+/// Convenience widget for custom tween animations.
+///
+/// Pre-composes an [Actor] with a [CustomTweenAct], eliminating boilerplate for
+/// simple custom tween animations. Use this instead of wrapping [CustomTweenAct]
+/// in [Actor] for better readability.
 class TweenActor<T extends Object?> extends SingleActorBase<T> {
   final Widget Function(BuildContext context, CueAnimation<T> animation) builder;
   final Animatable<T>? tweenBuilder;
 
+  /// {@template actor.tween}
+  /// Creates a custom tween animation widget.
+  ///
+  /// [builder] receives the current animated value and must return a widget.
+  /// [from] and [to] define start and end values. Both are required.
+  ///
+  /// The animation uses [tweenBuilder] if provided, otherwise [Lerpable.lerpTo()]
+  /// for custom types or the default tween for built-ins (double, Offset, etc.).
+  ///
+  /// ## Simple double animation
+  ///
+  /// ```dart
+  /// TweenActor<double>(
+  ///   from: 0,
+  ///   to: 100,
+  ///   builder: (context, animation) => Container(
+  ///     width: animation.value,
+  ///     height: 50,
+  ///     color: Colors.blue,
+  ///   ),
+  /// )
+  /// ```
+  ///
+  /// ## Multi-property custom type
+  ///
+  /// ```dart
+  /// TweenActor<AnimatedValues>(
+  ///   from: AnimatedValues(
+  ///     scale: 1.0,
+  ///     opacity: 0.5,
+  ///     offset: Offset.zero,
+  ///   ),
+  ///   to: AnimatedValues(
+  ///     scale: 1.3,
+  ///     opacity: 1.0,
+  ///     offset: Offset(50, 0),
+  ///   ),
+  ///   builder: (context, animation) {
+  ///     final scale = animation.ma((v) => v.scale);
+  ///     final opacity = animation.ma((v) => v.opacity);
+  ///     final offset = animation.ma((v) => v.offset);
+  ///     return SlideTransition(
+  ///       position: offset.drive(Tween(begin: Offset.zero, end: Offset(1, 0))),
+  ///       child: ScaleTransition(
+  ///         scale: scale,
+  ///         child: FadeTransition(opacity: opacity, child: MyWidget()),
+  ///       ),
+  ///     );
+  ///   },
+  /// )
+  /// ```
+  ///
+  /// Extract individual animated values using `.ma()` mapper:
+  ///
+  /// ```dart
+  /// TweenActor<AnimatedValues>(
+  ///   from: AnimatedValues(scale: 1.0, opacity: 0.5),
+  ///   to: AnimatedValues(scale: 1.3, opacity: 1.0),
+  ///   builder: (context, animation) {
+  ///     final scaleAnimation = animation.ma((v) => v.scale);
+  ///     final opacityAnimation = animation.ma((v) => v.opacity);
+  ///     return ScaleTransition(
+  ///       scale: scaleAnimation,
+  ///       child: FadeTransition(
+  ///         opacity: opacityAnimation,
+  ///         child: MyWidget(),
+  ///       ),
+  ///     );
+  ///   },
+  /// )
+  /// ```
+  /// {@endtemplate}
   const TweenActor({
     super.key,
     required super.from,
@@ -67,6 +214,44 @@ class TweenActor<T extends Object?> extends SingleActorBase<T> {
     this.tweenBuilder,
   }) : super(child: const SizedBox.shrink());
 
+  /// {@template actor.tween.keyframed}
+  /// Creates a multi-frame custom tween animation.
+  ///
+  /// [frames] defines the animation keyframes (type `Keyframes<T>`).
+  /// [builder] receives the current animated value and renders a widget.
+  ///
+  /// ## Fractional keyframes with global duration
+  ///
+  /// ```dart
+  /// TweenActor<double>.keyframed(
+  ///   frames: Keyframes.fractional([
+  ///     .key(0, at: 0.0),
+  ///     .key(50, at: 0.5),
+  ///     .key(100, at: 1.0),
+  ///   ], duration: 600.ms, curve: Curves.easeInOut),
+  ///   builder: (context, animation) => Container(
+  ///     width: animation.value,
+  ///     color: Colors.blue,
+  ///   ),
+  /// )
+  /// ```
+  ///
+  /// ## Motion per keyframe
+  ///
+  /// ```dart
+  /// TweenActor<double>.keyframed(
+  ///   frames: Keyframes([
+  ///     .key(0),
+  ///     .key(50, motion: .easeOut(200.ms)),
+  ///     .key(100, motion: .smooth()),
+  ///   ]),
+  ///   builder: (context, animation) => Container(
+  ///     width: animation.value,
+  ///     color: Colors.blue,
+  ///   ),
+  /// )
+  /// ```
+  /// {@endtemplate}
   const TweenActor.keyframed({
     super.key,
     required super.frames,
@@ -89,6 +274,13 @@ class TweenActor<T extends Object?> extends SingleActorBase<T> {
   );
 }
 
+/// Default data class implementing [Lerpable] for common animated values.
+///
+/// Demonstrates how to create a custom type that can interpolate multiple
+/// properties simultaneously. All numeric/object fields support standard lerping;
+/// nullable fields may be null at either end (or both).
+///
+/// Use this as a template for your own multi-property animation types.
 class AnimatedValues extends Lerpable<AnimatedValues> {
   final double scale;
   final double opacity;
@@ -98,6 +290,7 @@ class AnimatedValues extends Lerpable<AnimatedValues> {
   final Size? size;
   final double blur;
 
+/// Default constructor
   const AnimatedValues({
     this.scale = 1.0,
     this.opacity = 1.0,
@@ -123,11 +316,65 @@ class AnimatedValues extends Lerpable<AnimatedValues> {
   }
 }
 
+/// Base interface for custom interpolatable types.
+///
+/// Implement this on your custom data types to enable animations via
+/// [CustomTweenAct] and [TweenActor]. The [lerpTo] method must interpolate
+/// between this instance and another, with `t` ranging from 0 (this) to 1 (end).
+///
+/// ## Implementing Lerpable
+///
+/// ```dart
+/// class MyAnimatedValue extends Lerpable<MyAnimatedValue> {
+///   final double opacity;
+///   final Offset position;
+///
+///   const MyAnimatedValue({
+///     required this.opacity,
+///     required this.position,
+///   });
+///
+///   @override
+///   MyAnimatedValue lerpTo(covariant MyAnimatedValue? end, double t) {
+///     if (end is! MyAnimatedValue) return this;
+///     return MyAnimatedValue(
+///       opacity: lerpDouble(opacity, end.opacity, t) ?? 0,
+///       position: Offset.lerp(position, end.position, t) ?? Offset.zero,
+///     );
+///   }
+/// }
+/// ```
+///
+/// Then use it with [TweenActor]:
+///
+/// ```dart
+/// TweenActor<MyAnimatedValue>(
+///   from: MyAnimatedValue(opacity: 0, position: Offset(0, 0)),
+///   to: MyAnimatedValue(opacity: 1, position: Offset(100, 100)),
+///   builder: (context, animation) => Opacity(
+///     opacity: animation.value.opacity,
+///     child: Transform.translate(
+///       offset: animation.value.position,
+///       child: MyWidget(),
+///     ),
+///   ),
+/// )
+/// ```
 abstract class Lerpable<T extends Lerpable<T>> {
   const Lerpable();
+
+  /// Interpolates from this to [end] with progress `t` (0 to 1).
+  ///
+  /// [t] = 0 should return this instance; [t] = 1 should return [end].
+  /// Values between 0 and 1 should return proportional interpolations.
   T lerpTo(covariant T? end, double t);
 }
 
+/// Internal tween implementation for inline lerp functions.
+///
+/// Used internally by [CustomTweenAct.createSingleTween] when a [Lerpable]
+/// type is detected and no explicit [tweenBuilder] is provided.
+///
 @visibleForTesting
 class InlineFnTween<T extends Object?> extends Tween<T> {
   final T Function(double t) lerpFn;
