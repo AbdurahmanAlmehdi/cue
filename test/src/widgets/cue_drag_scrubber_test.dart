@@ -16,6 +16,7 @@ void main() {
         MaterialApp(
           home: CueScope(
             controller: controller,
+            defaultConfig: controller.timeline.defaultConfig,
             reanimateFromCurrent: false,
             child: CueDragScrubber(
               distance: 200,
@@ -73,6 +74,7 @@ void main() {
         MaterialApp(
           home: CueScope(
             controller: controller,
+            defaultConfig: controller.timeline.defaultConfig,
             reanimateFromCurrent: false,
             child: CueDragScrubber(
               distance: 200,
@@ -96,6 +98,7 @@ void main() {
         MaterialApp(
           home: CueScope(
             controller: controller,
+            defaultConfig: controller.timeline.defaultConfig,
             reanimateFromCurrent: false,
             child: CueDragScrubber(
               distance: 200,
@@ -119,6 +122,7 @@ void main() {
         MaterialApp(
           home: CueScope(
             controller: controller,
+            defaultConfig: controller.timeline.defaultConfig,
             reanimateFromCurrent: false,
             child: CueDragScrubber(
               distance: 200,
@@ -146,6 +150,7 @@ void main() {
         MaterialApp(
           home: CueScope(
             controller: controller,
+            defaultConfig: controller.timeline.defaultConfig,
             reanimateFromCurrent: false,
             child: CueDragScrubber(
               distance: 200,
@@ -174,6 +179,7 @@ void main() {
         MaterialApp(
           home: CueScope(
             controller: controller,
+            defaultConfig: controller.timeline.defaultConfig,
             reanimateFromCurrent: false,
             child: CueDragScrubber(
               distance: 100,
@@ -206,6 +212,7 @@ void main() {
         MaterialApp(
           home: CueScope(
             controller: controller,
+            defaultConfig: controller.timeline.defaultConfig,
             reanimateFromCurrent: false,
             child: CueDragScrubber(
               distance: 200,
@@ -234,6 +241,7 @@ void main() {
         MaterialApp(
           home: CueScope(
             controller: controller,
+            defaultConfig: controller.timeline.defaultConfig,
             reanimateFromCurrent: false,
             child: CueDragScrubber(
               distance: 200,

@@ -44,91 +44,42 @@ class _DemoPageState extends State<DemoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: Drawer(
-        child: ListView(
-          children: const [
-            DrawerHeader(child: Text('Header')),
-            ListTile(title: Text('Item 1')),
-            ListTile(title: Text('Item 2')),
-            ListTile(title: Text('Item 3')),
-          ],
-        ),
-      ),
+    
       appBar: AppBar(
         title: const Text('Demo'),
-        leading: IconButton(
-          onPressed: () {
-            setState(() {
-              isOpen = !isOpen;
-            });
-          },
-          icon: Icon(
-            isOpen ? Icons.close : Icons.menu,
-          ),
-        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              setState(() {
+                isOpen = !isOpen;
+              });
+            },
+            icon: Icon(
+              isOpen ? Icons.close : Icons.menu,
+            ),
+          )
+        ],
       ),
       body: Cue.onToggle(
         toggled: isOpen,
-        motion: .spatialSlow(),
-        child: CueDragScrubber(
-          axis: .horizontal,
-          distance: drawerWidth,
-          onAnimationEnd: (forward) {
-            setState(() {
-              isOpen = forward;
-            });
-          },
-          child: SizedBox.expand(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned.fill(
-                  child: Actor(
-                    acts: [.scale(to: .95), .slideX(to: .2)],
-                    child: Container(color: Colors.blueGrey),
-                  ),
-                ),
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap: isOpen
-                        ? () {
-                            setState(() {
-                              isOpen = false;
-                            });
-                          }
-                        : null,
-                    child: DecoratedBoxActor(
-                      color: .tween(Colors.transparent, Colors.black26),
-                    ),
-                  ),
-                ),
-                PositionedActor(
-                  from: Position(top: 0, start: -drawerWidth, width: drawerWidth, bottom: 0),
-                  to: Position(top: 0, start: 0, width: drawerWidth, bottom: 0),
-                  child: Container(
-                    color: Colors.blue,
-                    child: Column(
-                      children: [
-                        // stagger a list otems fadein slideY acts here
-                        for (int i = 0; i < 5; i++)
-                          Actor(
-                            acts: [
-                              .fadeIn(delay: Duration(milliseconds: 50 * i)),
-                              .slideY(from: 0.5, delay: Duration(milliseconds: 100 + (50 * i))),
-                            ],
-                            child: ListTile(
-                              title: Text('Item ${i + 1}'),
-                              leading: const Icon(Icons.star),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+        child: Column(children: [
+          Actor(
+            acts: [
+               .slideX(to: 1, motion: .smooth()),
+            ],
+            child: Container(
+              width: 200,
+              height: 200,
+              color: Colors.blue,
             ),
           ),
-        ),
+          const SizedBox(height: 20),
+          Container(
+            width: 200,
+            height: 200,
+            color: Colors.red,
+          ),
+        ],)
       ),
     );
   }

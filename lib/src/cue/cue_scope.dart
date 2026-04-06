@@ -16,10 +16,14 @@ class CueScope extends InheritedWidget {
     required super.child,
     required this.controller,
     required this.reanimateFromCurrent,
+    required this.defaultConfig,
   });
 
   /// The controller that manages the animation state.
   final CueController controller;
+
+  /// The default track configuration for this scope, inherited from the parent [Cue].
+  final TrackConfig defaultConfig;
 
   /// Whether to reanimate from the current position when the animation triggers again.
   final bool reanimateFromCurrent;
@@ -40,6 +44,8 @@ class CueScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(covariant CueScope oldWidget) {
-    return controller != oldWidget.controller || reanimateFromCurrent != oldWidget.reanimateFromCurrent;
+    return controller != oldWidget.controller ||
+        reanimateFromCurrent != oldWidget.reanimateFromCurrent ||
+        defaultConfig != oldWidget.defaultConfig;
   }
 }

@@ -59,11 +59,13 @@ void main() {
 
       final scope1 = CueScope(
         controller: controller1,
+        defaultConfig: controller1.timeline.defaultConfig,
         reanimateFromCurrent: false,
         child: const SizedBox(),
       );
       final scope2 = CueScope(
         controller: controller2,
+        defaultConfig: controller2.timeline.defaultConfig,
         reanimateFromCurrent: false,
         child: const SizedBox(),
       );
@@ -79,11 +81,13 @@ void main() {
 
       final scope1 = CueScope(
         controller: controller,
+        defaultConfig: controller.timeline.defaultConfig,
         reanimateFromCurrent: false,
         child: const SizedBox(),
       );
       final scope2 = CueScope(
         controller: controller,
+        defaultConfig: controller.timeline.defaultConfig,
         reanimateFromCurrent: true,
         child: const SizedBox(),
       );
@@ -99,11 +103,13 @@ void main() {
 
       final scope1 = CueScope(
         controller: controller,
+        defaultConfig: controller.timeline.defaultConfig,
         reanimateFromCurrent: false,
         child: const SizedBox(),
       );
       final scope2 = CueScope(
         controller: controller,
+        defaultConfig: controller.timeline.defaultConfig,
         reanimateFromCurrent: false,
         child: const SizedBox(),
       );
@@ -118,6 +124,7 @@ void main() {
       );
       final scope = CueScope(
         controller: controller,
+        defaultConfig: controller.timeline.defaultConfig,
         reanimateFromCurrent: true,
         child: const SizedBox(),
       );

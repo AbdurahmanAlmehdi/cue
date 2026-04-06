@@ -518,4 +518,13 @@ final class Spring extends SimulationMotion<CueSpringSimulation> {
     final milliseconds = (buildBase().duration * Duration.millisecondsPerSecond).round();
     return Duration(milliseconds: milliseconds);
   }
+
+
+  @override
+  String toString() {
+    if (_rawDesc != null) {
+      return 'Spring(custom: $_rawDesc, tolerance: $tolerance, snapToEnd: $snapToEnd)';
+    }
+    return 'Spring(mass: $mass, stiffness: $stiffness, dampingRatio: $dampingRatio, tolerance: $tolerance, snapToEnd: $snapToEnd)';
+  }
 }

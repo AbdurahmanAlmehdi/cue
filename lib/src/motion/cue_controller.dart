@@ -67,7 +67,8 @@ class CueController extends AnimationController {
   ///
   /// Cue widgets call this automatically when their motion input changes.
   /// Only call this manually if managing tracks outside of Cue widgets.
-  void rebuildTimeline(CueMotion newMotion, {CueMotion? reverseMotion}) {
+  void rebuildTimeline(CueMotion newMotion, {CueMotion? reverseMotion, bool keepProgress = true}) {
+    final progress = keepProgress ? _timeline.progress : null;
     _timeline.dispose();
     _timeline = CueTimelineImpl(
       TrackConfig(
@@ -75,6 +76,9 @@ class CueController extends AnimationController {
         reverseMotion: reverseMotion ?? newMotion,
       ),
     );
+    if (progress != null) {
+      _timeline.setProgress(progress, forward: progress > 0.0);
+    }
   }
 
   /// Obtains a raw [CueTrack] from the timeline.

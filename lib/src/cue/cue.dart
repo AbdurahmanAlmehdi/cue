@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cue/cue.dart';
+import 'package:cue/src/timeline/track/track_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -353,6 +354,7 @@ abstract class CueState<T extends Cue> extends State<Cue> {
     }
     return CueScope(
       controller: controller,
+      defaultConfig: controller.timeline.defaultConfig,
       reanimateFromCurrent: reanimateFromCurrent,
       child: child,
     );

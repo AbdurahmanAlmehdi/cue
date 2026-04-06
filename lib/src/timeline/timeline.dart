@@ -122,11 +122,16 @@ class CueTimelineImpl extends CueTimeline with AnimationLocalStatusListenersMixi
     );
     _forwardDuration = null;
     _reverseDuration = null;
-    entry.track.prepare(
-      forward: status.isForwardOrCompleted,
-      from: progress,
-      exteranlVelocity: dx(_lastT),
-    );
+
+    if (entry.tokens.isEmpty) {
+      // this mean the track is newly created
+      // we attach the current timeline state to it so that it can be in sync with other tracks
+      entry.track.prepare(
+        forward: status.isForwardOrCompleted,
+        from: progress,
+        exteranlVelocity: dx(_lastT),
+      );
+    }
     final token = ReleaseToken(config, this);
     entry.addToken(token);
     return (entry.track, token);
