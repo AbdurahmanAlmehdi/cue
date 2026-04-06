@@ -29,6 +29,40 @@ Cue separates animation into a few small pieces:
 
 That separation keeps animation code readable, reusable, and easy to scale across a subtree.
 
+## Visual Demos
+
+<table>
+	<tr>
+		<td align="center" width="33%">
+			<a href="https://raw.githubusercontent.com/Milad-Akarie/cue/main/example/lib/examples/ios_context_menu.dart">
+				<img src="https://raw.githubusercontent.com/Milad-Akarie/cue/main/demos/ios_context_menu.gif" alt="iOS context menu demo" width="100%">
+			</a>
+			<br/>
+			<strong>iOS Context Menu</strong>
+			<br/>
+			<a href="https://raw.githubusercontent.com/Milad-Akarie/cue/main/example/lib/examples/ios_context_menu.dart">source</a>
+		</td>
+		<td align="center" width="33%">
+			<a href="https://raw.githubusercontent.com/Milad-Akarie/cue/main/example/lib/examples/draggable_panel.dart">
+				<img src="https://raw.githubusercontent.com/Milad-Akarie/cue/main/demos/draggable_panel.gif" alt="Draggable panel demo" width="100%">
+			</a>
+			<br/>
+			<strong>Draggable Panel</strong>
+			<br/>
+			<a href="https://raw.githubusercontent.com/Milad-Akarie/cue/main/example/lib/examples/draggable_panel.dart">source</a>
+		</td>
+		<td align="center" width="33%">
+			<a href="https://raw.githubusercontent.com/Milad-Akarie/cue/main/example/lib/examples/indicator_to_button.dart">
+				<img src="https://raw.githubusercontent.com/Milad-Akarie/cue/main/demos/indicator_to_button.gif" alt="Indicator to button demo" width="100%">
+			</a>
+			<br/>
+			<strong>Indicator To Button</strong>
+			<br/>
+			<a href="https://raw.githubusercontent.com/Milad-Akarie/cue/main/example/lib/examples/indicator_to_button.dart">source</a>
+		</td>
+	</tr>
+</table>
+
 ## Quick Start
 
 ```dart
