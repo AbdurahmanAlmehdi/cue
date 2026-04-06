@@ -19,8 +19,6 @@
 
 Physics-first Flutter animations with a composable, timeline-driven API for building polished transitions, expressive UI motion, and reusable animation systems without wiring imperative controllers through your widget tree.
 
-## Visual Demos
-
 <table>
 	<tr>
 		<td align="center" width="33%">
