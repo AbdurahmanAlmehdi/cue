@@ -167,6 +167,8 @@ abstract class Cue extends StatefulWidget {
   ///
   /// Set this to identify the animation when using [CueDebugProvider].
   final String? debugLabel;
+
+  /// The widget being animated.
   final Widget child;
 
   /// A shorthand list of [Act]s to apply directly on this [Cue]'s child.

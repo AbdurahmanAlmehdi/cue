@@ -109,6 +109,7 @@ abstract class TweenActBase<T extends Object?, R extends Object?> extends Animta
   /// Keyframes level).
   final Keyframes<T>? frames;
 
+  /// Creates a tween act base with optional [from], [to], [frames], [motion], [delay], and [reverse].
   @internal
   const TweenActBase({this.from, this.to, this.frames, super.motion, super.delay, required super.reverse});
 

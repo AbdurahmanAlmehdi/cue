@@ -50,6 +50,7 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
 
   AnimationStatus _status = AnimationStatus.dismissed;
 
+  /// Creates a track with the given [config].
   CueTrackImpl(this.config);
 
   /// The current computed animation value.
@@ -250,9 +251,11 @@ class CueTrackImpl extends CueTrack with AnimationLocalStatusListenersMixin {
 
   @override
   void didUnregisterListener() => _listenres--;
-
+ 
+  /// Whether this track has any active listeners.
   bool get hasListeners => _listenres > 0;
 }
+
 
 abstract class CueTrack extends Animation<double> with AnimationLocalListenersMixin {
   /// Prepares the track for animation playback.

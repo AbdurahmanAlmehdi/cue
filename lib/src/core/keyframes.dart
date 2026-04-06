@@ -31,6 +31,7 @@ class FKeyframe<T> extends KeyframeBase<T> {
   /// Optional curve to apply during motion towards this keyframe.
   final Curve? curve;
 
+  /// Creates a fractional keyframe with the given [value] at normalized position [at].
   const FKeyframe(super.value, {required this.at, this.curve})
     : assert(at >= 0.0 && at <= 1.0, 'Relative Keyframe time must be between 0 and 1'),
       super._();

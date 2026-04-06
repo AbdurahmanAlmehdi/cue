@@ -10,6 +10,7 @@ part of 'cue.dart';
 /// [CueScope.maybeOf] when building custom acts or widgets that need access to
 /// the current animation controller.
 class CueScope extends InheritedWidget {
+  /// Creates a CueScope with the given [child], [controller], and [reanimateFromCurrent].
   const CueScope({
     super.key,
     required super.child,
@@ -17,7 +18,10 @@ class CueScope extends InheritedWidget {
     required this.reanimateFromCurrent,
   });
 
+  /// The controller that manages the animation state.
   final CueController controller;
+
+  /// Whether to reanimate from the current position when the animation triggers again.
   final bool reanimateFromCurrent;
 
   static CueScope of(BuildContext context) {

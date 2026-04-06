@@ -24,6 +24,7 @@ abstract class CueAnimation<T> extends Animation<T> with AnimationWithParentMixi
   /// clients release their tokens, the track is removed from the timeline.
   ReleaseToken get token;
 
+  /// Creates a CueAnimation with the given [parent] track.
   CueAnimation({required this.parent});
 
   /// Maps this animation's value via a selector function.

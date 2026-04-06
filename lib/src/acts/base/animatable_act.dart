@@ -33,6 +33,7 @@ abstract class AnimtableAct<T extends Object?, R extends Object?> extends Act {
   /// See [ReverseBehavior] and [KFReverseBehavior] for the available variants.
   final ReverseBehaviorBase<T> reverse;
 
+  /// Creates an animatable act with optional [motion], [delay], and [reverse] behavior.
   const AnimtableAct({this.motion, this.delay = Duration.zero, required this.reverse});
 
   /// Builds the forward and optional reverse [CueAnimtable]s for this act.

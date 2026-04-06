@@ -2,10 +2,18 @@ import 'package:cue/cue.dart';
 import 'package:cue/src/core/curves.dart';
 import 'package:flutter/material.dart';
 
+/// A mixin for ModalRoutes that want to use Cue for their transition animations.
 mixin CueModalRouteMixin<T extends Object?> on ModalRoute<T> {
+  /// The motion for the forward animation.
   CueMotion get motion;
+  
+  /// The motion for the reverse animation (optional).
   CueMotion? get reverseMotion;
+  
+  /// Callback when animation status changes.
   AnimationStatusListener? get onAnimationStatusChanged;
+  
+  /// Whether to hide this route when the next route is pushed.
   bool get hideOnPushNext;
 
   @override

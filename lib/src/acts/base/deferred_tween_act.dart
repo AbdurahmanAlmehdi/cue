@@ -23,6 +23,7 @@ import 'package:flutter/widgets.dart';
 /// 2. Do NOT override [buildTweens] — it throws unconditionally
 /// 3. Call `animation.setAnimatable(...)` when the tween is ready
 abstract class DeferredTweenAct<T extends Object?> extends AnimtableAct<T, T> {
+  /// Creates a deferred tween act with optional [motion], [delay], and [reverse] behavior.
   const DeferredTweenAct({
     super.motion,
     super.delay,

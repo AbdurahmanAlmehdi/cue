@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 /// A curve that constrains the input value [t] to a normalized range [min, max].
@@ -17,6 +15,7 @@ class BoundedCurve extends Curve {
   /// The maximum bound for the input value (default: 1.0).
   final double max;
 
+  /// Creates a bounded curve with the specified [curve] and optional [min] and [max] bounds.
   const BoundedCurve({
     required this.curve,
     this.min = 0.0,
@@ -29,5 +28,3 @@ class BoundedCurve extends Curve {
     return curve.transform(t.clamp(min, max));
   }
 }
-
- 
