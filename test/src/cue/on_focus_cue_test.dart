@@ -4,7 +4,6 @@ import 'package:cue/cue.dart';
 import 'package:cue/src/cue/cue.dart';
 
 void main() {
-
   group('OnFocusCue', () {
     testWidgets('creates state with default motion', (tester) async {
       await tester.pumpWidget(

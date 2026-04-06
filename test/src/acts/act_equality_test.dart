@@ -246,7 +246,7 @@ void main() {
     });
 
     test('to with same frames are equal', () {
-      final frames = MotionKeyframes([Keyframe.key(0.5)],motion: CueMotion.none);
+      final frames = MotionKeyframes([Keyframe.key(0.5)], motion: CueMotion.none);
       final a = KFReverseBehavior<double>.to(frames);
       final b = KFReverseBehavior<double>.to(frames);
       expect(a, equals(b));
@@ -343,7 +343,6 @@ void main() {
       const b = CueMotion.gentle();
       expect(a, equals(b));
     });
- 
 
     test('Spring.bouncy with same defaults are equal', () {
       const a = CueMotion.bouncy();

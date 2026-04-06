@@ -58,7 +58,6 @@ mixin CueSimulation on Simulation {
   (double value, int phase) valueAtProgress(double progress, {bool forceLinear = false});
 }
 
-
 /// A simulation that delays the start of a base simulation by a fixed amount.
 ///
 /// The delay is treated as part of the animation timeline, not as a separate
@@ -86,7 +85,7 @@ class DelayedSimulation extends Simulation with CueSimulation {
 
   /// The underlying simulation to delay.
   final CueSimulation _base;
-  
+
   /// The delay in seconds before [_base] starts.
   final double _delay;
 
@@ -140,13 +139,13 @@ class DelayedSimulation extends Simulation with CueSimulation {
 class CurvedSimulation extends Simulation with CueSimulation {
   /// The easing curve to apply.
   final Curve _curve;
-  
+
   /// The start value of the animation range.
   final double _from;
-  
+
   /// The end value of the animation range.
   final double _to;
-  
+
   /// The total animation duration in seconds.
   final double _duration;
 
@@ -211,8 +210,10 @@ class SegmentedSimulation extends Simulation with CueSimulation {
   final List<CueMotion> _motions;
   final bool _forward;
   late double _duration;
+
   /// The final phase at which the simulation should end. When this phase is reached, the current keyframe receives [_endValue] as its target.
   final int endPhase;
+
   /// The value to pass to the final keyframe when the simulation ends early.
   final double? _endValue;
 
@@ -381,10 +382,10 @@ class CueSpringSimulation extends SpringSimulation with CueSimulation {
   /// Typical value is `1 / 60` for 60 fps. Smaller values are more precise
   /// but increase computation time.
   final double samplingStepSize;
-  
+
   /// Cache of the base spring description parameters.
   final SpringDescription _spring;
-  
+
   /// Cached start and end values for linear interpolation in scrub mode.
   final double _start;
   final double _end;

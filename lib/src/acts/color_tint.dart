@@ -6,10 +6,9 @@ part of 'base/act.dart';
 /// [ColorFilter.mode]. Supports both tween and keyframed modes. See
 /// [ColorTintAct.new] and [ColorTintAct.keyframed].
 class ColorTintAct extends TweenAct<Color?> {
-
   @override
   final ActKey key = const ActKey('ColorTint');
-  
+
   /// {@template act.color_tint}
   /// Animates color tint from [from] to [to] using [ColorTween].
   ///

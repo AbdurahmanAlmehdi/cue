@@ -86,7 +86,6 @@ void main() {
       expect(tween.end, equals(Alignment.bottomRight));
     });
 
-
     testWidgets('apply wraps child in Align widget', (tester) async {
       const act = AlignAct(from: Alignment.topLeft, to: Alignment.bottomRight);
       final (animtable, _) = act.buildTweens(actContext);
@@ -136,7 +135,6 @@ void main() {
       final alignWidget = tester.widget<Align>(find.byType(Align));
       expect(alignWidget.alignment, equals(Alignment.center));
     });
-
 
     test('equality', () {
       const act1 = AlignAct(

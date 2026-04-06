@@ -10,7 +10,7 @@ part of 'cue.dart';
 /// as well as an [onEnd] callback that fires when the animation completes in
 /// either direction.
 abstract class SelfAnimatedCue extends Cue {
-   /// Default constructor.
+  /// Default constructor.
   const SelfAnimatedCue({
     super.key,
     required super.child,
@@ -24,17 +24,22 @@ abstract class SelfAnimatedCue extends Cue {
     super.acts,
   }) : super._();
 
-/// The default forward motion to be used by [CueController]s created by this cue.
+  /// The default forward motion to be used by [CueController]s created by this cue.
   final CueMotion motion;
+
   /// The default reverse motion to be used by [CueController]s created by this cue.
   final CueMotion? reverseMotion;
+
   /// Whether the animation should repeat.
   final bool repeat;
+
   /// The number of times the animation should repeat. Defaults to infinite if null.
   final int? repeatCount;
+
   /// Whether the animation should reverse on repeat.
   final bool reverseOnRepeat;
-    /// Optional callback that fires when the animation completes in either direction. The callback receives a boolean indicating whether the animation completed forward (`true`) or reversed (`false`).
+
+  /// Optional callback that fires when the animation completes in either direction. The callback receives a boolean indicating whether the animation completed forward (`true`) or reversed (`false`).
   final ValueChanged<bool>? onEnd;
 
   @override
@@ -56,7 +61,6 @@ abstract class SelfAnimatedCue extends Cue {
 /// Subclasses override [onControllerReady] to start their animation logic
 /// once the controller has been initialised.
 abstract class SelfAnimatedCueState<T extends SelfAnimatedCue> extends CueState<T> with SingleTickerProviderStateMixin {
-  
   @override
   late final CueController controller;
 

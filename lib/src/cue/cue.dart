@@ -19,7 +19,6 @@ part 'on_scroll_cue.dart';
 part 'on_focus_cue.dart';
 part 'on_mount_cue.dart';
 
-
 /// The core animation widget. Provides a [CueController] through the widget
 /// tree so that [Actor] widgets anywhere below can consume it.
 ///
@@ -59,7 +58,7 @@ part 'on_mount_cue.dart';
 /// [child] in an [Actor]. The two forms below are identical in effect —
 /// prefer the shorthand unless you need multiple [Actor]s with different
 /// delays or options:
-/// 
+///
 /// ```dart
 /// // Shorthand
 /// Cue.onMount(
@@ -309,16 +308,14 @@ abstract class CueState<T extends Cue> extends State<Cue> {
 
   VoidCallback? _deattachDebugOverlay;
 
- /// Whether the animation should reanimate from the current position when the
+  /// Whether the animation should reanimate from the current position when the
   bool get reanimateFromCurrent => false;
-  
+
   /// A debug name for this cue, used in debug overlays and DevTools.
   String get debugName;
 
   late final _debugId = '$debugName-${widget.debugLabel ?? ''}${identityHashCode(widget)}';
 
- 
- 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -335,6 +332,7 @@ abstract class CueState<T extends Cue> extends State<Cue> {
             });
           }
         }
+
         controller.removeStatusListener(statusListener);
         controller.addStatusListener(statusListener);
       }
@@ -359,8 +357,9 @@ abstract class CueState<T extends Cue> extends State<Cue> {
       child: child,
     );
   }
+
   /// The [CueController] that drives this cue's animation. Subclasses must provide this.
-  /// 
+  ///
   /// This is the controller that [Actor] widgets in the subtree will subscribe to via [CueScope].
   /// It can be created internally (e.g. with spring physics) or supplied externally for full control.
   CueController get controller;

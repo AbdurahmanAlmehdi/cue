@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-    final motion = CueMotion.linear(300.ms);
+  final motion = CueMotion.linear(300.ms);
   final actContext = ActContext(motion: motion, reverseMotion: motion);
   final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
   final timeline = CueTimelineImpl.fromMotion(motion);
@@ -15,7 +15,7 @@ void main() {
   DeferredCueAnimation<Offset> createDeferredAnimation(CueTrackImpl track, ActContext ctx) {
     return DeferredCueAnimation<Offset>(
       parent: track,
-      token: ReleaseToken(track.config , timeline),
+      token: ReleaseToken(track.config, timeline),
       context: ctx,
     );
   }
@@ -69,14 +69,14 @@ void main() {
       test('returns ActContext with motion and delay', () {
         final motion = CueMotion.linear(300.ms);
         final act = ParallaxAct(slide: 0.5, motion: motion);
-        
+
         final resolved = act.resolve(actContext);
         expect(resolved.motion, isNotNull);
       });
 
       test('returns ActContext with delay', () {
         final act = ParallaxAct(slide: 0.5, delay: 100.ms);
-        
+
         final resolved = act.resolve(actContext);
         expect(resolved, isA<ActContext>());
       });
@@ -85,8 +85,7 @@ void main() {
     group('apply', () {
       testWidgets('renders child widget', (tester) async {
         final act = ParallaxAct(slide: 0.5);
-        
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -106,8 +105,7 @@ void main() {
 
       testWidgets('renders with horizontal axis', (tester) async {
         final act = ParallaxAct(slide: 0.3, axis: Axis.horizontal);
-        
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -129,8 +127,7 @@ void main() {
 
       testWidgets('renders with vertical axis', (tester) async {
         final act = ParallaxAct(slide: 0.3, axis: Axis.vertical);
-        
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -154,8 +151,7 @@ void main() {
 
       testWidgets('layout performs correctly with child', (tester) async {
         final act = ParallaxAct(slide: 0.5, axis: Axis.horizontal);
-        
-        
+
         track.setProgress(0);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -181,8 +177,7 @@ void main() {
 
       testWidgets('works with empty child', (tester) async {
         final act = ParallaxAct(slide: 0.5);
-        
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -202,8 +197,7 @@ void main() {
 
       testWidgets('renders with different slide values', (tester) async {
         final act = ParallaxAct(slide: 1.0, axis: Axis.horizontal);
-        
-        
+
         track.setProgress(0);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -279,7 +273,7 @@ void main() {
     group('render object updates', () {
       testWidgets('updates driver when changed', (tester) async {
         final act = ParallaxAct(slide: 0.5);
-        
+
         track.setProgress(0.5);
         final animation1 = createDeferredAnimation(track, actContext);
 
@@ -320,7 +314,7 @@ void main() {
 
       testWidgets('updates slide when changed', (tester) async {
         final act1 = ParallaxAct(slide: 0.3);
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -338,7 +332,7 @@ void main() {
         );
 
         await tester.pumpWidget(widget1);
-        
+
         final act2 = ParallaxAct(slide: 0.7);
         final widget2 = Directionality(
           textDirection: TextDirection.ltr,
@@ -359,7 +353,7 @@ void main() {
 
       testWidgets('updates axis when changed', (tester) async {
         final act = ParallaxAct(slide: 0.5);
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -408,7 +402,7 @@ void main() {
 
       testWidgets('handles zero-sized child', (tester) async {
         final act = ParallaxAct(slide: 0.5);
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -430,7 +424,7 @@ void main() {
     group('animation lifecycle', () {
       testWidgets('attaches and detaches listener', (tester) async {
         final act = ParallaxAct(slide: 0.5);
-        
+
         track.setProgress(0);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -469,7 +463,7 @@ void main() {
 
       testWidgets('hits test handles parallax offset', (tester) async {
         final act = ParallaxAct(slide: 0.5);
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -509,7 +503,7 @@ void main() {
           reverse: reverse,
           axis: Axis.horizontal,
         );
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -542,7 +536,7 @@ void main() {
           reverse: reverse,
           axis: Axis.vertical,
         );
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -570,7 +564,7 @@ void main() {
 
       testWidgets('setter called with same value returns early', (tester) async {
         final act = ParallaxAct(slide: 0.5, axis: Axis.horizontal);
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -623,7 +617,7 @@ void main() {
           slide: 0.5,
           reverse: reverse1,
         );
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -677,7 +671,7 @@ void main() {
 
       testWidgets('handles child with gesture detection', (tester) async {
         final act = ParallaxAct(slide: 0.5);
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -705,7 +699,7 @@ void main() {
 
       testWidgets('large negative slide value', (tester) async {
         final act = ParallaxAct(slide: -0.8, axis: Axis.horizontal);
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -733,7 +727,7 @@ void main() {
 
       testWidgets('paint and hitTest with parallax offset', (tester) async {
         final act = ParallaxAct(slide: 0.5, axis: Axis.horizontal);
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -765,7 +759,7 @@ void main() {
 
       testWidgets('zero-width child triggers caching', (tester) async {
         final act = ParallaxAct(slide: 0.5, axis: Axis.horizontal);
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 
@@ -793,7 +787,7 @@ void main() {
 
       testWidgets('zero-height child triggers caching', (tester) async {
         final act = ParallaxAct(slide: 0.5, axis: Axis.vertical);
-        
+
         track.setProgress(0.5);
         final animation = createDeferredAnimation(track, actContext);
 

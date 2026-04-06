@@ -8,11 +8,10 @@ part of 'base/act.dart';
 ///
 /// Requires the widget to be placed inside a [Stack]. Use the [Position] data
 /// class to specify which edges to animate.
-/// 
-/// Prefer using [PositionedActor] instead of manually applying a [PositionAct] for convenience. 
+///
+/// Prefer using [PositionedActor] instead of manually applying a [PositionAct] for convenience.
 /// it reads naturally inside a Stack and reduces boilerplate.
 class PositionAct extends TweenAct<Position> {
-  
   @override
   final ActKey key = const ActKey('Position');
 

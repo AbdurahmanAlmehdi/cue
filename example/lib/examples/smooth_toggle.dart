@@ -77,7 +77,7 @@ class _SmoothSwitchState extends State<SmoothSwitch> {
                       Expanded(
                         child: DecoratedBoxActor(
                           shape: .circle,
-                          color: .tween(trackColor,thumbColor),
+                          color: .tween(trackColor, thumbColor),
                           motion: .linear(duration * .5),
                           reverse: .mirror(delay: duration * .5),
                           child: SizedBox.square(dimension: width * .16),

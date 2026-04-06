@@ -84,19 +84,19 @@ class _DemoPageState extends State<DemoPage> {
               children: [
                 Positioned.fill(
                   child: Actor(
-                    acts: [
-                      .scale(to: .95),
-                      .slideX(to: .2)
-                    ],
-                    child: Container(color: Colors.blueGrey)),
+                    acts: [.scale(to: .95), .slideX(to: .2)],
+                    child: Container(color: Colors.blueGrey),
+                  ),
                 ),
                 Positioned.fill(
                   child: GestureDetector(
-                    onTap: isOpen? () {
-                      setState(() {
-                        isOpen = false;
-                      });
-                    } : null,
+                    onTap: isOpen
+                        ? () {
+                            setState(() {
+                              isOpen = false;
+                            });
+                          }
+                        : null,
                     child: DecoratedBoxActor(
                       color: .tween(Colors.transparent, Colors.black26),
                     ),
@@ -107,20 +107,22 @@ class _DemoPageState extends State<DemoPage> {
                   to: Position(top: 0, start: 0, width: drawerWidth, bottom: 0),
                   child: Container(
                     color: Colors.blue,
-                    child: Column(children: [
-                      // stagger a list otems fadein slideY acts here
-                      for (int i = 0; i < 5; i++)
-                        Actor(
-                          acts: [
-                            .fadeIn(delay: Duration(milliseconds: 50 * i)),
-                            .slideY(from: 0.5, delay: Duration(milliseconds: 100 + (50 * i))),
-                          ],
-                          child: ListTile(
-                            title: Text('Item ${i + 1}'),
-                            leading: const Icon(Icons.star),
+                    child: Column(
+                      children: [
+                        // stagger a list otems fadein slideY acts here
+                        for (int i = 0; i < 5; i++)
+                          Actor(
+                            acts: [
+                              .fadeIn(delay: Duration(milliseconds: 50 * i)),
+                              .slideY(from: 0.5, delay: Duration(milliseconds: 100 + (50 * i))),
+                            ],
+                            child: ListTile(
+                              title: Text('Item ${i + 1}'),
+                              leading: const Icon(Icons.star),
+                            ),
                           ),
-                        )
-                    ],),
+                      ],
+                    ),
                   ),
                 ),
               ],

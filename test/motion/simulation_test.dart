@@ -773,4 +773,3 @@ double refDuration(Simulation sim, {double stepSize = 1 / 60}) {
   }
   return t;
 }
- 

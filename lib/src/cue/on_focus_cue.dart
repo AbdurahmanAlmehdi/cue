@@ -30,8 +30,8 @@ class OnFocusCue extends SelfAnimatedCue {
     required super.child,
   });
 
-/// An optional [FocusNode] to control focus externally. 
-/// If null, a private [FocusNode] is created and managed internally.
+  /// An optional [FocusNode] to control focus externally.
+  /// If null, a private [FocusNode] is created and managed internally.
   final FocusNode? focusNode;
 
   @override

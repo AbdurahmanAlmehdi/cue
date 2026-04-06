@@ -122,7 +122,6 @@ final class Spring extends SimulationMotion<CueSpringSimulation> {
     return Object.hash(mass, stiffness, dampingRatio, tolerance, snapToEnd, _rawDesc);
   }
 
-
   /// Resolves the [SpringDescription] used to build the simulation.
   ///
   /// Returns [_rawDesc] directly if provided via [Spring.custom]; otherwise
@@ -509,6 +508,7 @@ final class Spring extends SimulationMotion<CueSpringSimulation> {
       snapToEnd: snapToEnd,
     );
   }
+
   /// The nominal 0→1 settling duration, derived by running a fresh simulation.
   ///
   /// This is the reference duration for a full journey from 0 to 1 (or 1 to 0).

@@ -420,7 +420,7 @@ class StretchAct extends TweenActBase<Stretch, Matrix4> {
   ///   ], duration: 1000.ms),
   /// )
   /// ```
-  ///   
+  ///
   /// ## Per-keyframe motion with override
   ///
   /// ```dart

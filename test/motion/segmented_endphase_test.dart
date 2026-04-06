@@ -441,7 +441,10 @@ void main() {
       // Should include smooth + bouncy durations only
       final smoothDuration = const Spring.smooth().baseDuration;
       final bouncyDuration = const Spring.bouncy().baseDuration;
-      expect(sim.duration, closeTo((smoothDuration + bouncyDuration).inMilliseconds / Duration.millisecondsPerSecond, 0.01));
+      expect(
+        sim.duration,
+        closeTo((smoothDuration + bouncyDuration).inMilliseconds / Duration.millisecondsPerSecond, 0.01),
+      );
 
       // Run simulation
       double t = 0.0;

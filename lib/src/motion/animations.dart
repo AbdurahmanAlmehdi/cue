@@ -77,7 +77,7 @@ class CueAnimationImpl<T> extends CueAnimation<T> {
 class _MappedCueAnimtable<T, S> extends CueAnimtable<S> {
   /// The source animatable.
   final CueAnimtable<T> parent;
-  
+
   /// Transformation function applied to each evaluated value.
   final S Function(T value) selector;
 
@@ -137,4 +137,3 @@ class DeferredCueAnimation<T> extends CueAnimation<T> {
     _animatable = animatable;
   }
 }
-

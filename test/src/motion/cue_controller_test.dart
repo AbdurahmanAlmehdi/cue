@@ -65,7 +65,7 @@ void main() {
         final motion = CueMotion.linear(300.ms);
         final controller = _createController(motion: motion);
         final defaultTrack = controller.timeline.obtainDefaultTrack().$1;
-        expect(defaultTrack.motion, equals(motion));  
+        expect(defaultTrack.motion, equals(motion));
         expect(defaultTrack.reverseMotion, equals(motion));
       });
 
@@ -78,7 +78,7 @@ void main() {
         );
         final defaultTrack = controller.timeline.obtainDefaultTrack().$1;
         expect(defaultTrack.motion, equals(motion));
-        expect(defaultTrack.reverseMotion, equals(reverseMotion));  
+        expect(defaultTrack.reverseMotion, equals(reverseMotion));
         expect(defaultTrack.motion, equals(motion));
         expect(defaultTrack.reverseMotion, equals(reverseMotion));
       });

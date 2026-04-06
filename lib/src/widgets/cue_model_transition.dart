@@ -232,7 +232,9 @@ class CueModalTransition extends StatefulWidget {
     properties.add(ColorProperty('barrierColor', barrierColor, defaultValue: const Color(0x80000000)));
     properties.add(StringProperty('barrierLabel', barrierLabel, defaultValue: 'ModalTransition'));
     properties.add(FlagProperty('barrierDismissible', value: barrierDismissible, ifFalse: 'not dismissible'));
-    properties.add(FlagProperty('hideTriggerOnTransition', value: hideTriggerOnTransition, ifTrue: 'hideTriggerOnTransition'));
+    properties.add(
+      FlagProperty('hideTriggerOnTransition', value: hideTriggerOnTransition, ifTrue: 'hideTriggerOnTransition'),
+    );
     properties.add(FlagProperty('useRootNavigator', value: useRootNavigator, ifFalse: 'local navigator'));
   }
 

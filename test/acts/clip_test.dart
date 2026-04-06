@@ -6,10 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-
   final motion = CueMotion.linear(300.ms);
   final actContext = ActContext(motion: motion, reverseMotion: motion);
- 
 
   group('ClipAct', () {
     group('default constructor', () {
@@ -84,7 +82,7 @@ void main() {
 
       test('resolve returns ActContext with motion', () {
         const act = ClipAct();
-        
+
         final resolved = act.resolve(actContext);
 
         expect(resolved, isA<ActContext>());
@@ -417,7 +415,7 @@ void main() {
 
       expect(path.getBounds().width, equals(0));
       expect(path.getBounds().height, equals(0));
-    });   
+    });
 
     test('getClip with superellipse enabled', () {
       final clipper = ExpandingPathClipper(
@@ -516,7 +514,7 @@ void main() {
       final act1 = PathClipAct(borderRadius: radius, alignment: Alignment.center);
       final act2 = PathClipAct(borderRadius: radius, alignment: Alignment.center);
       final act3 = PathClipAct(borderRadius: radius, useSuperellipse: true);
-      
+
       expect(act1, equals(act2));
       expect(act1, isNot(equals(act3)));
     });
@@ -525,7 +523,7 @@ void main() {
       final radius = BorderRadius.circular(10);
       final act1 = PathClipAct(borderRadius: radius);
       final act2 = PathClipAct(borderRadius: radius);
-      
+
       expect(act1.hashCode, equals(act2.hashCode));
     });
   });
@@ -605,7 +603,7 @@ void main() {
       const act1 = AxisClipAct.horizontal(fromFactor: 0.0, toFactor: 1.0);
       const act2 = AxisClipAct.horizontal(fromFactor: 0.0, toFactor: 1.0);
       const act3 = AxisClipAct.horizontal(fromFactor: 0.2, toFactor: 1.0);
-      
+
       expect(act1, equals(act2));
       expect(act1, isNot(equals(act3)));
     });
@@ -613,7 +611,7 @@ void main() {
     test('AxisClipAct horizontal hashCode', () {
       const act1 = AxisClipAct.horizontal();
       const act2 = AxisClipAct.horizontal();
-      
+
       expect(act1.hashCode, equals(act2.hashCode));
     });
 
@@ -621,7 +619,7 @@ void main() {
       const act1 = AxisClipAct.vertical(fromFactor: 0.0, toFactor: 1.0);
       const act2 = AxisClipAct.vertical(fromFactor: 0.0, toFactor: 1.0);
       const act3 = AxisClipAct.vertical(fromFactor: 0.2);
-      
+
       expect(act1, equals(act2));
       expect(act1, isNot(equals(act3)));
     });
@@ -629,14 +627,14 @@ void main() {
     test('AxisClipAct vertical hashCode', () {
       const act1 = AxisClipAct.vertical();
       const act2 = AxisClipAct.vertical();
-      
+
       expect(act1.hashCode, equals(act2.hashCode));
     });
 
     test('horizontal and vertical AxisClipAct are not equal', () {
       const act1 = AxisClipAct.horizontal();
       const act2 = AxisClipAct.vertical();
-      
+
       expect(act1, isNot(equals(act2)));
     });
   });
@@ -644,7 +642,7 @@ void main() {
   group('apply methods', () {
     testWidgets('PathClipAct apply creates ClipPath widget', (tester) async {
       const act = PathClipAct(borderRadius: BorderRadius.all(Radius.circular(10)));
-      
+
       await tester.pumpWidget(
         Directionality(
           textDirection: TextDirection.ltr,
@@ -666,7 +664,7 @@ void main() {
 
     testWidgets('AxisClipAct horizontal apply creates ClipRect widget', (tester) async {
       const act = AxisClipAct.horizontal();
-      
+
       await tester.pumpWidget(
         Directionality(
           textDirection: TextDirection.ltr,
@@ -688,7 +686,7 @@ void main() {
 
     testWidgets('AxisClipAct vertical apply creates ClipRect widget', (tester) async {
       const act = AxisClipAct.vertical();
-      
+
       await tester.pumpWidget(
         Directionality(
           textDirection: TextDirection.ltr,
@@ -710,7 +708,7 @@ void main() {
 
     testWidgets('PathClipAct circular apply creates ClipPath widget', (tester) async {
       const act = PathClipAct.circular();
-      
+
       await tester.pumpWidget(
         Directionality(
           textDirection: TextDirection.ltr,
@@ -732,7 +730,7 @@ void main() {
 
     testWidgets('AxisClipAct horizontal with different alignment', (tester) async {
       const act = AxisClipAct.horizontal(alignment: Alignment.center);
-      
+
       await tester.pumpWidget(
         Directionality(
           textDirection: TextDirection.ltr,
@@ -753,7 +751,7 @@ void main() {
 
     testWidgets('AxisClipAct vertical with different alignment', (tester) async {
       const act = AxisClipAct.vertical(alignment: Alignment.topCenter);
-      
+
       await tester.pumpWidget(
         Directionality(
           textDirection: TextDirection.ltr,
@@ -774,7 +772,7 @@ void main() {
 
     testWidgets('PathClipAct with useSuperellipse flag', (tester) async {
       const act = PathClipAct(useSuperellipse: true);
-      
+
       await tester.pumpWidget(
         Directionality(
           textDirection: TextDirection.ltr,

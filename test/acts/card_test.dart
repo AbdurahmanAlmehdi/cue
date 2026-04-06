@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-   final motion = CueMotion.linear(300.ms);
+  final motion = CueMotion.linear(300.ms);
   final actContext = ActContext(motion: motion, reverseMotion: motion);
   final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
   final timeline = CueTimelineImpl.fromMotion(motion);
@@ -210,7 +210,7 @@ void main() {
         borderOnForeground: false,
         semanticContainer: false,
       );
-      
+
       expect(act.motion, equals(motion));
       expect(act.elevation, equals(elevation));
       expect(act.color, equals(color));
@@ -266,7 +266,7 @@ void main() {
       const act = CardAct(
         elevation: AnimatableValue(from: 0.0, to: 8.0),
       );
-      
+
       final (animtable, reverseAnimtable) = act.buildTweens(actContext);
 
       expect(animtable, isA<CueAnimtable<CardProps>>());
@@ -277,7 +277,7 @@ void main() {
       const act = CardAct(
         elevation: AnimatableValue(from: 0.0, to: 8.0),
       );
-      
+
       final resolved = act.resolve(actContext);
 
       expect(resolved, isA<ActContext>());
@@ -289,7 +289,7 @@ void main() {
         FKeyframe(const CardProps(elevation: 8), at: 1.0),
       ]);
       final act = CardAct.keyframed(frames: frames);
-      
+
       final resolved = act.resolve(actContext);
 
       expect(resolved, isA<ActContext>());
@@ -340,15 +340,14 @@ void main() {
       const act = CardAct(
         elevation: AnimatableValue(from: 0.0, to: 8.0),
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
-      
       track.setProgress(0.5);
 
       final animation = CueAnimationImpl<CardProps>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 
@@ -369,15 +368,14 @@ void main() {
       const act = CardAct(
         elevation: AnimatableValue(from: 0.0, to: 8.0),
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
-      
       track.setProgress(0.5);
 
       final animation = CueAnimationImpl<CardProps>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 
@@ -402,15 +400,14 @@ void main() {
           to: BorderRadius.all(Radius.circular(12)),
         ),
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
-      
       track.setProgress(0.0);
 
       final animation = CueAnimationImpl<CardProps>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 
@@ -431,15 +428,14 @@ void main() {
       const act = CardAct(
         margin: AnimatableValue(from: EdgeInsets.zero, to: EdgeInsets.all(16)),
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
-      
       track.setProgress(0.0);
 
       final animation = CueAnimationImpl<CardProps>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 
@@ -460,14 +456,14 @@ void main() {
       const act = CardAct(
         shape: AnimatableValue.fixed(BeveledRectangleBorder()),
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
       track.setProgress(0.0);
 
       final animation = CueAnimationImpl<CardProps>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 
@@ -491,14 +487,14 @@ void main() {
         shape: AnimatableValue.fixed(BeveledRectangleBorder()),
         borderOnForeground: true,
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
       track.setProgress(0.0);
 
       final animation = CueAnimationImpl<CardProps>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 
@@ -515,7 +511,7 @@ void main() {
       // Should have at least one CustomPaint (the one we created for the border)
       final customPaints = find.byType(CustomPaint);
       expect(customPaints, findsWidgets);
-      
+
       // The CustomPaint should have the painter as foregroundPainter
       final widgets = tester.widgetList<CustomPaint>(customPaints);
       final hasCustomPaintWithForeground = widgets.any(
@@ -529,14 +525,14 @@ void main() {
         shape: AnimatableValue.fixed(BeveledRectangleBorder()),
         borderOnForeground: false,
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
       track.setProgress(0.0);
 
       final animation = CueAnimationImpl<CardProps>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 
@@ -553,7 +549,7 @@ void main() {
       // Should have at least one CustomPaint (the one we created for the border)
       final customPaints = find.byType(CustomPaint);
       expect(customPaints, findsWidgets);
-      
+
       // The CustomPaint should have the painter as painter (not foregroundPainter)
       final widgets = tester.widgetList<CustomPaint>(customPaints);
       final hasCustomPaintWithPainter = widgets.any(
@@ -566,14 +562,14 @@ void main() {
       const act = CardAct(
         borderRadius: AnimatableValue.fixed(BorderRadius.all(Radius.circular(12))),
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
       track.setProgress(0.0);
 
       final animation = CueAnimationImpl<CardProps>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 
@@ -598,14 +594,14 @@ void main() {
           to: BeveledRectangleBorder(),
         ),
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
       track.setProgress(0.5);
 
       final animation = CueAnimationImpl<CardProps>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 

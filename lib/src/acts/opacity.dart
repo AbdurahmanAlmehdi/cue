@@ -6,7 +6,6 @@ part of 'base/act.dart';
 /// widgets in/out, or transitioning opacity over time. Wraps [FadeTransition]
 /// for smooth rendering.
 class OpacityAct extends TweenAct<double> {
-  
   @override
   final ActKey key = const ActKey('Opacity');
 

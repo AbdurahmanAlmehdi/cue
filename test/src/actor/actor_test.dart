@@ -260,7 +260,7 @@ void main() {
       );
 
       expect(find.text('Hello'), findsOneWidget);
-      // Verify that both transforms are applied  
+      // Verify that both transforms are applied
       expect(find.byType(Transform), findsWidgets);
     });
 
@@ -368,9 +368,7 @@ void main() {
       expect(find.text('Hello'), findsOneWidget);
     });
 
-    testWidgets(
-        'ActorExtension with all parameters',
-        (tester) async {
+    testWidgets('ActorExtension with all parameters', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Cue(
@@ -662,9 +660,7 @@ class _StatefulActorWidgetState extends State<_StatefulActorWidget> {
   @override
   Widget build(BuildContext context) {
     return Actor(
-      acts: showSecondAct
-          ? const [ScaleAct(), OpacityAct(from: 1.0, to: 0.5)]
-          : const [ScaleAct()],
+      acts: showSecondAct ? const [ScaleAct(), OpacityAct(from: 1.0, to: 0.5)] : const [ScaleAct()],
       child: const Text('Hello'),
     );
   }
@@ -741,8 +737,7 @@ class _StatefulReverseDelayWidget extends StatefulWidget {
   const _StatefulReverseDelayWidget({super.key});
 
   @override
-  State<_StatefulReverseDelayWidget> createState() =>
-      _StatefulReverseDelayWidgetState();
+  State<_StatefulReverseDelayWidget> createState() => _StatefulReverseDelayWidgetState();
 }
 
 class _StatefulReverseDelayWidgetState extends State<_StatefulReverseDelayWidget> {
@@ -775,12 +770,10 @@ class _StatefulReverseMotionWidget extends StatefulWidget {
   const _StatefulReverseMotionWidget({super.key});
 
   @override
-  State<_StatefulReverseMotionWidget> createState() =>
-      _StatefulReverseMotionWidgetState();
+  State<_StatefulReverseMotionWidget> createState() => _StatefulReverseMotionWidgetState();
 }
 
-class _StatefulReverseMotionWidgetState
-    extends State<_StatefulReverseMotionWidget> {
+class _StatefulReverseMotionWidgetState extends State<_StatefulReverseMotionWidget> {
   late CueMotion? currentReverseMotion;
 
   @override
@@ -810,8 +803,7 @@ class _StatefulRemoveActWidget extends StatefulWidget {
   const _StatefulRemoveActWidget({super.key});
 
   @override
-  State<_StatefulRemoveActWidget> createState() =>
-      _StatefulRemoveActWidgetState();
+  State<_StatefulRemoveActWidget> createState() => _StatefulRemoveActWidgetState();
 }
 
 class _StatefulRemoveActWidgetState extends State<_StatefulRemoveActWidget> {
@@ -826,9 +818,7 @@ class _StatefulRemoveActWidgetState extends State<_StatefulRemoveActWidget> {
   @override
   Widget build(BuildContext context) {
     return Actor(
-      acts: hasMultipleActs
-          ? const [ScaleAct(), OpacityAct(from: 1.0, to: 0.5)]
-          : const [ScaleAct()],
+      acts: hasMultipleActs ? const [ScaleAct(), OpacityAct(from: 1.0, to: 0.5)] : const [ScaleAct()],
       child: const Text('Hello'),
     );
   }

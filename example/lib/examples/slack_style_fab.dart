@@ -98,8 +98,8 @@ class SlackStyleFab extends StatelessWidget {
                   Actor(
                     acts: [
                       .sizedBox(
-                        width: .tween( rect.width, .infinity),
-                        height: .tween( rect.height, 44),
+                        width: .tween(rect.width, .infinity),
+                        height: .tween(rect.height, 44),
                         alignment: .bottomEnd,
                       ),
                     ],

@@ -155,7 +155,7 @@ void main() {
         final path = Path()..lineTo(100, 0);
         final motion = CueMotion.linear(300.ms);
         final act = PathMotionAct(path: path, motion: motion);
-        
+
         final resolved = act.resolve(actContext);
         expect(resolved.motion, isNotNull);
       });
@@ -379,7 +379,7 @@ void main() {
         );
 
         final (animatable, _) = act.buildTweens(actContext);
-        
+
         // Test at different progress values
         track.setProgress(0);
         final animation0 = CueAnimationImpl<Matrix4>(
@@ -419,7 +419,7 @@ void main() {
         final act = PathMotionAct(path: path, autoRotate: false);
 
         final (animatable, _) = act.buildTweens(actContext);
-        
+
         track.setProgress(0.5);
         final animation = CueAnimationImpl<Matrix4>(
           parent: track,

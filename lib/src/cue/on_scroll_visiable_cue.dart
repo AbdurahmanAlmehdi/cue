@@ -30,7 +30,7 @@ part of 'cue.dart';
 /// ```
 /// {@endtemplate}
 class OnScrollVisibleCue extends Cue {
-   /// Default constructor.
+  /// Default constructor.
   const OnScrollVisibleCue({
     super.key,
     required super.child,
@@ -38,7 +38,7 @@ class OnScrollVisibleCue extends Cue {
     this.enabled = true,
     super.acts,
   }) : super._();
-  
+
   /// Whether the reveal animation is enabled. Set to `false` to skip the reveal and jump straight to the completed state.
   final bool enabled;
 
@@ -51,6 +51,7 @@ class OnScrollVisibleCue extends Cue {
   @override
   State<StatefulWidget> createState() => OnScrollVisibleCueState();
 }
+
 /// State class for [OnScrollVisibleCue].
 class OnScrollVisibleCueState extends CueState<OnScrollVisibleCue> with SingleTickerProviderStateMixin {
   @override
@@ -63,8 +64,7 @@ class OnScrollVisibleCueState extends CueState<OnScrollVisibleCue> with SingleTi
   ScrollPosition? _scrollPosition;
   double? _cachedRevealedOffset;
 
- 
- @override
+  @override
   void initState() {
     super.initState();
     _controller.setProgress(1.0, forward: true);
@@ -104,7 +104,6 @@ class OnScrollVisibleCueState extends CueState<OnScrollVisibleCue> with SingleTi
         _subscribeToScrollPosition();
       }
     }
-   
   }
 
   @override
@@ -153,6 +152,3 @@ class OnScrollVisibleCueState extends CueState<OnScrollVisibleCue> with SingleTi
     }
   }
 }
-
- 
- 

@@ -12,7 +12,6 @@ void main() {
   final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
   final timeline = CueTimelineImpl.fromMotion(motion);
 
-
   group('TextStyleAct', () {
     group('key', () {
       test('has correct key name', () {
@@ -58,7 +57,7 @@ void main() {
         final frames = Keyframes<TextStyle>([
           Keyframe(TextStyle(fontSize: 14)),
           Keyframe(TextStyle(fontSize: 18)),
-        ] , motion: CueMotion.linear(100.ms));
+        ], motion: CueMotion.linear(100.ms));
         final act = TextStyleAct.keyframed(frames: frames);
         expect(act.frames, frames);
       });
@@ -72,7 +71,7 @@ void main() {
           to: TextStyle(fontSize: 18),
           motion: motion,
         );
-        
+
         final resolved = act.resolve(actContext);
         expect(resolved.motion, isNotNull);
       });
@@ -85,15 +84,14 @@ void main() {
         from: TextStyle(fontSize: 14),
         to: TextStyle(fontSize: 28),
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
-      
       track.setProgress(0.5);
 
       final animation = CueAnimationImpl<TextStyle>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 
@@ -116,15 +114,14 @@ void main() {
         from: TextStyle(fontSize: 14),
         to: TextStyle(fontSize: 28),
       );
-      
+
       final (animtable, _) = act.buildTweens(actContext);
 
-      
       track.setProgress(0);
 
       final animation = CueAnimationImpl<TextStyle>(
         parent: track,
-        token:  ReleaseToken(track.config, timeline),
+        token: ReleaseToken(track.config, timeline),
         animtable: animtable,
       );
 
@@ -189,7 +186,7 @@ void main() {
         final frames = Keyframes<IconThemeData>([
           Keyframe(IconThemeData(size: 24)),
           Keyframe(IconThemeData(size: 32)),
-        ] , motion: CueMotion.linear(100.ms));
+        ], motion: CueMotion.linear(100.ms));
         final act = IconThemeAct.keyframed(frames: frames);
         expect(act.frames, frames);
       });
@@ -201,15 +198,14 @@ void main() {
           from: IconThemeData(size: 24),
           to: IconThemeData(size: 48),
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<IconThemeData>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -236,15 +232,14 @@ void main() {
           from: IconThemeData(size: 24),
           to: IconThemeData(size: 48),
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0);
 
         final animation = CueAnimationImpl<IconThemeData>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -276,7 +271,7 @@ void main() {
           to: IconThemeData(size: 32),
           motion: motion,
         );
-        
+
         final resolved = act.resolve(actContext);
         expect(resolved.motion, isNotNull);
       });

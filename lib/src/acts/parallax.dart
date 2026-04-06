@@ -5,7 +5,7 @@ part of 'base/act.dart';
 /// Slides oversized content back and forth during animation while the parent
 /// clips to its normal size. Creates a parallax illusion where content appears
 /// to move more than the animation progress would suggest.
-/// 
+///
 /// The child widget is sized to be larger than the parent container along the
 /// specified [axis], allowing it to slide within the bounds. As the animation
 /// progresses from 0 to 1, the child moves from one edge to the other.
@@ -29,7 +29,7 @@ class ParallaxAct extends DeferredTweenAct<Offset> {
   ///
   /// The child widget is expanded along this axis to allow sliding.
   final Axis axis;
-  
+
   final ReverseBehavior<double> _reverse;
 
   /// {@template act.parallax}

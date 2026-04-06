@@ -10,16 +10,16 @@ import 'package:cue/cue.dart';
 /// - [ReverseBehaviorType.mirror]: Uses [reverseMotion] as a separate path
 /// - [ReverseBehaviorType.exclusive]: Only drives reverse, ignores forward
 /// - [ReverseBehaviorType.none]: Only drives forward, ignores reverse
-/// 
+///
 /// Used as track identification and equality is based on the combination of [motion], [reverseMotion], and [reverseType].
 class TrackConfig {
   /// The motion defining forward animation timing and easing.
   final CueMotion motion;
-  
+
   /// The motion defining reverse animation timing and easing.
   /// Used when reversing or dismissing the animation.
   final CueMotion reverseMotion;
-  
+
   /// Controls how reverse animations are handled (default: [ReverseBehaviorType.mirror]).
   final ReverseBehaviorType reverseType;
 

@@ -11,7 +11,6 @@ part of 'base/act.dart';
 ///
 /// Use [RotateLayoutAct] only when you need the actual layout to rotate.
 class RotateLayoutAct extends TweenAct<double> {
-  
   @override
   final ActKey key = const ActKey('RotateLayout');
 
@@ -54,7 +53,7 @@ class RotateLayoutAct extends TweenAct<double> {
   ///   to: 1,  // 1 quarter-turn = 90°
   /// )
   /// // shorthand:
-  /// .rotateLayout(to: 1, unit: .quarterTurns) 
+  /// .rotateLayout(to: 1, unit: .quarterTurns)
   /// ```
   ///
   /// ## Prefer RotateAct for visual-only rotation

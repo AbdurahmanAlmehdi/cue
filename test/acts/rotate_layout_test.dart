@@ -129,14 +129,14 @@ void main() {
     group('transform', () {
       test('converts degrees to radians', () {
         final act = RotateLayoutAct.degrees(from: 0, to: 180);
-        
+
         final radians = act.transform(actContext, 180);
         expect(radians, closeTo(pi, 0.0001));
       });
 
       test('converts quarterTurns to radians', () {
         final act = RotateLayoutAct.turns(from: 0, to: 2);
-        
+
         final radians = act.transform(actContext, 2);
         expect(radians, closeTo(pi, 0.0001));
       });
@@ -147,7 +147,7 @@ void main() {
           to: pi,
           unit: RotateUnit.radians,
         );
-        
+
         final radians = act.transform(actContext, pi);
         expect(radians, closeTo(pi, 0.0001));
       });
@@ -157,7 +157,7 @@ void main() {
       test('returns ActContext with motion', () {
         final motion = CueMotion.linear(300.ms);
         final act = RotateLayoutAct(from: 0, to: 90, motion: motion);
-        
+
         final resolved = act.resolve(actContext);
         expect(resolved.motion, isNotNull);
       });
@@ -166,15 +166,14 @@ void main() {
     group('apply', () {
       testWidgets('wraps child in widget', (tester) async {
         final act = RotateLayoutAct.degrees(from: 0, to: 90);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -194,15 +193,14 @@ void main() {
 
       testWidgets('renders with degrees unit', (tester) async {
         final act = RotateLayoutAct.degrees(from: 0, to: 180);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -223,15 +221,14 @@ void main() {
 
       testWidgets('renders with turns unit', (tester) async {
         final act = RotateLayoutAct.turns(from: 0, to: 1);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -252,15 +249,14 @@ void main() {
 
       testWidgets('renders with radians unit', (tester) async {
         final act = RotateLayoutAct(from: 0, to: pi, unit: RotateUnit.radians);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -281,7 +277,7 @@ void main() {
 
       testWidgets('animation listener triggers layout update', (tester) async {
         final act = RotateLayoutAct.degrees(from: 0, to: 180);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
         final animation = CueAnimationImpl<double>(
@@ -320,7 +316,7 @@ void main() {
 
       testWidgets('handles animation replacement', (tester) async {
         final act = RotateLayoutAct.degrees(from: 0, to: 90);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
         track.setProgress(0);
@@ -367,7 +363,7 @@ void main() {
 
       testWidgets('performs layout with rotated child', (tester) async {
         final act = RotateLayoutAct.degrees(from: 0, to: 45);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
         track.setProgress(0.25); // 11.25 degrees
@@ -407,7 +403,7 @@ void main() {
 
       testWidgets('handles null child during layout', (tester) async {
         final act = RotateLayoutAct.degrees(from: 0, to: 90);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
         // The apply() method should still work with proper child

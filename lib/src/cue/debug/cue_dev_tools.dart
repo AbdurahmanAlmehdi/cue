@@ -1,9 +1,8 @@
 // coverage:ignore-file
- // ignore_for_file: public_member_api_docs
+// ignore_for_file: public_member_api_docs
 import 'package:cue/cue.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-
 
 class CueDebugTools extends StatefulWidget {
   const CueDebugTools({super.key, required this.child});

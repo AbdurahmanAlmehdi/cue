@@ -76,7 +76,7 @@ void main() {
         final frames = Keyframes<Matrix4>([
           Keyframe(Matrix4.identity()),
           Keyframe(Matrix4.translationValues(100, 0, 0)),
-        ] , motion: CueMotion.linear(100.ms));
+        ], motion: CueMotion.linear(100.ms));
         final act = TransformAct.keyframed(frames: frames);
         expect(act.frames, frames);
       });
@@ -221,7 +221,7 @@ void main() {
         final frames = Keyframes<Skew>([
           Keyframe(Skew.zero),
           Keyframe(Skew(x: 0.1, y: 0)),
-        ] , motion: CueMotion.linear(100.ms));
+        ], motion: CueMotion.linear(100.ms));
         final act = SkewAct.keyframed(frames: frames);
         expect(act.frames, frames);
       });

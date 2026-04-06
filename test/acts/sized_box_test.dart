@@ -90,7 +90,7 @@ void main() {
       test('accepts alignment', () {
         final frames = Keyframes<Size>([
           Keyframe(const Size(100, 100)),
-        ] , motion: CueMotion.linear(100.ms));
+        ], motion: CueMotion.linear(100.ms));
         final act = SizedBoxAct.keyframed(frames: frames, alignment: Alignment.bottomRight);
         expect(act.alignment, Alignment.bottomRight);
       });
@@ -98,7 +98,7 @@ void main() {
       test('accepts delay', () {
         final frames = Keyframes<Size>([
           Keyframe(const Size(100, 100)),
-        ] , motion: CueMotion.linear(100.ms));
+        ], motion: CueMotion.linear(100.ms));
         final act = SizedBoxAct.keyframed(frames: frames, delay: 100.ms);
         expect(act.delay, 100.ms);
       });
@@ -382,7 +382,7 @@ void main() {
         );
 
         await tester.pump();
-        
+
         await tester.pumpWidget(
           Container(),
         );
@@ -634,7 +634,7 @@ void main() {
         final frames = Keyframes<Size>([
           Keyframe(const Size(100, 100)),
           Keyframe(const Size(200, 200)),
-        ] , motion: CueMotion.linear(100.ms));
+        ], motion: CueMotion.linear(100.ms));
         final reverse = KFReverseBehavior<Size>.mirror();
         final act = SizedBoxAct.keyframed(frames: frames, reverse: reverse);
 

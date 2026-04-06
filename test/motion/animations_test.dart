@@ -336,7 +336,6 @@ void main() {
     });
   });
 
-
   group('CueAnimation.release', () {
     late CueTrack track;
     late ReleaseToken token;

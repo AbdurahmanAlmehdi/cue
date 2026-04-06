@@ -40,7 +40,7 @@ part of 'cue.dart';
 /// ```
 /// {@endtemplate}
 class OnMountCue extends SelfAnimatedCue {
-   /// Default constructor.
+  /// Default constructor.
   const OnMountCue({
     super.key,
     required super.child,
@@ -54,14 +54,12 @@ class OnMountCue extends SelfAnimatedCue {
     super.acts,
   }) : super();
 
-
   @override
   State<StatefulWidget> createState() => OnMountCueState();
 }
 
 /// State class for [OnMountCue].
 class OnMountCueState extends SelfAnimatedCueState<OnMountCue> {
-  
   @override
   String get debugName => 'OnMountCue';
 

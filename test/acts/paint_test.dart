@@ -77,7 +77,7 @@ void main() {
         final act = PaintAct(
           painter: Painter.paint((canvas, size, progress) {}),
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
         expect(animtable, isNotNull);
       });
@@ -88,15 +88,14 @@ void main() {
         final act = PaintAct(
           painter: Painter.paint((canvas, size, progress) {}),
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -120,15 +119,14 @@ void main() {
           painter: Painter.paint((canvas, size, progress) {}),
           paintOnTop: false,
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -153,15 +151,14 @@ void main() {
           painter: Painter.paint((canvas, size, progress) {}),
           paintOnTop: true,
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 

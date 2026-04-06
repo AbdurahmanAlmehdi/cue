@@ -28,15 +28,14 @@ void main() {
           to: const Offset(30, 40),
         );
         final animtableAct = act as AnimtableAct<Offset, Offset>;
-        
+
         final (animtable, _) = animtableAct.buildTweens(actContext);
 
-        
         track.setProgress(0);
 
         final animation = CueAnimationImpl<Offset>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -46,15 +45,14 @@ void main() {
       test('default constructor uses default values', () {
         final act = TranslateAct();
         final animtableAct = act as AnimtableAct<Offset, Offset>;
-        
+
         final (animtable, _) = animtableAct.buildTweens(actContext);
 
-        
         track.setProgress(0);
 
         final animation = CueAnimationImpl<Offset>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -74,15 +72,14 @@ void main() {
       test('fromX constructor translates on X axis', () {
         final act = TranslateAct.fromX(from: -100, to: 0);
         final animtableAct = act as AnimtableAct<double, Offset>;
-        
+
         final (animtable, _) = animtableAct.buildTweens(actContext);
 
-        
         track.setProgress(0);
 
         final animation = CueAnimationImpl<Offset>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -105,15 +102,14 @@ void main() {
       test('y constructor translates on Y axis', () {
         final act = TranslateAct.y(from: -50, to: 0);
         final animtableAct = act as AnimtableAct<double, Offset>;
-        
+
         final (animtable, _) = animtableAct.buildTweens(actContext);
 
-        
         track.setProgress(0);
 
         final animation = CueAnimationImpl<Offset>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -169,15 +165,14 @@ void main() {
       testWidgets('wraps child in TranslateTransition', (tester) async {
         final act = TranslateAct(from: const Offset(-50, 0), to: Offset.zero);
         final animtableAct = act as AnimtableAct<Offset, Offset>;
-        
+
         final (animtable, _) = animtableAct.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<Offset>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 

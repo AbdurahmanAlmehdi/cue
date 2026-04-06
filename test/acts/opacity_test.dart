@@ -65,7 +65,7 @@ void main() {
       test('fadeOut constructor with custom values', () {
         const act = OpacityAct.fadeOut(from: 0.9);
         expect(act.from, 0.9);
-        expect(act.to,0.0);
+        expect(act.to, 0.0);
       });
 
       test('constructor with motion', () {
@@ -110,15 +110,14 @@ void main() {
     group('apply', () {
       testWidgets('wraps child in FadeTransition', (tester) async {
         const act = OpacityAct(from: 1.0, to: 0.0);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -139,15 +138,14 @@ void main() {
 
       testWidgets('FadeTransition uses animation', (tester) async {
         const act = OpacityAct(from: 1.0, to: 0.0);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -165,15 +163,14 @@ void main() {
 
       testWidgets('animation value affects opacity at start', (tester) async {
         const act = OpacityAct(from: 1.0, to: 0.0);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.0);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -190,15 +187,14 @@ void main() {
 
       testWidgets('animation value affects opacity at end', (tester) async {
         const act = OpacityAct(from: 1.0, to: 0.0);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(1.0);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 

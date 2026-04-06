@@ -24,19 +24,19 @@ class _NotificationBellState extends State<NotificationBell> {
               clipBehavior: .none,
               children: [
                 Actor(
-                  acts:[
-                  //   RotateAct.keyframes(
-                  //   [
-                  //     .begin(0.0),
-                  //     .key(20, at: .2),
-                  //     .key(-18, at: .4),
-                  //     .key(14, at: .6),
-                  //     .key(-10, at: .8),
-                  //     .end(0.0),
-                  //   ],
-                  //   unit: .degrees,
-                  //   alignment: .topCenter,
-                  // ),
+                  acts: [
+                    //   RotateAct.keyframes(
+                    //   [
+                    //     .begin(0.0),
+                    //     .key(20, at: .2),
+                    //     .key(-18, at: .4),
+                    //     .key(14, at: .6),
+                    //     .key(-10, at: .8),
+                    //     .end(0.0),
+                    //   ],
+                    //   unit: .degrees,
+                    //   alignment: .topCenter,
+                    // ),
                   ],
                   child: Icon(Iconsax.notification_bing4, size: 32),
                 ),

@@ -6,7 +6,6 @@ part of 'base/act.dart';
 /// Both widthFactor and heightFactor are optional and can be independently
 /// animated (via `AnimatableValue.tween()`) or fixed (via `AnimatableValue.fixed()`).
 class FractionalSizeAct extends AnimtableAct<FractionalSize, FractionalSize> {
-
   @override
   final ActKey key = const ActKey('FractionalSize');
 
@@ -164,7 +163,8 @@ class FractionalSizeAct extends AnimtableAct<FractionalSize, FractionalSize> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FractionalSizeAct && super == other &&
+      other is FractionalSizeAct &&
+          super == other &&
           runtimeType == other.runtimeType &&
           widthFactor == other.widthFactor &&
           heightFactor == other.heightFactor &&

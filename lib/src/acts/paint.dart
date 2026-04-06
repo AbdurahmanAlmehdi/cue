@@ -89,7 +89,8 @@ class PaintAct extends TweenAct<double> {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is PaintAct && super == other &&
+    return other is PaintAct &&
+        super == other &&
         other.key == key &&
         other.painter == painter &&
         other.paintOnTop == paintOnTop;

@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 mixin CueModalRouteMixin<T extends Object?> on ModalRoute<T> {
   /// The motion for the forward animation.
   CueMotion get motion;
-  
+
   /// The motion for the reverse animation (optional).
   CueMotion? get reverseMotion;
-  
+
   /// Callback when animation status changes.
   AnimationStatusListener? get onAnimationStatusChanged;
-  
+
   /// Whether to hide this route when the next route is pushed.
   bool get hideOnPushNext;
 
@@ -57,12 +57,10 @@ mixin CueModalRouteMixin<T extends Object?> on ModalRoute<T> {
     }
   }
 
- 
-
   @override
-  void dispose() async{
+  void dispose() async {
     if (onAnimationStatusChanged != null) {
-        onAnimationStatusChanged!.call(AnimationStatus.dismissed);
+      onAnimationStatusChanged!.call(AnimationStatus.dismissed);
       controller?.removeStatusListener(onAnimationStatusChanged!);
     }
     controller?.dispose();

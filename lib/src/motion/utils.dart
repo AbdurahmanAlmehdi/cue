@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 extension DurationExtension on int {
   /// Returns this value as a duration in milliseconds.
   Duration get ms => Duration(milliseconds: this);
-  
+
   /// Returns this value as a duration in seconds.
   Duration get s => Duration(seconds: this);
 }

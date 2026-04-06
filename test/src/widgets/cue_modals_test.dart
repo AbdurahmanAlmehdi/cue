@@ -210,7 +210,7 @@ class _TestCueModalRoute extends RawDialogRoute<void> with CueModalRouteMixin<vo
   final CueMotion? reverseMotion;
 
   @override
-   AnimationStatusListener? get onAnimationStatusChanged => null;
+  AnimationStatusListener? get onAnimationStatusChanged => null;
 
   @override
   final bool hideOnPushNext;

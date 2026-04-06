@@ -280,8 +280,6 @@ void main() {
       );
     });
 
- 
-
     test('Spring.interactive forward 0→1', () {
       final motion = const Spring.interactive();
       _assertInterpolation(
@@ -291,7 +289,6 @@ void main() {
         label: 'Spring.interactive forward 0→1',
       );
     });
-
 
     test('Spring (duration/bounce factory) forward 0→1 with bounce', () {
       final motion = Spring(duration: 500.ms, bounce: 0.3);

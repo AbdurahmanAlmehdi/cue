@@ -35,7 +35,7 @@ class PathMotionAct extends AnimtableAct<Matrix4, Matrix4> {
   ///
   /// Change to [Alignment.bottomCenter] for objects that should point forward.
   final AlignmentGeometry alignment;
-  
+
   final double _startAngle;
 
   /// {@template act.path_motion}
@@ -203,7 +203,8 @@ class PathMotionAct extends AnimtableAct<Matrix4, Matrix4> {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
-    return other is PathMotionAct && super == other &&
+    return other is PathMotionAct &&
+        super == other &&
         other.path == path &&
         other.autoRotate == autoRotate &&
         other.alignment == alignment &&
@@ -223,10 +224,10 @@ class PathMotionAct extends AnimtableAct<Matrix4, Matrix4> {
 class _AnimtablePath extends Animatable<Matrix4> {
   /// Path metric extracted from the animated path.
   final PathMetric metric;
-  
+
   /// Whether to include rotation based on path tangent.
   final bool autoRotate;
-  
+
   /// Starting rotation angle in radians.
   ///
   /// Allows offsetting where rotation begins on the path.

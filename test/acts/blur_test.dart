@@ -48,7 +48,9 @@ void main() {
     });
 
     test('focus constructor with custom values', () {
-      const act = BlurAct.focus(from: 20.0,);
+      const act = BlurAct.focus(
+        from: 20.0,
+      );
       expect(act.from, equals(20.0));
     });
 

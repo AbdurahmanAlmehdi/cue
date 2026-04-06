@@ -13,7 +13,6 @@ void main() {
   final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
   final timeline = CueTimelineImpl.fromMotion(motion);
 
-
   group('RotateAct', () {
     group('key', () {
       test('has correct key name', () {
@@ -104,7 +103,6 @@ void main() {
         expect(find.byType(MatrixTransition), findsOneWidget);
       });
 
-
       test('constructor with alignment', () {
         const act = RotateAct(alignment: Alignment.topLeft);
         expect(act.alignment, Alignment.topLeft);
@@ -146,7 +144,7 @@ void main() {
     group('transform', () {
       test('transforms degrees to radians', () {
         const act = RotateAct(unit: RotateUnit.degrees);
-        
+
         expect(act.transform(actContext, 180), math.pi);
         expect(act.transform(actContext, 90), math.pi / 2);
         expect(act.transform(actContext, 0), 0.0);
@@ -154,7 +152,7 @@ void main() {
 
       test('transforms quarter turns to radians', () {
         const act = RotateAct(unit: RotateUnit.quarterTurns);
-        
+
         expect(act.transform(actContext, 2), math.pi);
         expect(act.transform(actContext, 1), math.pi / 2);
         expect(act.transform(actContext, 4), math.pi * 2);
@@ -162,7 +160,7 @@ void main() {
 
       test('returns radians unchanged', () {
         const act = RotateAct(unit: RotateUnit.radians);
-        
+
         expect(act.transform(actContext, math.pi), math.pi);
         expect(act.transform(actContext, math.pi / 2), math.pi / 2);
       });
@@ -171,15 +169,14 @@ void main() {
     group('apply', () {
       testWidgets('wraps child in MatrixTransition', (tester) async {
         const act = RotateAct(from: 0, to: 90);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -199,15 +196,14 @@ void main() {
 
       testWidgets('uses correct alignment', (tester) async {
         const act = RotateAct(from: 0, to: 90, alignment: Alignment.topLeft);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -228,14 +224,14 @@ void main() {
 
       testWidgets('applies rotation with X axis', (tester) async {
         const act = RotateAct(from: 0, to: 90, axis: RotateAxis.x);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -255,14 +251,14 @@ void main() {
 
       testWidgets('applies rotation with Y axis', (tester) async {
         const act = RotateAct(from: 0, to: 90, axis: RotateAxis.y);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<double>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -440,7 +436,7 @@ void main() {
     group('transform', () {
       test('transforms degrees to radians', () {
         const act = Rotate3DAct(unit: Rotate3DUnit.degrees);
-        
+
         final result = act.transform(actContext, const Rotation3D(x: 90, y: 180, z: 45));
         expect(result.x, math.pi / 2);
         expect(result.y, math.pi);
@@ -449,7 +445,7 @@ void main() {
 
       test('returns radians unchanged', () {
         const act = Rotate3DAct(unit: Rotate3DUnit.radians);
-        
+
         final result = act.transform(actContext, const Rotation3D(x: math.pi, y: math.pi / 2, z: 0));
         expect(result.x, math.pi);
         expect(result.y, math.pi / 2);
@@ -471,15 +467,14 @@ void main() {
     group('apply', () {
       testWidgets('wraps child in Transform', (tester) async {
         const act = Rotate3DAct(from: Rotation3D.zero, to: Rotation3D(y: 180));
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<Rotation3D>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -503,15 +498,14 @@ void main() {
           to: Rotation3D(y: 180),
           alignment: Alignment.topLeft,
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<Rotation3D>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 

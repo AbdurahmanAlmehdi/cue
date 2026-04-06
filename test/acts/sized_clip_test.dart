@@ -9,7 +9,6 @@ void main() {
 
   final motion = CueMotion.linear(300.ms);
   final actContext = ActContext(motion: motion, reverseMotion: motion);
- 
 
   group('NSize', () {
     test('default constructor creates NSize with null values', () {
@@ -185,7 +184,7 @@ void main() {
     test('keyframed constructor accepts frames', () {
       final frames = Keyframes<NSize>([
         Keyframe(NSize.square(100.0)),
-      ] , motion: CueMotion.linear(300.ms));
+      ], motion: CueMotion.linear(300.ms));
       final act = SizedClipAct.keyframed(frames: frames);
       expect(act.frames, isNotNull);
     });
@@ -193,14 +192,14 @@ void main() {
     test('keyframed constructor accepts alignment', () {
       final frames = Keyframes<NSize>([
         Keyframe(NSize.square(100.0)),
-      ] , motion: CueMotion.linear(300.ms));
+      ], motion: CueMotion.linear(300.ms));
       final act = SizedClipAct.keyframed(frames: frames, alignment: Alignment.center);
       expect(act.alignment, equals(Alignment.center));
     });
 
     test('resolve returns ActContext with motion', () {
       const act = SizedClipAct();
-      
+
       final resolved = act.resolve(actContext);
       expect(resolved, isA<ActContext>());
     });
@@ -456,7 +455,7 @@ void main() {
         final frames = Keyframes<NSize>([
           Keyframe(NSize.square(100)),
           Keyframe(NSize.square(200)),
-        ] , motion: CueMotion.linear(150.ms));
+        ], motion: CueMotion.linear(150.ms));
         final act = SizedClipAct.keyframed(frames: frames);
 
         track.setProgress(0.5);

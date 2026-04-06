@@ -114,15 +114,14 @@ void main() {
     group('apply', () {
       testWidgets('wraps child in ColorFiltered with correct values', (tester) async {
         const act = ColorTintAct(from: Colors.red, to: Colors.blue);
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<Color?>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -147,15 +146,14 @@ void main() {
           to: Colors.blue,
           blendMode: BlendMode.multiply,
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<Color?>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -173,15 +171,13 @@ void main() {
 
       testWidgets('animation value affects color filter', (tester) async {
         const act = ColorTintAct(from: Colors.red, to: Colors.blue);
-        
-        final (animtable, _) = act.buildTweens(actContext);
 
-        
+        final (animtable, _) = act.buildTweens(actContext);
 
         track.setProgress(0.0);
         final animation = CueAnimationImpl<Color?>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -214,10 +210,9 @@ void main() {
       testWidgets('uses transparent for null animation value', (tester) async {
         const act = ColorTintAct(from: Colors.red, to: Colors.blue);
 
-        
         final animation = CueAnimationImpl<Color?>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: ConstantAnimtable<Color?>(null),
         );
 

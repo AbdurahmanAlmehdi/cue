@@ -44,7 +44,6 @@ class _ControlledCue extends Cue {
 }
 
 class _ControlledCueState extends CueState<_ControlledCue> {
-  
   @override
   String get debugName => 'ControlledCue';
 

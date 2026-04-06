@@ -82,5 +82,3 @@ class CueValueAnimator<T> extends Animation<T> with AnimationWithParentMixin<dou
     _controller.dispose();
   }
 }
-
- 

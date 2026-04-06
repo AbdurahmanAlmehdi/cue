@@ -5,10 +5,9 @@ part of 'base/act.dart';
 /// Smoothly transitions padding from one [EdgeInsets] value to another.
 /// Useful for creating spacing animations or opening/closing panels.
 class PaddingAct extends TweenAct<EdgeInsetsGeometry> {
-
   @override
   final ActKey key = const ActKey('Padding');
-  
+
   /// {@template act.padding}
   /// Animates padding values.
   ///

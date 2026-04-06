@@ -4,11 +4,10 @@ part of 'base/act.dart';
 ///
 /// Applies Gaussian blur via [ImageFiltered] using [ImageFilter.blur].
 /// Supports tween and keyframed modes. See [BlurAct.new], [BlurAct.keyframed],
-/// 
+///
 /// Use preset constructors for common blur effects and better readability, e.g.
 /// [BlurAct.focus], and [BlurAct.unfocus].
 class BlurAct extends TweenAct<double> {
-
   @override
   final ActKey key = const ActKey('Blur');
 
@@ -142,7 +141,6 @@ class BlurAct extends TweenAct<double> {
 /// and [ImageFilter.blur]. Supports tween and keyframed modes. See
 /// [BackdropBlurAct.new] and [BackdropBlurAct.keyframed].
 class BackdropBlurAct extends TweenAct<double> {
-
   @override
   final ActKey key = const ActKey('BackdropBlur');
 

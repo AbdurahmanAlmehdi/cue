@@ -8,6 +8,7 @@ mixin class EventNotifier<T> {
   final List<void Function(T)> _eventListeners = [];
 
   bool _disposed = false;
+
   /// Add an event listener that will be called with the event data when [fireEvent] is called.
   ///
   /// The listener will only be called for events of type [E] or its subtypes.
@@ -16,6 +17,7 @@ mixin class EventNotifier<T> {
     void wrapper(T event) {
       if (event is E) listener(event);
     }
+
     _eventListeners.add(wrapper);
     return () => _eventListeners.remove(wrapper);
   }

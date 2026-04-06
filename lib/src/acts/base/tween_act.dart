@@ -626,7 +626,7 @@ abstract class TweenAct<T> extends TweenActBase<T, T> {
 }
 
 /// Holds description of how a value[T] animates between two states.
-/// 
+///
 /// if [from] and [to] are the same, this is a constant value (no animation).
 class AnimatableValue<T> {
   /// The starting value for the animation.

@@ -12,7 +12,6 @@ void main() {
   final track = CueTrackImpl(TrackConfig(motion: motion, reverseMotion: motion));
   final timeline = CueTimelineImpl.fromMotion(motion);
 
-
   group('PositionAct', () {
     group('key', () {
       test('has correct key name', () {
@@ -40,15 +39,14 @@ void main() {
           to: Position(top: 0.5),
           size: Size(100, 200),
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<Position>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -82,15 +80,14 @@ void main() {
           from: Position(top: 0),
           to: Position(top: 100),
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0);
 
         final animation = CueAnimationImpl<Position>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -105,15 +102,14 @@ void main() {
           from: Position(top: 0, start: 0, width: 50, height: 50),
           to: Position(top: 100, start: 100, width: 100, height: 100),
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<Position>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -131,15 +127,14 @@ void main() {
           from: Position(top: 0, start: 0),
           to: Position(top: 100, start: 100),
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
 
-        
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<Position>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -216,7 +211,6 @@ void main() {
         );
         expect(tween, isA<Tween<Position>>());
       });
-
     });
 
     group('internal constructor', () {
@@ -226,13 +220,13 @@ void main() {
           to: Position(top: 1),
           relativeTo: Size(100, 100),
         );
-        
+
         final (animtable, _) = act.buildTweens(actContext);
         track.setProgress(0.5);
 
         final animation = CueAnimationImpl<Position>(
           parent: track,
-          token:  ReleaseToken(track.config, timeline),
+          token: ReleaseToken(track.config, timeline),
           animtable: animtable,
         );
 
@@ -254,533 +248,533 @@ void main() {
       });
     });
 
-  group('Position', () {
-    test('default constructor', () {
-      const pos = Position(top: 10, start: 20, width: 100, height: 50);
-      expect(pos.top, 10);
-      expect(pos.start, 20);
-      expect(pos.width, 100);
-      expect(pos.height, 50);
+    group('Position', () {
+      test('default constructor', () {
+        const pos = Position(top: 10, start: 20, width: 100, height: 50);
+        expect(pos.top, 10);
+        expect(pos.start, 20);
+        expect(pos.width, 100);
+        expect(pos.height, 50);
+      });
+
+      test('fill constructor', () {
+        const pos = Position.fill();
+        expect(pos.top, 0);
+        expect(pos.start, 0);
+        expect(pos.end, 0);
+        expect(pos.bottom, 0);
+        expect(pos.width, null);
+        expect(pos.height, null);
+      });
+
+      test('lerp interpolates values', () {
+        const a = Position(top: 0, start: 0, width: 50);
+        const b = Position(top: 100, start: 100, width: 100);
+        final result = Position.lerp(a, b, 0.5);
+        expect(result.top, 50);
+        expect(result.start, 50);
+        expect(result.width, 75);
+      });
+
+      test('lerp handles null values', () {
+        const a = Position(top: 0);
+        const b = Position(start: 100);
+        final result = Position.lerp(a, b, 0.5);
+        expect(result.top, 0);
+        expect(result.start, 50);
+      });
+
+      test('lerp both null returns null', () {
+        const a = Position();
+        const b = Position();
+        final result = Position.lerp(a, b, 0.5);
+        expect(result.top, null);
+        expect(result.start, null);
+      });
+
+      test('fromSTEB constructor', () {
+        const pos = Position.fromSTEB(10, 20, 30, 40);
+        expect(pos.start, 10);
+        expect(pos.top, 20);
+        expect(pos.end, 30);
+        expect(pos.bottom, 40);
+        expect(pos.width, null);
+        expect(pos.height, null);
+      });
+
+      test('topStart constructor', () {
+        const pos = Position.topStart(top: 5, start: 15);
+        expect(pos.top, 5);
+        expect(pos.start, 15);
+        expect(pos.end, null);
+        expect(pos.bottom, null);
+      });
+
+      test('topEnd constructor', () {
+        const pos = Position.topEnd(top: 5, end: 15);
+        expect(pos.top, 5);
+        expect(pos.end, 15);
+        expect(pos.start, null);
+        expect(pos.bottom, null);
+      });
+
+      test('bottomStart constructor', () {
+        const pos = Position.bottomStart(bottom: 10, start: 20);
+        expect(pos.bottom, 10);
+        expect(pos.start, 20);
+        expect(pos.top, null);
+        expect(pos.end, null);
+      });
+
+      test('bottomEnd constructor', () {
+        const pos = Position.bottomEnd(bottom: 10, end: 20);
+        expect(pos.bottom, 10);
+        expect(pos.end, 20);
+        expect(pos.top, null);
+        expect(pos.start, null);
+      });
     });
 
-    test('fill constructor', () {
-      const pos = Position.fill();
-      expect(pos.top, 0);
-      expect(pos.start, 0);
-      expect(pos.end, 0);
-      expect(pos.bottom, 0);
-      expect(pos.width, null);
-      expect(pos.height, null);
-    });
+    group('PositionActor', () {
+      test('creates PositionAct with correct values', () {
+        const actor = PositionedActor(
+          from: Position(top: 0),
+          to: Position(top: 100),
+          child: SizedBox(),
+        );
+        final act = actor.act as PositionAct;
+        expect(act.from, const Position(top: 0));
+        expect(act.to, const Position(top: 100));
+      });
 
-    test('lerp interpolates values', () {
-      const a = Position(top: 0, start: 0, width: 50);
-      const b = Position(top: 100, start: 100, width: 100);
-      final result = Position.lerp(a, b, 0.5);
-      expect(result.top, 50);
-      expect(result.start, 50);
-      expect(result.width, 75);
-    });
+      test('keyframed constructor', () {
+        final frames = FractionalKeyframes<Position>([
+          FKeyframe(const Position(top: 0), at: 0),
+          FKeyframe(const Position(top: 100), at: 1),
+        ]);
+        final actor = PositionedActor.keyframed(
+          frames: frames,
+          child: const SizedBox(),
+        );
+        final act = actor.act as PositionAct;
+        expect(act.frames, frames);
+      });
 
-    test('lerp handles null values', () {
-      const a = Position(top: 0);
-      const b = Position(start: 100);
-      final result = Position.lerp(a, b, 0.5);
-      expect(result.top, 0);
-      expect(result.start, 50);
-    });
+      test('relative constructor', () {
+        const actor = PositionedActor.relative(
+          from: Position(top: 0),
+          to: Position(top: 1),
+          size: Size(100, 100),
+          child: SizedBox(),
+        );
+        final act = actor.act as PositionAct;
+        expect(act.from, const Position(top: 0));
+        expect(act.to, const Position(top: 1));
+      });
 
-    test('lerp both null returns null', () {
-      const a = Position();
-      const b = Position();
-      final result = Position.lerp(a, b, 0.5);
-      expect(result.top, null);
-      expect(result.start, null);
-    });
+      test('keyframed constructor with relativeTo', () {
+        final frames = FractionalKeyframes<Position>([
+          FKeyframe(const Position(top: 0), at: 0),
+          FKeyframe(const Position(top: 1), at: 1),
+        ]);
+        final actor = PositionedActor.keyframed(
+          frames: frames,
+          relativeTo: const Size(200, 100),
+          child: const SizedBox(),
+        );
+        final act = actor.act as PositionAct;
+        expect(act.frames, frames);
+      });
 
-    test('fromSTEB constructor', () {
-      const pos = Position.fromSTEB(10, 20, 30, 40);
-      expect(pos.start, 10);
-      expect(pos.top, 20);
-      expect(pos.end, 30);
-      expect(pos.bottom, 40);
-      expect(pos.width, null);
-      expect(pos.height, null);
-    });
+      test('passes motion to act', () {
+        final actor = PositionedActor(
+          from: const Position(top: 0),
+          to: const Position(top: 100),
+          motion: motion,
+          child: const SizedBox(),
+        );
+        final act = actor.act as PositionAct;
+        expect(act.motion, equals(motion));
+      });
 
-    test('topStart constructor', () {
-      const pos = Position.topStart(top: 5, start: 15);
-      expect(pos.top, 5);
-      expect(pos.start, 15);
-      expect(pos.end, null);
-      expect(pos.bottom, null);
-    });
+      test('passes delay to act', () {
+        const delay = Duration(milliseconds: 100);
+        const actor = PositionedActor(
+          from: Position(top: 0),
+          to: Position(top: 100),
+          delay: delay,
+          child: SizedBox(),
+        );
+        final act = actor.act as PositionAct;
+        expect(act.delay, equals(delay));
+      });
 
-    test('topEnd constructor', () {
-      const pos = Position.topEnd(top: 5, end: 15);
-      expect(pos.top, 5);
-      expect(pos.end, 15);
-      expect(pos.start, null);
-      expect(pos.bottom, null);
-    });
+      testWidgets('build renders child in positioned context', (tester) async {
+        final actor = PositionedActor(
+          from: const Position(top: 0, start: 0),
+          to: const Position(top: 100, start: 100),
+          child: const Text('Positioned Content'),
+        );
 
-    test('bottomStart constructor', () {
-      const pos = Position.bottomStart(bottom: 10, start: 20);
-      expect(pos.bottom, 10);
-      expect(pos.start, 20);
-      expect(pos.top, null);
-      expect(pos.end, null);
-    });
+        final motion = CueMotion.linear(300.ms);
 
-    test('bottomEnd constructor', () {
-      const pos = Position.bottomEnd(bottom: 10, end: 20);
-      expect(pos.bottom, 10);
-      expect(pos.end, 20);
-      expect(pos.top, null);
-      expect(pos.start, null);
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('Positioned Content'), findsOneWidget);
+      });
+
+      testWidgets('relative constructor applies scale correctly', (tester) async {
+        final actor = PositionedActor.relative(
+          from: const Position(top: 0, start: 0),
+          to: const Position(top: 1, start: 1), // 100% of size
+          size: const Size(200, 100),
+          child: const Text('Relative Positioned'),
+        );
+
+        final motion = CueMotion.linear(300.ms);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('Relative Positioned'), findsOneWidget);
+        expect(find.byType(Positioned), findsOneWidget);
+      });
+
+      testWidgets('keyframed constructor animates through frames', (tester) async {
+        final frames = FractionalKeyframes<Position>([
+          FKeyframe(const Position(top: 0, start: 0), at: 0),
+          FKeyframe(const Position(top: 100, start: 100), at: 1),
+        ]);
+
+        final actor = PositionedActor.keyframed(
+          frames: frames,
+          child: const Text('Keyframed Positioned'),
+        );
+
+        final motion = CueMotion.linear(300.ms);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('Keyframed Positioned'), findsOneWidget);
+        expect(find.byType(Positioned), findsOneWidget);
+      });
+
+      testWidgets('keyframed with relative positions applies both scale and interpolation', (tester) async {
+        final frames = FractionalKeyframes<Position>([
+          FKeyframe(const Position(top: 0, start: 0), at: 0),
+          FKeyframe(const Position(top: 0.5, start: 0.5), at: 1),
+        ]);
+
+        final actor = PositionedActor.keyframed(
+          frames: frames,
+          relativeTo: const Size(200, 100),
+          child: const Text('Keyframed Relative'),
+        );
+
+        final motion = CueMotion.linear(300.ms);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('Keyframed Relative'), findsOneWidget);
+        expect(find.byType(Positioned), findsOneWidget);
+      });
+
+      testWidgets('passes motion and delay parameters', (tester) async {
+        final motion = CueMotion.linear(500.ms);
+        final delay = Duration(milliseconds: 100);
+
+        final actor = PositionedActor(
+          from: const Position(top: 0),
+          to: const Position(top: 50),
+          motion: motion,
+          delay: delay,
+          child: const Text('Motion Test'),
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('Motion Test'), findsOneWidget);
+      });
+
+      testWidgets('Position.fill constructor animates fill edges', (tester) async {
+        final actor = PositionedActor(
+          from: Position.fill(start: 0, top: 0, end: 0, bottom: 0),
+          to: Position.fill(start: 10, top: 10, end: 10, bottom: 10),
+          child: const Text('Fill Position'),
+        );
+
+        const motion = CueMotion.linear(Duration(milliseconds: 300));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('Fill Position'), findsOneWidget);
+        expect(find.byType(Positioned), findsOneWidget);
+      });
+
+      testWidgets('Position.fromSTEB constructor animates edges', (tester) async {
+        final actor = PositionedActor(
+          from: const Position.fromSTEB(0, 0, 0, 0),
+          to: const Position.fromSTEB(10, 20, 30, 40),
+          child: const Text('FromSTEB Position'),
+        );
+
+        const motion = CueMotion.linear(Duration(milliseconds: 300));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('FromSTEB Position'), findsOneWidget);
+        expect(find.byType(Positioned), findsOneWidget);
+      });
+
+      testWidgets('Position.topStart constructor animates top-left corner', (tester) async {
+        final actor = PositionedActor(
+          from: const Position.topStart(top: 0, start: 0),
+          to: const Position.topStart(top: 50, start: 50),
+          child: const Text('TopStart Position'),
+        );
+
+        const motion = CueMotion.linear(Duration(milliseconds: 300));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('TopStart Position'), findsOneWidget);
+        expect(find.byType(Positioned), findsOneWidget);
+      });
+
+      testWidgets('Position.topEnd constructor animates top-right corner', (tester) async {
+        final actor = PositionedActor(
+          from: const Position.topEnd(top: 0, end: 0),
+          to: const Position.topEnd(top: 50, end: 50),
+          child: const Text('TopEnd Position'),
+        );
+
+        const motion = CueMotion.linear(Duration(milliseconds: 300));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('TopEnd Position'), findsOneWidget);
+        expect(find.byType(Positioned), findsOneWidget);
+      });
+
+      testWidgets('Position.bottomStart constructor animates bottom-left corner', (tester) async {
+        final actor = PositionedActor(
+          from: const Position.bottomStart(bottom: 0, start: 0),
+          to: const Position.bottomStart(bottom: 50, start: 50),
+          child: const Text('BottomStart Position'),
+        );
+
+        const motion = CueMotion.linear(Duration(milliseconds: 300));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('BottomStart Position'), findsOneWidget);
+        expect(find.byType(Positioned), findsOneWidget);
+      });
+
+      testWidgets('Position.bottomEnd constructor animates bottom-right corner', (tester) async {
+        final actor = PositionedActor(
+          from: const Position.bottomEnd(bottom: 0, end: 0),
+          to: const Position.bottomEnd(bottom: 50, end: 50),
+          child: const Text('BottomEnd Position'),
+        );
+
+        const motion = CueMotion.linear(Duration(milliseconds: 300));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actor],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('BottomEnd Position'), findsOneWidget);
+        expect(find.byType(Positioned), findsOneWidget);
+      });
+
+      testWidgets('different Position constructors produce different animations', (tester) async {
+        // Test that different Position constructors can be animated independently
+        final actorFill = PositionedActor(
+          from: Position.fill(),
+          to: Position.fill(start: 20, top: 20, end: 20, bottom: 20),
+          child: const Text('Fill'),
+        );
+
+        final actorTopStart = PositionedActor(
+          from: const Position.topStart(),
+          to: const Position.topStart(start: 50, top: 50),
+          child: const Text('TopStart'),
+        );
+
+        const motion = CueMotion.linear(Duration(milliseconds: 300));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Cue(
+              controller: CueController(
+                vsync: tester,
+                motion: motion,
+              ),
+              child: Scaffold(
+                body: Stack(
+                  children: [actorFill, actorTopStart],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('Fill'), findsOneWidget);
+        expect(find.text('TopStart'), findsOneWidget);
+        expect(find.byType(Positioned), findsWidgets);
+      });
     });
   });
-
-  group('PositionActor', () {
-    test('creates PositionAct with correct values', () {
-      const actor = PositionedActor(
-        from: Position(top: 0),
-        to: Position(top: 100),
-        child: SizedBox(),
-      );
-      final act = actor.act as PositionAct;
-      expect(act.from, const Position(top: 0));
-      expect(act.to, const Position(top: 100));
-    });
-
-    test('keyframed constructor', () {
-      final frames = FractionalKeyframes<Position>([
-        FKeyframe(const Position(top: 0), at: 0),
-        FKeyframe(const Position(top: 100), at: 1),
-      ]);
-      final actor = PositionedActor.keyframed(
-        frames: frames,
-        child: const SizedBox(),
-      );
-      final act = actor.act as PositionAct;
-      expect(act.frames, frames);
-    });
-
-    test('relative constructor', () {
-      const actor = PositionedActor.relative(
-        from: Position(top: 0),
-        to: Position(top: 1),
-        size: Size(100, 100),
-        child: SizedBox(),
-      );
-      final act = actor.act as PositionAct;
-      expect(act.from, const Position(top: 0));
-      expect(act.to, const Position(top: 1));
-    });
-
-    test('keyframed constructor with relativeTo', () {
-      final frames = FractionalKeyframes<Position>([
-        FKeyframe(const Position(top: 0), at: 0),
-        FKeyframe(const Position(top: 1), at: 1),
-      ]);
-      final actor = PositionedActor.keyframed(
-        frames: frames,
-        relativeTo: const Size(200, 100),
-        child: const SizedBox(),
-      );
-      final act = actor.act as PositionAct;
-      expect(act.frames, frames);
-    });
-
-    test('passes motion to act', () {
-      final actor = PositionedActor(
-        from: const Position(top: 0),
-        to: const Position(top: 100),
-        motion: motion,
-        child: const SizedBox(),
-      );
-      final act = actor.act as PositionAct;
-      expect(act.motion, equals(motion));
-    });
-
-    test('passes delay to act', () {
-      const delay = Duration(milliseconds: 100);
-      const actor = PositionedActor(
-        from: Position(top: 0),
-        to: Position(top: 100),
-        delay: delay,
-        child: SizedBox(),
-      );
-      final act = actor.act as PositionAct;
-      expect(act.delay, equals(delay));
-    });
-
-    testWidgets('build renders child in positioned context', (tester) async {
-      final actor = PositionedActor(
-        from: const Position(top: 0, start: 0),
-        to: const Position(top: 100, start: 100),
-        child: const Text('Positioned Content'),
-      );
-
-      final motion = CueMotion.linear(300.ms);
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Positioned Content'), findsOneWidget);
-    });
-
-    testWidgets('relative constructor applies scale correctly', (tester) async {
-      final actor = PositionedActor.relative(
-        from: const Position(top: 0, start: 0),
-        to: const Position(top: 1, start: 1), // 100% of size
-        size: const Size(200, 100),
-        child: const Text('Relative Positioned'),
-      );
-
-      final motion = CueMotion.linear(300.ms);
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Relative Positioned'), findsOneWidget);
-      expect(find.byType(Positioned), findsOneWidget);
-    });
-
-    testWidgets('keyframed constructor animates through frames', (tester) async {
-      final frames = FractionalKeyframes<Position>([
-        FKeyframe(const Position(top: 0, start: 0), at: 0),
-        FKeyframe(const Position(top: 100, start: 100), at: 1),
-      ]);
-
-      final actor = PositionedActor.keyframed(
-        frames: frames,
-        child: const Text('Keyframed Positioned'),
-      );
-
-      final motion = CueMotion.linear(300.ms);
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Keyframed Positioned'), findsOneWidget);
-      expect(find.byType(Positioned), findsOneWidget);
-    });
-
-    testWidgets('keyframed with relative positions applies both scale and interpolation', (tester) async {
-      final frames = FractionalKeyframes<Position>([
-        FKeyframe(const Position(top: 0, start: 0), at: 0),
-        FKeyframe(const Position(top: 0.5, start: 0.5), at: 1),
-      ]);
-
-      final actor = PositionedActor.keyframed(
-        frames: frames,
-        relativeTo: const Size(200, 100),
-        child: const Text('Keyframed Relative'),
-      );
-
-      final motion = CueMotion.linear(300.ms);
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Keyframed Relative'), findsOneWidget);
-      expect(find.byType(Positioned), findsOneWidget);
-    });
-
-    testWidgets('passes motion and delay parameters', (tester) async {
-      final motion = CueMotion.linear(500.ms);
-      final delay = Duration(milliseconds: 100);
-
-      final actor = PositionedActor(
-        from: const Position(top: 0),
-        to: const Position(top: 50),
-        motion: motion,
-        delay: delay,
-        child: const Text('Motion Test'),
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Motion Test'), findsOneWidget);
-    });
-
-    testWidgets('Position.fill constructor animates fill edges', (tester) async {
-      final actor = PositionedActor(
-        from: Position.fill(start: 0, top: 0, end: 0, bottom: 0),
-        to: Position.fill(start: 10, top: 10, end: 10, bottom: 10),
-        child: const Text('Fill Position'),
-      );
-
-      const motion = CueMotion.linear(Duration(milliseconds: 300));
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Fill Position'), findsOneWidget);
-      expect(find.byType(Positioned), findsOneWidget);
-    });
-
-    testWidgets('Position.fromSTEB constructor animates edges', (tester) async {
-      final actor = PositionedActor(
-        from: const Position.fromSTEB(0, 0, 0, 0),
-        to: const Position.fromSTEB(10, 20, 30, 40),
-        child: const Text('FromSTEB Position'),
-      );
-
-      const motion = CueMotion.linear(Duration(milliseconds: 300));
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('FromSTEB Position'), findsOneWidget);
-      expect(find.byType(Positioned), findsOneWidget);
-    });
-
-    testWidgets('Position.topStart constructor animates top-left corner', (tester) async {
-      final actor = PositionedActor(
-        from: const Position.topStart(top: 0, start: 0),
-        to: const Position.topStart(top: 50, start: 50),
-        child: const Text('TopStart Position'),
-      );
-
-      const motion = CueMotion.linear(Duration(milliseconds: 300));
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('TopStart Position'), findsOneWidget);
-      expect(find.byType(Positioned), findsOneWidget);
-    });
-
-    testWidgets('Position.topEnd constructor animates top-right corner', (tester) async {
-      final actor = PositionedActor(
-        from: const Position.topEnd(top: 0, end: 0),
-        to: const Position.topEnd(top: 50, end: 50),
-        child: const Text('TopEnd Position'),
-      );
-
-      const motion = CueMotion.linear(Duration(milliseconds: 300));
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('TopEnd Position'), findsOneWidget);
-      expect(find.byType(Positioned), findsOneWidget);
-    });
-
-    testWidgets('Position.bottomStart constructor animates bottom-left corner', (tester) async {
-      final actor = PositionedActor(
-        from: const Position.bottomStart(bottom: 0, start: 0),
-        to: const Position.bottomStart(bottom: 50, start: 50),
-        child: const Text('BottomStart Position'),
-      );
-
-      const motion = CueMotion.linear(Duration(milliseconds: 300));
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('BottomStart Position'), findsOneWidget);
-      expect(find.byType(Positioned), findsOneWidget);
-    });
-
-    testWidgets('Position.bottomEnd constructor animates bottom-right corner', (tester) async {
-      final actor = PositionedActor(
-        from: const Position.bottomEnd(bottom: 0, end: 0),
-        to: const Position.bottomEnd(bottom: 50, end: 50),
-        child: const Text('BottomEnd Position'),
-      );
-
-      const motion = CueMotion.linear(Duration(milliseconds: 300));
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actor],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('BottomEnd Position'), findsOneWidget);
-      expect(find.byType(Positioned), findsOneWidget);
-    });
-
-    testWidgets('different Position constructors produce different animations', (tester) async {
-      // Test that different Position constructors can be animated independently
-      final actorFill = PositionedActor(
-        from: Position.fill(),
-        to: Position.fill(start: 20, top: 20, end: 20, bottom: 20),
-        child: const Text('Fill'),
-      );
-
-      final actorTopStart = PositionedActor(
-        from: const Position.topStart(),
-        to: const Position.topStart(start: 50, top: 50),
-        child: const Text('TopStart'),
-      );
-
-      const motion = CueMotion.linear(Duration(milliseconds: 300));
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Cue(
-            controller: CueController(
-              vsync: tester,
-              motion: motion,
-            ),
-            child: Scaffold(
-              body: Stack(
-                children: [actorFill, actorTopStart],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Fill'), findsOneWidget);
-      expect(find.text('TopStart'), findsOneWidget);
-      expect(find.byType(Positioned), findsWidgets);
-    });
-  });
-});
 }

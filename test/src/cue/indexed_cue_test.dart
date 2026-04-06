@@ -101,7 +101,6 @@ void main() {
       expect(controller.lastSettledIndex, 3);
     });
 
-
     testWidgets('asserts length > 0', (tester) async {
       expect(
         () => CueIndexController(
@@ -688,14 +687,15 @@ void main() {
         ),
       );
 
-      controller.animateToPage(
-        2,
-        duration: Duration(milliseconds: 100),
-        curve: Curves.linear,
-      ).then((_) {
-        wasAnimating = controller.isAnimating;
-      });
-
+      controller
+          .animateToPage(
+            2,
+            duration: Duration(milliseconds: 100),
+            curve: Curves.linear,
+          )
+          .then((_) {
+            wasAnimating = controller.isAnimating;
+          });
 
       expect(controller.isAnimating, isTrue);
       await tester.pumpAndSettle();
@@ -1032,7 +1032,6 @@ void main() {
       expect(controller.lastSettledIndex, 1);
     });
   });
-
 }
 
 class _TestTickerProvider extends TickerProvider {
