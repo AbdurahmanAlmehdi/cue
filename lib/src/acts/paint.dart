@@ -63,6 +63,8 @@ class PaintAct extends TweenAct<double> {
   /// ```
   /// {@endtemplate}
   final Painter painter;
+
+  /// If true, the painter renders on top of the child (foreground). If false, it renders behind the child (background).
   final bool paintOnTop;
 
   /// {@macro act.paint}
@@ -133,6 +135,8 @@ class PaintActor extends SingleActorBase<double> {
   /// ```
   /// {@endtemplate}
   final Painter painter;
+
+  /// If true, the painter renders on top of the child (foreground). If false, it renders behind the child (background).
   final bool paintOnTop;
 
   /// {@macro actor.paint}
@@ -221,6 +225,7 @@ class _PainterBase extends CustomPainter {
 /// )
 /// ```
 abstract class Painter {
+  /// Default constructor for custom painters.
   const Painter();
 
   /// Renders on [canvas] based on animation progress.

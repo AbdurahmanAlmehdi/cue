@@ -31,6 +31,7 @@ part of 'cue.dart';
 /// ```
 /// {@endtemplate}
 class OnScrollCue extends Cue {
+  /// Default constructor.
   const OnScrollCue({
     super.key,
     required super.child,

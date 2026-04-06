@@ -377,6 +377,7 @@ class CardProps {
   /// Spacing around the card. Null means no margin.
   final EdgeInsetsGeometry? margin;
 
+  /// Creates a CardProps with the given properties.
   const CardProps({
     this.elevation = 0,
     this.color,
@@ -546,6 +547,7 @@ class CardActor extends StatelessWidget {
   /// The delay before animation starts.
   final Duration delay;
 
+  /// Creates a CardActor with the given properties and animation configuration.
   const CardActor({
     super.key,
     this.color,

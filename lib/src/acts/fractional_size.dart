@@ -61,6 +61,8 @@ class FractionalSizeAct extends AnimtableAct<FractionalSize, FractionalSize> {
   /// Animates alignment within parent. Use `.tween(from, to)` or `.fixed(value)`.
   /// Defaults to `Alignment.center` if not specified.
   final AnimatableValue<AlignmentGeometry>? alignment;
+
+  /// Optional keyframes for animating through multiple fractional size states.
   final Keyframes<FractionalSize>? frames;
 
   /// {@macro act.fractional_size}

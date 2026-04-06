@@ -30,7 +30,9 @@ class OnHoverCue extends SelfAnimatedCue {
     super.acts,
   }) : super();
 
+   /// The mouse cursor to display when hovering over the widget. Defaults to [MouseCursor.defer], which defers to the next region.
   final MouseCursor cursor;
+  /// Whether the hover region is opaque, meaning it will block pointer events from widgets below it. Defaults to `false`, allowing events to pass through.
   final bool opaque;
 
   @override

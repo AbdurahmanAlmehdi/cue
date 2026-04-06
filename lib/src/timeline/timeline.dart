@@ -544,6 +544,7 @@ class TrackEntry {
   /// Tracks are kept alive as long as this list is not empty.
   final List<ReleaseToken> tokens;
 
+  /// Creates a TrackEntry for the given track.
   TrackEntry(this.track) : tokens = [];
 
   /// Adds a release token to mark this track as "in use".

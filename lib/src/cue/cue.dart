@@ -309,8 +309,10 @@ abstract class CueState<T extends Cue> extends State<Cue> {
 
   VoidCallback? _deattachDebugOverlay;
 
+ /// Whether the animation should reanimate from the current position when the
   bool get reanimateFromCurrent => false;
-
+  
+  /// A debug name for this cue, used in debug overlays and DevTools.
   String get debugName;
 
   late final _debugId = '$debugName-${widget.debugLabel ?? ''}${identityHashCode(widget)}';
@@ -357,6 +359,9 @@ abstract class CueState<T extends Cue> extends State<Cue> {
       child: child,
     );
   }
-
+  /// The [CueController] that drives this cue's animation. Subclasses must provide this.
+  /// 
+  /// This is the controller that [Actor] widgets in the subtree will subscribe to via [CueScope].
+  /// It can be created internally (e.g. with spring physics) or supplied externally for full control.
   CueController get controller;
 }

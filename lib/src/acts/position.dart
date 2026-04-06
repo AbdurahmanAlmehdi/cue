@@ -100,6 +100,7 @@ class PositionAct extends TweenAct<Position> {
        super.tween();
 
   @internal
+  /// Internal constructor for keyframed animations with optional relative sizing.
   const PositionAct.internal({
     required super.from,
     required super.to,

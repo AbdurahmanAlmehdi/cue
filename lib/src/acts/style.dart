@@ -104,6 +104,8 @@ class TextStyleAct extends TweenAct<TextStyle> {
   @override
   final ActKey key = const ActKey('TextStyle');
 
+   /// Creates a TextStyleAct that animates between two styles.
+   /// Use [Act.textStyle()] factory for convenient construction.
   const TextStyleAct({
     required super.from,
     required super.to,
@@ -252,6 +254,8 @@ class IconThemeAct extends TweenAct<IconThemeData> {
   @override
   final ActKey key = const ActKey('IconTheme');
 
+    /// Creates an IconThemeAct that animates between two themes.
+    /// Use [Act.iconTheme()] factory for convenient construction.
   const IconThemeAct({
     required super.from,
     required super.to,

@@ -211,7 +211,9 @@ class SegmentedSimulation extends Simulation with CueSimulation {
   final List<CueMotion> _motions;
   final bool _forward;
   late double _duration;
+  /// The final phase at which the simulation should end. When this phase is reached, the current keyframe receives [_endValue] as its target.
   final int endPhase;
+  /// The value to pass to the final keyframe when the simulation ends early.
   final double? _endValue;
 
   @override
@@ -235,6 +237,7 @@ class SegmentedSimulation extends Simulation with CueSimulation {
 
   late final _seekableSegments = _buildSeekableSegments();
 
+  /// Creates a segmented simulation from a list of motions.
   SegmentedSimulation({
     required List<CueMotion> motions,
     required bool forward,

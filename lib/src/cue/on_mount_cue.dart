@@ -59,6 +59,7 @@ class OnMountCue extends SelfAnimatedCue {
   State<StatefulWidget> createState() => OnMountCueState();
 }
 
+/// State class for [OnMountCue].
 class OnMountCueState extends SelfAnimatedCueState<OnMountCue> {
   
   @override
