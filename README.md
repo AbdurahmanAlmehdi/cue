@@ -686,3 +686,7 @@ Cue works best when call sites stay terse.
 
 In short: use the shorthand named constructors whenever possible. That is the cleanest API Cue offers.
 
+## GitHub Copilot Skill
+
+Cue ships a [GitHub Copilot agent skill](.github/skills/cue-animations/SKILL.md) that gives Copilot deep knowledge of the Cue API. Load it in your VS Code Copilot agent to get accurate code generation, act suggestions, and motion guidance without leaving your editor.
+
