@@ -355,7 +355,11 @@ class _ModelContent extends StatelessWidget {
               ),
             )
           else
-            builder(context, triggerRect),
+            CompositedTransformFollower(
+              link: link,
+              offset: -triggerRect.topLeft,
+              child: builder(context, triggerRect),
+            ),
         ],
       ),
     );
