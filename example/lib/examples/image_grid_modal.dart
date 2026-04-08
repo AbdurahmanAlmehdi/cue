@@ -153,7 +153,7 @@ class _ImageModalContent extends StatelessWidget {
         ),
         
         Positioned(
-          top: 16,
+          top: 0,
           left: 16,
           right: 16,
           child: SafeArea(
