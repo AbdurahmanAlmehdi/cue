@@ -1,4 +1,4 @@
-import 'package:example/examples/on_scroll_parallax.dart';
+import 'package:example/examples/on_scroll_visible_example.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.dark,
-      home: const OnScrollParallax(),
+      home: const OnScrollVisibleExample(),
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
         if (kDebugMode) {
